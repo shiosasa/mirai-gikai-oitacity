@@ -29,9 +29,9 @@ cd ../mirai-gikai-<branch-name> && pnpm install --frozen-lockfile
 ### 実装完了後は即PR作成
 実装完了後は「コミットしますか？」等の確認を挟まず、コミット → push → PR作成まで一気に進めること。ユーザーへの確認は不要。
 
-**ベースブランチは大分版のブランチ（`oita-pref/develop` 等）**。`fukuoka-pref/develop` や `kawasaki/develop` へのPRは出さないこと。
+**本リポジトリのベースブランチは `mirai-gikai-oita-migration-and-features`**。`oita-pref/develop` や `fukuoka-pref/develop` へのPRは出さないこと。
 ```bash
-gh pr create --base oita-pref/develop ...
+gh pr create --base mirai-gikai-oita-migration-and-features ...
 ```
 
 ### レビューはCodeRabbit
