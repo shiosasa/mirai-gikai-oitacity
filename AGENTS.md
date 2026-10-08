@@ -20,14 +20,18 @@ cp .env ../mirai-gikai-<branch-name>/
 cd ../mirai-gikai-<branch-name> && pnpm install --frozen-lockfile
 ```
 
-- **目的**: fukuoka-pref/developブランチを常にクリーンに保ち、作業の分離と並列作業を容易にする
+- **目的**: 開発ブランチを常にクリーンに保ち、作業の分離と並列作業を容易にする
+
+### 大分市版「みらいぎかいっち」専用リポジトリ
+本リポジトリは大分市議会向けの市民情報サイト「みらいぎかいっち＠大分市」専用リポジトリです。
+福岡版等の他地域向けコードは含まれず、全ての機能・コンテンツは大分市仕様で実装します。
 
 ### 実装完了後は即PR作成
 実装完了後は「コミットしますか？」等の確認を挟まず、コミット → push → PR作成まで一気に進めること。ユーザーへの確認は不要。
 
-**ベースブランチは必ず `fukuoka-pref/develop`**。`kawasaki/develop` や `main` へのPRは出さないこと。
+**ベースブランチは大分版のブランチ（`oita-pref/develop` 等）**。`fukuoka-pref/develop` や `kawasaki/develop` へのPRは出さないこと。
 ```bash
-gh pr create --base fukuoka-pref/develop ...
+gh pr create --base oita-pref/develop ...
 ```
 
 ### レビューはCodeRabbit
@@ -41,6 +45,15 @@ gh pr create --base fukuoka-pref/develop ...
 
 ### 並列PR作成
 複数の独立したPRを作成する場合は `/parallel-pr` スキルを使用すること。
+
+### 議案ピックアップ・議事録・トピックスの区別
+- `/committees` の議案カードは、バッジを「議案一覧」、見出しを「議案ピックアップ」とする。バッジは委員会・本会議の色と区別する。
+- `/committees/bill-pickups` は議案詳細への一覧導線。議案カード本体は `/bills/{id}` に、会議参照は対応する議事録にリンクする。
+- 議案詳細（議案データ）、議事録（会議データ）、トピックス（記事データ）は別の実体として扱う。「議案詳細」を「ピックアップ記事」と呼んだり、記事の見出しを議案の正式名称として扱ったりしない。
+- 議案一覧の内容が分かる見出しには、同じ会議セッションかつ同じ議案番号で特定できる議事録説明・トピックス記事だけを根拠に使う。番号がない場合は議案名を照合し、対応先が曖昧なら推測で結び付けず確認する。推測した見出しと正式名称は区別する。
+- 議案種別（予算・陳情・法案）と暮らし・教育などのカテゴリは別の属性。カテゴリ選択は絞り込みであり、依頼や参考画面で明確に求められていない並び替えを追加しない。
+- 既存の議案・記事の関連付けは、根拠を確認せず誤りと決めつけて削除しない。表示文言の修正とデータ上の関連付け変更を混同しない。
+- 主な実装箇所は `web/src/features/committee-minutes/server/components/committees-view.tsx`（委員会一覧のカード）、`web/src/features/committee-minutes/server/components/bill-pickups-view.tsx`（議案一覧UI）、`web/src/features/committee-minutes/shared/utils/build-bill-pickup-items.ts`（議事録・記事との照合と見出し）です。
 
 ## Project Structure & Module Organization
 - `web/` は公開用 Next.js アプリ。共通 UI は `src/components`、Vitest のテストは `src/**/*.test.ts` に配置します。
