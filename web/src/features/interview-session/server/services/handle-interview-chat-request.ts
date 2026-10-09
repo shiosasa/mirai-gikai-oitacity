@@ -23,7 +23,7 @@ import type {
   InterviewMessage,
   InterviewSession,
 } from "@/features/interview-session/shared/types";
-import { AI_MODELS, DEFAULT_INTERVIEW_CHAT_MODEL } from "@/lib/ai/models";
+import { DEFAULT_INTERVIEW_CHAT_MODEL } from "@/lib/ai/models";
 import { logger } from "@/lib/logger";
 import { mergeMessagesWithIds } from "../../shared/utils/merge-messages-with-ids";
 import {
@@ -213,9 +213,9 @@ async function generateStreamingResponse({
     stage: string;
   };
 }) {
-  // summaryフェーズはGemini固定、chatフェーズは設定のモデルを優先
+  // summaryフェーズもchatフェーズも設定のモデルを優先（無料枠で使えないモデルを避ける）
   const model = isSummaryPhase
-    ? (summaryModel ?? AI_MODELS.gemini3_flash)
+    ? (summaryModel ?? configChatModel ?? DEFAULT_INTERVIEW_CHAT_MODEL)
     : (chatModel ?? configChatModel ?? DEFAULT_INTERVIEW_CHAT_MODEL);
 
   const handleError = (error: unknown) => {

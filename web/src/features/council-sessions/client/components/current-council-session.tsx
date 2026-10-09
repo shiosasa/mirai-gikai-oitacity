@@ -1,36 +1,47 @@
-import { formatDateWithDots } from "@/lib/utils/date";
 import type { CouncilSession } from "../../shared/types";
+import { getCouncilSessionStatus } from "../../shared/utils/get-council-session-status";
+import { formatDateJST } from "@/lib/utils/date";
 
 type CurrentCouncilSessionProps = {
-  session: CouncilSession | null;
+  currentSession: CouncilSession | null;
+  nextSession: CouncilSession | null;
 };
 
-export function CurrentCouncilSession({ session }: CurrentCouncilSessionProps) {
+export function CurrentCouncilSession({
+  currentSession,
+  nextSession,
+}: CurrentCouncilSessionProps) {
+  const status = getCouncilSessionStatus(currentSession, nextSession);
+  const session = currentSession ?? nextSession;
+
   return (
-    <div className="w-full bg-mirai-surface-warm px-6 py-6">
-      <div className="flex items-center gap-5">
-        <div className="flex items-center gap-4 flex-1">
-          <h2 className="text-xl font-bold text-gray-800 leading-[0.9]">
-            本日は
+    <section className="w-full bg-mirai-surface-warm px-6 py-6">
+      <div className="mx-auto flex max-w-5xl flex-col items-start justify-between gap-3 sm:flex-row sm:items-center">
+        <div className="flex flex-col items-start gap-3 sm:flex-row sm:items-center">
+          <h2 className="text-lg font-bold text-mirai-text sm:text-xl">
+            現在の大分市議会の活動ステータス
           </h2>
-          <div
-            className={`
-            inline-flex items-center justify-center px-5 py-1.5 rounded-[50px]  shrink-0
-            ${session == null ? "bg-mirai-border-muted" : "bg-mirai-gradient"}
-            `}
+          <span
+            role="status"
+            className={`inline-flex items-center rounded-full px-5 py-1.5 text-sm font-bold ${
+              status.kind === "active"
+                ? "bg-oita-pink text-white"
+                : "bg-mirai-border-muted text-mirai-text"
+            }`}
           >
-            <span className="text-base font-bold leading-[1.48]">
-              {session == null ? "閉会中" : "開会中"}
-            </span>
-          </div>
+            {status.label}
+          </span>
         </div>
-        {session != null && (
-          <div className="text-sm leading-[1.5] shrink-0">
-            <div>{session.name}</div>
-            <div>{formatDateWithDots(session.start_date)}〜</div>
+        {session && (
+          <div className="text-sm leading-[1.5] text-mirai-text-secondary sm:text-right">
+            <div className="font-bold text-mirai-text">{session.name}</div>
+            <div>
+              {formatDateJST(session.start_date)}〜
+              {session.end_date ? formatDateJST(session.end_date) : ""}
+            </div>
           </div>
         )}
       </div>
-    </div>
+    </section>
   );
 }

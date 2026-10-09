@@ -10,6 +10,7 @@ export type GeneralQuestionTopic = {
 export type GeneralQuestion = {
   id: string;
   council_session_id: string;
+  politician_id: string | null;
   questioner_name: string;
   questioner_party: string | null;
   questioner_number: number | null;

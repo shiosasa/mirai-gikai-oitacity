@@ -47,6 +47,7 @@ export default async function InterviewChatPage({
       <InterviewChatClient
         billId={billId}
         sessionId={session.id}
+        billTitle={bill.bill_content?.title ?? bill.name}
         initialMessages={messages}
         mode={interviewConfig.mode}
         totalQuestions={questions.length}

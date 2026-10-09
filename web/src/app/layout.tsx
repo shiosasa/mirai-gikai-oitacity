@@ -31,8 +31,8 @@ export const metadata: Metadata = {
   description: siteConfig.siteDescription,
   keywords: [...siteConfig.keywords],
   icons: {
-    icon: "/icons/pwa/icon_fukuoka.svg",
-    apple: "/icons/pwa/icon_fukuoka.svg",
+    icon: "/icons/pwa/icon_oita.svg",
+    apple: "/icons/pwa/icon_oita.svg",
   },
   manifest: "/manifest.json",
   openGraph: {
@@ -65,6 +65,8 @@ export const viewport: Viewport = {
   initialScale: 1,
   maximumScale: 1,
   themeColor: "#2aa693",
+  // モバイルでキーボード表示時にチャット入力欄が隠れないようにする
+  interactiveWidget: "resizes-content",
 };
 
 export default function RootLayout({

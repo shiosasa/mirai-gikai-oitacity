@@ -17,6 +17,7 @@ export const primaryLinks: FooterLink[] = [
     label: "TOP",
     href: "/",
   },
+
   ...(siteConfig.externalLinks.aboutNote
     ? [
         {
@@ -54,10 +55,5 @@ export const policyLinks: FooterPolicyLink[] = [
   {
     label: "プライバシーポリシー",
     href: "/privacy",
-  },
-  {
-    label: "ソースコード（GitHub）",
-    href: "https://github.com/bakumon1107/mirai-gikai-fukuoka-pref",
-    external: true,
   },
 ];

@@ -9,14 +9,8 @@ export function About() {
       <div className="flex flex-col gap-4">
         {/* ヘッダー */}
         <div className="flex flex-col gap-4">
-          <h2>
-            <Image
-              src="/icons/about-typography.svg"
-              alt="About"
-              width={143}
-              height={36}
-              priority
-            />
+          <h2 className="text-3xl font-bold text-[#2d231f]">
+            みらいぎかいっちなんなん
           </h2>
           <p className="text-sm font-bold text-primary-accent">
             {siteConfig.siteName}とは
@@ -27,15 +21,48 @@ export function About() {
         <div className="flex flex-col gap-6">
           <div className="flex flex-col gap-3">
             <h3 className="text-2xl font-bold leading-[43.2px]">
-              県議会での議論を
+              大分の暮らしと
               <br />
-              できる限りわかりやすく
+              議会の話を、やさしくつなぐ
             </h3>
             <p className="text-[15px] leading-[28px] text-black">
               {siteConfig.siteName}は、{siteConfig.siteDescription}
-              。県民の意見を政治に届けることを目指して、継続的にアップデートしていきます。
+              。市民の暮らしと政治が近づくように、わかりやすく整えて発信していくけん。
             </p>
           </div>
+
+          <details className="group rounded-xl border border-pink-300 bg-pink-100 p-4 text-sm text-[#404040]">
+            <summary className="cursor-pointer list-none font-bold text-[#2d231f]">
+              みらいぎかいっちの目的とポリシー（押したら見れるで！）
+            </summary>
+            <div className="mt-4 space-y-4 border-t border-gray-200 pt-4 text-[13px] leading-relaxed">
+              <p>
+                このサイトは、大分市議会の審議内容をAIを通じて分かりやすくすることで、市民の皆さんにより身近に感じてもらうことを目的としています。
+              </p>
+              <ul className="list-disc space-y-2 pl-5">
+                <li>
+                  <strong>免責事項：</strong>
+                  本サイトは政党チームみらいが運営しているものではありません。
+                </li>
+                <li>
+                  <strong>運営について：</strong>
+                  本サイトは「チームみらい」の活動理念に共感し、「チームみらい」開発の「みらい議会」をベースに作成・運営している非公式プラットフォームです。
+                </li>
+                <li>
+                  <strong>情報の更新について：</strong>
+                  大分市議会の公式議事録は次回議会の前日に公表されるため、掲載内容の反映には時間差があります。
+                </li>
+                <li>
+                  <strong>対話の活用：</strong>
+                  インタビュー内容は、市政への提言や公開データとして活用する場合があります。
+                </li>
+                <li>
+                  <strong>情報の正確性：</strong>
+                  AIを使って情報を整理しています。正確な情報は大分市議会の公式資料をご確認ください。
+                </li>
+              </ul>
+            </div>
+          </details>
 
           {/* もっと詳しく知るボタン */}
           {siteConfig.externalLinks.aboutNote && (
@@ -93,7 +120,7 @@ export function About() {
                   <br />
                   ご意見や不具合等がございましたら党公式への連絡ではなく、
                   <br />
-                  開発者の
+                  開発者の　
                   <Link
                     href={siteConfig.operator.contactUrl}
                     target="_blank"
@@ -102,7 +129,7 @@ export function About() {
                   >
                     {siteConfig.operator.name}
                   </Link>
-                  にご連絡お願いします。
+                  　にご連絡お願いします。
                 </p>
               </div>
             </div>

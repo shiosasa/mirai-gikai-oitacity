@@ -12,7 +12,7 @@ export function JimuJigyoArchiveSection() {
           事務事業評価
         </h2>
         <p className="text-xs text-mirai-text-secondary">
-          県が実施する事業の見直し区分・KPI・予算・効率の動向を年度ごとに分析します
+          大分市が実施する事業の見直し区分・KPI・予算・効率の動向を年度ごとに分析します
         </p>
       </div>
 

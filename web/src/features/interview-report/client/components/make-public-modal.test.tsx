@@ -26,7 +26,7 @@ describe("MakePublicModal", () => {
     expect(screen.queryByText(/党内/)).not.toBeInTheDocument();
   });
 
-  it("政策検討の文言が余分な空白なく連結されて表示される", () => {
+  it("活用文言が余分な空白なく連結されて表示される", () => {
     render(
       <MakePublicModal
         open={true}
@@ -38,7 +38,7 @@ describe("MakePublicModal", () => {
 
     expect(
       screen.getByText(
-        "非公開で提出した場合でも、ご意見は政策検討に活用させていただきます。"
+        "非公開で提出した場合でも、ご意見は市政への提言などに活用させていただきます。"
       )
     ).toBeInTheDocument();
   });

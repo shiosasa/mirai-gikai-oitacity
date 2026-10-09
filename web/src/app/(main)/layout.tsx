@@ -33,7 +33,6 @@ export default function MainGroupLayout({
       {(siteConfig.features.aiChat || siteConfig.features.aiInterview) && (
         <AuthGate />
       )}
-
       <MainLayout>
         <Header />
         <main className="min-h-dvh md:min-h-[calc(100dvh-96px)] bg-mirai-surface">

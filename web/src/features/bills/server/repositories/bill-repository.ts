@@ -8,7 +8,7 @@ import type { MiraiStance } from "../../shared/types";
 // ============================================================
 
 /**
- * 公開済み議案を難易度コンテンツ付きで取得
+ * 公開済み議案を難易度コンテンツ付きで取得（記事データも含む）
  */
 export async function findPublishedBillsWithContents(
   difficultyLevel: DifficultyLevelEnum
@@ -19,16 +19,8 @@ export async function findPublishedBillsWithContents(
     .select(
       `
       *,
-      bill_contents!inner (
-        id,
-        bill_id,
-        title,
-        summary,
-        content,
-        difficulty_level,
-        created_at,
-        updated_at
-      )
+      bill_contents!inner (*),
+      bill_articles (*)
     `
     )
     .eq("publish_status", "published")
@@ -210,16 +202,7 @@ export async function findPublishedBillsByDietSession(
     .select(
       `
       *,
-      bill_contents!inner (
-        id,
-        bill_id,
-        title,
-        summary,
-        content,
-        difficulty_level,
-        created_at,
-        updated_at
-      )
+      bill_contents!inner (*)
     `
     )
     .eq("council_session_id", councilSessionId)
@@ -251,16 +234,7 @@ export async function findPreviousSessionBills(
     .select(
       `
       *,
-      bill_contents!inner (
-        id,
-        bill_id,
-        title,
-        summary,
-        content,
-        difficulty_level,
-        created_at,
-        updated_at
-      )
+      bill_contents!inner (*)
     `
     )
     .eq("council_session_id", councilSessionId)
@@ -343,16 +317,7 @@ export async function findPublishedBillsByTag(
       bill_id,
       bills!inner (
         *,
-        bill_contents!inner (
-          id,
-          bill_id,
-          title,
-          summary,
-          content,
-          difficulty_level,
-          created_at,
-          updated_at
-        ),
+        bill_contents!inner (*),
         bills_tags!inner (
           tags (
             id,
@@ -381,7 +346,7 @@ export async function findPublishedBillsByTag(
 }
 
 /**
- * 注目の議案を取得（is_featured = true）
+ * 注目の議案を取得（is_featured = true、記事データも含む）
  */
 export async function findFeaturedBillsWithContents(
   difficultyLevel: DifficultyLevelEnum,
@@ -393,16 +358,8 @@ export async function findFeaturedBillsWithContents(
     .select(
       `
       *,
-      bill_contents!inner (
-        id,
-        bill_id,
-        title,
-        summary,
-        content,
-        difficulty_level,
-        created_at,
-        updated_at
-      ),
+      bill_contents!inner (*),
+      bill_articles (*),
       tags:bills_tags(
         tag:tags(
           id,

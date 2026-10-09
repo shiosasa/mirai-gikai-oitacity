@@ -16,7 +16,7 @@ export function middleware(request: NextRequest) {
   // /dev routes: 本番では404、開発ではauthスキップ
   if (request.nextUrl.pathname.startsWith("/dev")) {
     if (process.env.NODE_ENV !== "development") {
-      return NextResponse.rewrite(new URL("/not-found", request.url));
+      return NextResponse.redirect(new URL("/not-found", request.url));
     }
     return NextResponse.next();
   }

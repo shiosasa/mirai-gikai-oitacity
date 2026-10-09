@@ -97,7 +97,7 @@ export async function ReportCompletePage({
 
           {/* 活用メッセージ */}
           <p className="text-sm text-gray-800">
-            いただいた声は政策検討に最大限活用します
+            いただいた声は市政への提言や公開データとして最大限活用します
           </p>
         </div>
       </div>

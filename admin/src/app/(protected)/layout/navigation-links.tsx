@@ -10,6 +10,7 @@ const navigationLinks = [
   { href: "/tags", label: "タグ管理" },
   { href: "/factions", label: "会派管理" },
   { href: "/committees", label: "委員会管理" },
+  { href: "/politicians", label: "議員名鑑" },
   { href: "/ai-collection", label: "AI情報収集" },
   { href: "/admins", label: "管理者" },
 ];

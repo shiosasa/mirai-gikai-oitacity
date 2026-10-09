@@ -5,6 +5,8 @@ import { useRouter } from "next/navigation";
 import { useState } from "react";
 import Markdown from "react-markdown";
 import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
 import { siteConfig } from "@/config/site.config";
 import {
   Dialog,
@@ -15,16 +17,17 @@ import {
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { getInterviewChatLink } from "@/features/interview-config/shared/utils/interview-links";
 import { formatPolicyReviewPhrase } from "@/lib/utils/party-text";
+import { createInterviewSession } from "@/features/interview-session/server/actions/create-interview-session";
 
 const TERMS_MARKDOWN = `本サービスは、AIを活用したインタビュー機能を提供しています。ご利用にあたり、以下の事項にご同意いただく必要があります。
 
 ## 1. データの利用目的
 
-お客様の回答内容は、サービスの品質向上、統計分析、および政策検討の参考資料として利用されます。収集したデータは、議案に関する論点整理、県民の声の分析、およびサービス改善のために活用されます。
+回答内容は、議案に関する論点整理、市民の声の分析、およびサービス改善の参考として利用されます。
 
 ## 2. 個人情報の取り扱い
 
-本サービスでは、インタビューを通じて取得した情報を厳重に管理します。個人を特定できる情報（氏名、住所、電話番号、メールアドレス等）の入力はお控えください。万が一、個人情報が含まれる回答があった場合、当該情報は適切に削除または匿名化処理を行います。
+本サービスでは、個人を特定できる情報（本名、住所、電話番号、メールアドレス等）の入力を求めません。ニックネームにも本名を使わないでください。個人情報を含む回答の自動削除・匿名化は保証できないため、入力しないでください。
 
 ## 3. データの保存期間
 
@@ -52,7 +55,7 @@ const TERMS_MARKDOWN = `本サービスは、AIを活用したインタビュー
 
 ## 9. 準拠法および管轄裁判所
 
-本規約は日本法に準拠し、本サービスに関する紛争については、東京地方裁判所を第一審の専属的合意管轄裁判所とします。
+本規約は日本法に準拠し、本サービスに関する紛争については、${siteConfig.operator.jurisdiction}を第一審の専属的合意管轄裁判所とします。
 
 ## 10. お問い合わせ
 
@@ -90,6 +93,7 @@ interface InterviewConsentModalProps {
   open: boolean;
   onOpenChange: (open: boolean) => void;
   billId: string;
+  interviewConfigId: string;
   previewToken?: string;
 }
 
@@ -97,20 +101,35 @@ export function InterviewConsentModal({
   open,
   onOpenChange,
   billId,
+  interviewConfigId,
   previewToken,
 }: InterviewConsentModalProps) {
   const router = useRouter();
   const [isLoading, setIsLoading] = useState(false);
+  const [nickname, setNickname] = useState("");
+  const [errorMessage, setErrorMessage] = useState<string | null>(null);
 
-  const handleAgree = () => {
+  const handleAgree = async () => {
     setIsLoading(true);
-    const destination = getInterviewChatLink(billId, previewToken);
-    router.push(destination);
+    setErrorMessage(null);
+
+    try {
+      if (!previewToken) {
+        await createInterviewSession({ interviewConfigId, nickname });
+      }
+      onOpenChange(false);
+      router.push(getInterviewChatLink(billId, previewToken));
+    } catch {
+      setErrorMessage(
+        "開始できませんでした。時間をおいてもう一度お試しください。"
+      );
+      setIsLoading(false);
+    }
   };
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="max-w-md p-6">
+      <DialogContent className="max-h-[90vh] max-w-md overflow-y-auto p-6">
         <DialogHeader>
           <DialogTitle className="text-xl font-bold text-primary text-center">
             AIインタビュー同意事項
@@ -125,9 +144,22 @@ export function InterviewConsentModal({
             に利用します。
           </p>
           <p className="text-sm font-bold leading-[22px]">
-            インタビュー内容はのちに{siteConfig.siteName}
-            上に公開される場合があります。個人情報および機密情報の記載はお控えください。
+            対話内容は保存され、AI処理と市民の声の整理に利用されます。本名・住所・連絡先など、個人を特定できる情報は入力しないでください。
           </p>
+          <div className="space-y-2">
+            <Label htmlFor="interview-nickname">ニックネーム（任意）</Label>
+            <Input
+              id="interview-nickname"
+              value={nickname}
+              onChange={(event) => setNickname(event.target.value)}
+              maxLength={24}
+              autoComplete="nickname"
+              placeholder="例：おおいた好き"
+            />
+            <p className="text-xs text-mirai-text-muted">
+              ニックネームはセッション記録に保存されます。本名は使わないでください。
+            </p>
+          </div>
 
           <div className="border border-black rounded-lg p-4">
             <ScrollArea className="h-[200px]">
@@ -139,6 +171,11 @@ export function InterviewConsentModal({
         </div>
 
         <div className="space-y-3 mt-6">
+          {errorMessage && (
+            <p role="alert" className="text-sm text-destructive">
+              {errorMessage}
+            </p>
+          )}
           <Button onClick={handleAgree} disabled={isLoading} className="w-full">
             {"同意してはじめる"}
             {<ArrowRight className="ml-2 size-5" />}

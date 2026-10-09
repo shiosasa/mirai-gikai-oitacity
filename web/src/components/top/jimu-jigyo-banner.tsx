@@ -14,7 +14,7 @@ export function JimuJigyoBanner() {
         <div>
           <p className="font-bold text-mirai-text">事務事業評価</p>
           <p className="mt-0.5 text-sm text-mirai-text-secondary">
-            県の事業の見直し区分・KPI・予算・効率の動向を分析します
+            大分市の事業の見直し区分・KPI・予算・効率の動向を分析します
           </p>
         </div>
       </div>

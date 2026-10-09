@@ -10,9 +10,9 @@ export function CommitteeBanner() {
       <div className="flex items-start gap-3">
         <Users className="w-6 h-6 text-primary shrink-0 mt-0.5" />
         <div>
-          <p className="font-bold text-mirai-text">委員会</p>
+          <p className="font-bold text-mirai-text">本会議・委員会</p>
           <p className="mt-0.5 text-sm text-mirai-text-secondary">
-            各委員会でどんな議論があったかを分かりやすくまとめています
+            議会でどんな議論があったかを分かりやすくまとめています
           </p>
         </div>
       </div>

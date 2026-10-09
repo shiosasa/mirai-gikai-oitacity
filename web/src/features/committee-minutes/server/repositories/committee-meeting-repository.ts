@@ -85,18 +85,24 @@ const LIST_SELECT = `
 ` as const;
 
 export async function findAllMeetings(): Promise<CommitteeMeetingSummary[]> {
-  const supabase = createAdminClient();
-  const { data, error } = await supabase
-    .from("committee_meetings")
-    .select(LIST_SELECT)
-    .eq("publish_status", "published")
-    .order("meeting_date", { ascending: false });
+  try {
+    const supabase = createAdminClient();
+    const { data, error } = await supabase
+      .from("committee_meetings")
+      .select(LIST_SELECT)
+      .eq("publish_status", "published")
+      .order("meeting_date", { ascending: false });
 
-  if (error) {
-    if (isMissingTableError(error)) return [];
-    throw new Error(`委員会会議の取得に失敗しました: ${error.message}`);
+    if (error) {
+      console.warn(`Committee meetings query error: ${error.message}`);
+      if (isMissingTableError(error)) return [];
+      return [];
+    }
+    return (data ?? []).map((row) => mapSummary(row as unknown as MeetingRow));
+  } catch (err) {
+    console.warn("Failed to fetch committee meetings:", err);
+    return [];
   }
-  return (data ?? []).map((row) => mapSummary(row as unknown as MeetingRow));
 }
 
 export async function findMeetingsBySlug(

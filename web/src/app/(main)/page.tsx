@@ -1,175 +1,188 @@
 import { Container } from "@/components/layouts/container";
+import { CouncilSessionSkeleton } from "@/components/skeletons/council-session-skeleton";
+import { BillsByTagSectionSkeleton } from "@/components/skeletons/bills-by-tag-section-skeleton";
+import { FeaturedBillSectionSkeleton } from "@/components/skeletons/featured-bill-section-skeleton";
+
 import { About } from "@/components/top/about";
-import { BannerAccordion } from "@/components/top/banner-accordion";
-import { BudgetOverviewBanner } from "@/components/top/budget-overview-banner";
 import { CommitteeBanner } from "@/components/top/committee-banner";
+import { PoliticiansBanner } from "@/components/top/politicians-banner";
+import { TopicsBanner } from "@/components/top/topics-banner";
 import { GeneralQuestionsBanner } from "@/components/top/general-questions-banner";
 import { Hero } from "@/components/top/hero";
-import { JimuJigyoArchiveSection } from "@/components/top/jimu-jigyo-archive-section";
-import { JimuJigyoBanner } from "@/components/top/jimu-jigyo-banner";
-import { PastSessionsSection } from "@/components/top/past-sessions-section";
-import { PrefFinanceBanner } from "@/components/top/pref-finance-banner";
 import { TeamMirai } from "@/components/top/team-mirai";
-import { siteConfig } from "@/config/site.config";
-import { getDifficultyLevel } from "@/features/bill-difficulty/server/loaders/get-difficulty-level";
+
 import { BillDisclaimer } from "@/features/bills/client/components/bill-detail/bill-disclaimer";
 import { BillsByTagSection } from "@/features/bills/server/components/bills-by-tag-section";
 import { FeaturedBillSection } from "@/features/bills/server/components/featured-bill-section";
 import { loadHomeData } from "@/features/bills/server/loaders/load-home-data";
-import type { BillWithContent } from "@/features/bills/shared/types";
-import { getSessionsWithBudget } from "@/features/budget-overview/server/loaders/get-sessions-with-budget";
-import { HomeChatClient } from "@/features/chat/client/components/home-chat-client";
+import { getPublishedArticles } from "@/features/bills/server/loaders/get-articles";
+
 import { CurrentCouncilSession } from "@/features/council-sessions/client/components/current-council-session";
-import { getActiveCouncilSession } from "@/features/council-sessions/server/loaders/get-active-council-session";
-import { getAllPastSessions } from "@/features/council-sessions/server/loaders/get-all-past-sessions";
 import { getCurrentCouncilSession } from "@/features/council-sessions/server/loaders/get-current-council-session";
+import { getNextCouncilSession } from "@/features/council-sessions/server/loaders/get-next-council-session";
 import { getLatestSessionWithQuestions } from "@/features/general-questions/server/loaders/get-latest-session-with-questions";
-import { PressConferenceArchiveSection } from "@/features/press-conferences/client/components/press-conference-archive-section";
-import { PressConferenceNoticeBanner } from "@/features/press-conferences/client/components/press-conference-notice-banner";
-import { getLatestPressConference } from "@/features/press-conferences/server/loaders/get-latest-press-conference";
-import { getPressConferences } from "@/features/press-conferences/server/loaders/get-press-conferences";
 import { getJapanTime } from "@/lib/utils/date";
 
 export default async function Home() {
-  const { billsByTag, featuredBills } = await loadHomeData();
+  let billsByTag: any[] = [];
+  let featuredBills: any[] = [];
+  let articles: any[] = [];
+  let currentSession: any = null;
+  let nextSession: any = null;
+  let latestQuestionsSlug: any = null;
+  let loadError = false;
+  let errorMessage = "";
 
-  // ゆくゆくタグ機能がマージされたらBFFに統合する
-  const [
-    currentSession,
-    activeSession,
-    currentDifficulty,
-    pastSessions,
-    budgetSessions,
-    latestQuestionsSlug,
-    latestPressConference,
-    pressConferences,
-  ] = await Promise.all([
-    getCurrentCouncilSession(getJapanTime()),
-    getActiveCouncilSession(),
-    getDifficultyLevel(),
-    getAllPastSessions(),
-    getSessionsWithBudget(),
-    getLatestSessionWithQuestions(),
-    getLatestPressConference(),
-    getPressConferences(),
-  ]);
+  // First, try to load home data
+  try {
+    console.log("[DEBUG] Starting to load home data...");
+    const homeData = await loadHomeData();
+    console.log("[DEBUG] Home data loaded:", { hasData: !!homeData });
+    billsByTag = homeData.billsByTag || [];
+    featuredBills = homeData.featuredBills || [];
+  } catch (error) {
+    console.error("[DEBUG] Failed to load home data:", error);
+    errorMessage =
+      error instanceof Error ? error.message : "home data load failed";
+    loadError = true;
+  }
 
-  const toBillChatContext = (bill: BillWithContent) => {
-    return {
-      name: `${bill.bill_content?.title}（${bill.name}）`,
-      summary: bill.bill_content?.summary,
-      tags: bill.tags?.map((tag) => tag.label) || [],
-      isFeatured: featuredBills.some((b) => b.id === bill.id),
-    };
-  };
+  // Load articles
+  try {
+    console.log("[DEBUG] Starting to load articles...");
+    articles = await getPublishedArticles();
+    console.log("[DEBUG] Articles loaded:", { count: articles.length });
+  } catch (error) {
+    console.error("[DEBUG] Failed to load articles:", error);
+  }
+
+  // Then, try to load session data
+  try {
+    console.log("[DEBUG] Starting to load council session data...");
+    const current = await getCurrentCouncilSession(getJapanTime()).catch(
+      (e) => {
+        console.error("[DEBUG] getCurrentCouncilSession error:", e);
+        return null;
+      }
+    );
+    const next = await getNextCouncilSession(getJapanTime()).catch((e) => {
+      console.error("[DEBUG] getNextCouncilSession error:", e);
+      return null;
+    });
+    const latestQuestions = await getLatestSessionWithQuestions().catch((e) => {
+      console.error("[DEBUG] getLatestSessionWithQuestions error:", e);
+      return null;
+    });
+
+    console.log("[DEBUG] Session data loaded");
+    currentSession = current;
+    nextSession = next;
+    latestQuestionsSlug = latestQuestions;
+  } catch (error) {
+    console.error("[DEBUG] Failed to load council session data:", error);
+    if (!errorMessage) {
+      errorMessage =
+        error instanceof Error ? error.message : "session data load failed";
+    }
+    loadError = true;
+  }
 
   return (
     <>
+      {loadError && (
+        <div className="w-full bg-red-100 border border-red-400 text-red-700 px-4 py-3 mb-4">
+          <p className="font-bold">⚠️ データ読込エラー</p>
+          <p className="text-sm">
+            {errorMessage || "データベースからのデータ取得に失敗しました"}
+          </p>
+        </div>
+      )}
+
       <Hero />
 
       {/* 本日の定例会セクション */}
-      <CurrentCouncilSession session={currentSession} />
-
-      {/* 知事記者会見バナー */}
-      {latestPressConference && (
-        <Container className="pt-4">
-          <PressConferenceNoticeBanner
-            pressConference={latestPressConference}
-          />
-        </Container>
+      {loadError ? (
+        <CouncilSessionSkeleton />
+      ) : (
+        <CurrentCouncilSession
+          currentSession={currentSession}
+          nextSession={nextSession}
+        />
       )}
 
       {/* 一般質問バナー */}
+
       {latestQuestionsSlug && (
         <Container className="pt-6">
           <GeneralQuestionsBanner sessionSlug={latestQuestionsSlug} />
         </Container>
       )}
 
+      <Container className="pt-6">
+        <div className="flex items-center gap-3">
+          <span className="inline-flex items-center rounded-full border border-oita-pink-accent bg-oita-pink-light px-3 py-1 text-[10px] font-bold text-oita-pink">
+            議会
+          </span>
+
+          <h2 className="text-2xl font-bold text-mirai-text md:text-3xl">
+            議会で話し合われよんこと
+          </h2>
+        </div>
+      </Container>
+
+      {/* トピックスバナー */}
+
+      {articles.length > 0 && (
+        <Container className="pt-3">
+          <TopicsBanner />
+        </Container>
+      )}
+
       {/* 委員会バナー */}
+
       <Container className="pt-3">
         <CommitteeBanner />
       </Container>
 
-      {/* 予算・事務事業評価・お金の使い道（まとめてアコーディオン） */}
+      {/* 議員紹介バナー */}
+
       <Container className="pt-3">
-        <BannerAccordion
-          title="福岡県の予算・評価・お金の使い道"
-          description="予算の概要、事務事業評価、財政の状況をまとめて見る"
-        >
-          {budgetSessions[0]?.slug && (
-            <BudgetOverviewBanner
-              sessionSlug={budgetSessions[0].slug}
-              sessionName={budgetSessions[0].name}
-            />
-          )}
-          <JimuJigyoBanner />
-          <PrefFinanceBanner />
-        </BannerAccordion>
+        <PoliticiansBanner />
       </Container>
 
       {/* 議案一覧セクション */}
+
       <Container className="">
         <div className="py-10">
           <main className="flex flex-col gap-16">
             {/* 注目の議案セクション */}
-            <FeaturedBillSection bills={featuredBills} />
+            {loadError ? (
+              <FeaturedBillSectionSkeleton />
+            ) : (
+              <FeaturedBillSection bills={featuredBills} />
+            )}
 
             {/* タグ別議案一覧セクション */}
-            <BillsByTagSection billsByTag={billsByTag} />
+            {loadError ? (
+              <BillsByTagSectionSkeleton />
+            ) : (
+              <BillsByTagSection billsByTag={billsByTag} />
+            )}
           </main>
         </div>
       </Container>
 
-      {/* 過去の定例会セクション（Archive） */}
-      <div className="bg-mirai-surface-muted py-10">
-        <Container>
-          <PastSessionsSection
-            sessions={pastSessions}
-            budgetSessions={budgetSessions}
-          />
-        </Container>
-      </div>
-
-      {/* 知事記者会見アーカイブセクション */}
-      {pressConferences.length > 0 && (
-        <div className="bg-white py-10">
-          <Container>
-            <PressConferenceArchiveSection
-              pressConferences={pressConferences}
-            />
-          </Container>
-        </div>
-      )}
-
-      {/* 事務事業評価セクション（Archive） */}
-      <div className="bg-mirai-surface-muted py-10">
-        <Container>
-          <JimuJigyoArchiveSection />
-        </Container>
-      </div>
-
       <Container>
         {/* みらい議会とは セクション */}
+
         <About />
 
         {/* チームみらいについて セクション */}
+
         <TeamMirai />
 
-        {/* 免責事項 */}
         <BillDisclaimer />
       </Container>
-
-      {/* チャット機能 */}
-      {siteConfig.features.aiChat && (
-        <HomeChatClient
-          currentDifficulty={currentDifficulty}
-          bills={billsByTag
-            .flatMap((x) => x.bills)
-            .concat(featuredBills)
-            .map(toBillChatContext)}
-        />
-      )}
     </>
   );
 }

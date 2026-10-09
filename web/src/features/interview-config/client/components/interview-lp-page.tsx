@@ -36,7 +36,7 @@ const FEATURES: {
     iconSize: { w: 33, h: 26 },
     text: siteConfig.managingParty
       ? `ご意見は${siteConfig.managingParty}の\n政策検討に活かします`
-      : "ご意見は\n政策検討に活かします",
+      : "ご意見は市政への提言や\n公開データとして活かします",
   },
   ...(siteConfig.managingParty
     ? [
@@ -50,20 +50,20 @@ const FEATURES: {
 ];
 
 function _InterviewLPHeader({ bill }: { bill: BillWithContent }) {
+  if (!bill.thumbnail_url) {
+    return null;
+  }
+
   return (
     <div className="relative w-full h-72 md:h-80">
-      {bill.thumbnail_url ? (
-        <Image
-          src={bill.thumbnail_url}
-          alt={bill.bill_content?.title ?? bill.name}
-          fill
-          className="object-cover"
-          sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
-          priority
-        />
-      ) : (
-        <div className="w-full h-full bg-gray-100" />
-      )}
+      <Image
+        src={bill.thumbnail_url}
+        alt={bill.bill_content?.title ?? bill.name}
+        fill
+        className="object-cover"
+        sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
+        priority
+      />
     </div>
   );
 }
@@ -71,11 +71,13 @@ function _InterviewLPHeader({ bill }: { bill: BillWithContent }) {
 function _InterviewLPHero({
   bill,
   billId,
+  interviewConfigId,
   sessionInfo,
   previewToken,
 }: {
   bill: BillWithContent;
   billId: string;
+  interviewConfigId: string;
   sessionInfo: LatestInterviewSession | null;
   previewToken?: string;
 }) {
@@ -86,7 +88,7 @@ function _InterviewLPHero({
       <div className="flex flex-col items-center gap-3">
         <div className="inline-flex items-center justify-center gap-2 px-6 py-2 mb-3 bg-primary rounded-2xl">
           <span className="text-[15px] font-medium text-white leading-tight">
-            当事者・有識者の方へ
+            ちょっと話してみらん？
           </span>
         </div>
         <h1 className="text-2xl font-bold text-center leading-[1.5]">
@@ -123,6 +125,7 @@ function _InterviewLPHero({
       <div className="w-full max-w-[370px] mt-2 flex flex-col gap-3">
         <InterviewActionButtons
           billId={billId}
+          interviewConfigId={interviewConfigId}
           sessionInfo={sessionInfo}
           previewToken={previewToken}
         />
@@ -159,8 +162,7 @@ function _InterviewOverviewSection({
           について、AIがあなたの考えを深堀りするチャット型インタビューです
         </p>
         <p>
-          いただいたご意見は、政策検討や県議会での審議に活用し、
-          {siteConfig.siteName}上に公開される可能性があります。
+          皆さんからいただいたインタビュー内容は、市政への提言や公開データとして活用させていただく場合があります。
         </p>
       </div>
       <div>
@@ -279,10 +281,12 @@ function _InterviewDisclosureLink({
 
 function _InterviewFooterActions({
   billId,
+  interviewConfigId,
   sessionInfo,
   previewToken,
 }: {
   billId: string;
+  interviewConfigId: string;
   sessionInfo: LatestInterviewSession | null;
   previewToken?: string;
 }) {
@@ -292,6 +296,7 @@ function _InterviewFooterActions({
     <div className="flex flex-col w-full max-w-[370px] mx-auto space-y-4">
       <InterviewActionButtons
         billId={billId}
+        interviewConfigId={interviewConfigId}
         sessionInfo={sessionInfo}
         previewToken={previewToken}
       />
@@ -312,12 +317,17 @@ export function InterviewLPPage({
   previewToken,
 }: InterviewLPPageProps) {
   return (
-    <div className="flex flex-col gap-8 pb-8 bg-mirai-light-gradient">
+    <div
+      className={`flex flex-col gap-8 pb-8 bg-mirai-light-gradient ${
+        bill.thumbnail_url ? "" : "pt-8"
+      }`}
+    >
       <_InterviewLPHeader bill={bill} />
       <div className="flex flex-col items-center gap-8 px-4">
         <_InterviewLPHero
           bill={bill}
           billId={bill.id}
+          interviewConfigId={interviewConfig.id}
           sessionInfo={sessionInfo}
           previewToken={previewToken}
         />
@@ -337,6 +347,7 @@ export function InterviewLPPage({
         />
         <_InterviewFooterActions
           billId={bill.id}
+          interviewConfigId={interviewConfig.id}
           sessionInfo={sessionInfo}
           previewToken={previewToken}
         />
