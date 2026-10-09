@@ -12,6 +12,7 @@ export type BillPickupReference = {
 export type BillPickupSource = BillPickupReference & {
   billId: string | null;
   billNumber: string | null;
+  billName: string;
 };
 
 export type PublishedBillPickupData = {

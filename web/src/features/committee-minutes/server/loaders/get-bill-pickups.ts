@@ -16,6 +16,7 @@ export async function getBillPickups() {
       (session.bills ?? []).map((bill) => ({
         billId: bill.detail_bill_id ?? null,
         billNumber: bill.number,
+        billName: bill.name,
         meetingId: meeting.id,
         meetingType: meeting.meetingType,
         meetingTitle: meeting.title,

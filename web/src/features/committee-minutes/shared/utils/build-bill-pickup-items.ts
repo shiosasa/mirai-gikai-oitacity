@@ -3,6 +3,7 @@ import type {
   BillPickupSource,
   PublishedBillPickupData,
 } from "../types/bill-pickup";
+import { matchesBillReference } from "./matches-bill-reference";
 
 export function buildBillPickupItems(
   sources: BillPickupSource[],
@@ -15,7 +16,15 @@ export function buildBillPickupItems(
     if (!source.billId) continue;
 
     const bill = billsById.get(source.billId);
-    if (!bill) continue;
+    if (
+      !bill ||
+      !matchesBillReference(
+        { name: source.billName, number: source.billNumber },
+        bill
+      )
+    ) {
+      continue;
+    }
 
     const pickup = pickupsById.get(bill.id) ?? {
       ...bill,
@@ -31,7 +40,12 @@ export function buildBillPickupItems(
         reference.sessionId === source.sessionId
     );
     if (!alreadyReferenced) {
-      const { billId: _billId, billNumber: _billNumber, ...reference } = source;
+      const {
+        billId: _billId,
+        billName: _billName,
+        billNumber: _billNumber,
+        ...reference
+      } = source;
       pickup.references.push(reference);
     }
     pickupsById.set(bill.id, pickup);

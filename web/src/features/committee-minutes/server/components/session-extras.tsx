@@ -1,5 +1,8 @@
+import "server-only";
 import { ArrowRight } from "lucide-react";
 import Link from "next/link";
+import { findPublishedBillsByIds } from "@/features/bills/server/repositories/bill-repository";
+import { matchesBillReference } from "../../shared/utils/matches-bill-reference";
 import { getPublishedPoliticians } from "@/features/politicians/server/loaders/get-published-politicians";
 import type {
   SessionAttendees,
@@ -119,63 +122,89 @@ export async function AttendeesSection({
   );
 }
 
-export function BillsSection({ bills }: { bills: SessionBill[] }) {
+export async function BillsSection({ bills }: { bills: SessionBill[] }) {
+  const detailIds = [
+    ...new Set(
+      bills.flatMap((bill) =>
+        bill.detail_bill_id ? [bill.detail_bill_id] : []
+      )
+    ),
+  ];
+  const publishedBills = await findPublishedBillsByIds(detailIds);
+  const publishedBillsById = new Map(
+    publishedBills.map((bill) => [bill.id, bill])
+  );
+
   return (
     <section className="bg-white rounded-lg p-6 border border-mirai-border">
       <h2 className="text-lg font-bold text-mirai-text mb-3">
         📑 審議された議案（{bills.length}件）
       </h2>
       <ul className="divide-y divide-mirai-border">
-        {bills.map((bill, i) => (
-          <li key={`${bill.number ?? bill.name}-${i}`} className="py-3">
-            <div className="flex flex-wrap items-center gap-2 mb-1">
-              {bill.number && (
-                <span className="px-2 py-0.5 rounded bg-primary/10 text-primary text-xs font-medium">
-                  {bill.number}
-                </span>
-              )}
-              {bill.detail_bill_id ? (
-                <>
-                  <Link
-                    href={`/bills/${bill.detail_bill_id}`}
-                    className="font-medium text-mirai-text hover:text-primary hover:underline underline-offset-2"
-                  >
-                    {bill.name}
-                  </Link>
-                  <Link
-                    href={`/bills/${bill.detail_bill_id}`}
-                    className="inline-flex items-center gap-1 rounded-full bg-primary/10 px-2.5 py-1 text-xs font-semibold text-primary transition-colors hover:bg-primary/20"
-                    aria-label={`${bill.name}の詳細を見る`}
-                  >
-                    詳細を見る
-                    <ArrowRight aria-hidden="true" className="h-3 w-3" />
-                  </Link>
-                </>
-              ) : (
-                <>
-                  <span className="font-medium text-mirai-text">
-                    {bill.name}
+        {bills.map((bill, i) => {
+          const linkedBill = bill.detail_bill_id
+            ? publishedBillsById.get(bill.detail_bill_id)
+            : undefined;
+          const detailBillId =
+            linkedBill &&
+            matchesBillReference(
+              { name: bill.name, number: bill.number },
+              linkedBill
+            )
+              ? linkedBill.id
+              : null;
+
+          return (
+            <li key={`${bill.number ?? bill.name}-${i}`} className="py-3">
+              <div className="flex flex-wrap items-center gap-2 mb-1">
+                {bill.number && (
+                  <span className="px-2 py-0.5 rounded bg-primary/10 text-primary text-xs font-medium">
+                    {bill.number}
                   </span>
-                  <span className="rounded-full bg-mirai-surface-grouped px-2.5 py-1 text-xs text-mirai-text-muted">
-                    詳細ページ準備中
+                )}
+                {detailBillId ? (
+                  <>
+                    <Link
+                      href={`/bills/${detailBillId}`}
+                      className="font-medium text-mirai-text hover:text-primary hover:underline underline-offset-2"
+                    >
+                      {bill.name}
+                    </Link>
+                    <Link
+                      href={`/bills/${detailBillId}`}
+                      className="inline-flex items-center gap-1 rounded-full bg-primary/10 px-2.5 py-1 text-xs font-semibold text-primary transition-colors hover:bg-primary/20"
+                      aria-label={`${bill.name}の詳細を見る`}
+                    >
+                      詳細を見る
+                      <ArrowRight aria-hidden="true" className="h-3 w-3" />
+                    </Link>
+                  </>
+                ) : (
+                  <>
+                    <span className="font-medium text-mirai-text">
+                      {bill.name}
+                    </span>
+                    <span className="rounded-full bg-mirai-surface-grouped px-2.5 py-1 text-xs text-mirai-text-muted">
+                      詳細ページ準備中
+                    </span>
+                  </>
+                )}
+                {bill.result && (
+                  <span
+                    className={`px-2 py-0.5 rounded text-xs font-medium ${resultClassName(bill.result)}`}
+                  >
+                    {bill.result}
                   </span>
-                </>
+                )}
+              </div>
+              {bill.description && (
+                <p className="text-sm text-mirai-text-secondary leading-relaxed">
+                  {bill.description}
+                </p>
               )}
-              {bill.result && (
-                <span
-                  className={`px-2 py-0.5 rounded text-xs font-medium ${resultClassName(bill.result)}`}
-                >
-                  {bill.result}
-                </span>
-              )}
-            </div>
-            {bill.description && (
-              <p className="text-sm text-mirai-text-secondary leading-relaxed">
-                {bill.description}
-              </p>
-            )}
-          </li>
-        ))}
+            </li>
+          );
+        })}
       </ul>
     </section>
   );
