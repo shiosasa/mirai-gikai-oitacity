@@ -44,6 +44,8 @@
   --color-primary-foreground: var(--primary-foreground);
   --color-primary: var(--primary);
   --color-primary-accent: var(--primary-accent);
+  --color-bill-pickup-bg: var(--bill-pickup-bg);
+  --color-bill-pickup-text: var(--bill-pickup-text);
   --color-popover-foreground: var(--popover-foreground);
   --color-popover: var(--popover);
   --color-card-foreground: var(--card-foreground);
@@ -144,6 +146,8 @@
   --primary-accent: #7a6cc0;
   --primary: #d97792;
   --primary-accent: #c96581;
+  --bill-pickup-bg: #e6f0fa;
+  --bill-pickup-text: #1f5f9e;
   --primary-foreground: oklch(0.985 0 0);
   --secondary: oklch(0.97 0 0);
   --secondary-foreground: oklch(0.205 0 0);

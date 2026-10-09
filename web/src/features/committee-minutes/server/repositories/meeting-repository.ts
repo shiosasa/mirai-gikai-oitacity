@@ -15,6 +15,7 @@ export type SessionBill = {
   name: string;
   description: string | null;
   result: string | null;
+  detail_bill_id?: string | null;
 };
 
 type SessionRow = {

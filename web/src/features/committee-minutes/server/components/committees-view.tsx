@@ -1,5 +1,5 @@
 import "server-only";
-import { ChevronRight, Landmark } from "lucide-react";
+import { ChevronRight, Landmark, ListChecks } from "lucide-react";
 import Link from "next/link";
 import type { MeetingArchive } from "../repositories/meeting-repository";
 
@@ -56,11 +56,15 @@ export function CommitteesView({
       </header>
 
       {!hasContent ? (
-        <p className="text-sm text-mirai-text-muted">
-          委員会・本会議の記録は準備中です。
-        </p>
+        <div className="flex flex-col gap-4">
+          <p className="text-sm text-mirai-text-muted">
+            委員会・本会議の記録は準備中です。
+          </p>
+          <BillPickupsLink />
+        </div>
       ) : (
         <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
+          <BillPickupsLink />
           {/* 本会議への入り口 */}
           {plenaryMeetings.length > 0 && (
             <Link href={`/committees/plenary`}>
@@ -107,5 +111,28 @@ export function CommitteesView({
         </div>
       )}
     </div>
+  );
+}
+
+function BillPickupsLink() {
+  return (
+    <Link href="/committees/bill-pickups">
+      <div className="flex h-full items-center justify-between gap-2 rounded-2xl border border-bill-pickup-text/40 bg-white p-6 transition-all duration-200 hover:border-bill-pickup-text hover:shadow-md">
+        <div>
+          <div className="mb-2 text-xs text-mirai-text-muted">
+            <span className="rounded-full bg-bill-pickup-bg px-2 py-0.5 text-xs font-medium text-bill-pickup-text">
+              議案一覧
+            </span>
+          </div>
+          <div className="text-lg font-bold text-mirai-text">
+            議案ピックアップ
+          </div>
+          <div className="mt-1 text-xs text-mirai-text-muted">
+            会議で取り上げられた議案を見る
+          </div>
+        </div>
+        <ListChecks className="h-5 w-5 shrink-0 text-bill-pickup-text" />
+      </div>
+    </Link>
   );
 }

@@ -1,3 +1,4 @@
+import "server-only";
 import Link from "next/link";
 import { notFound } from "next/navigation";
 import { ArrowLeft, ExternalLink } from "lucide-react";
@@ -50,8 +51,10 @@ export async function PoliticianProfile({ id }: PoliticianProfileProps) {
   const politician = await getPublishedPolitician(id);
   if (!politician) notFound();
 
-  const discussions = await getPoliticianDiscussions(id);
-  const committees = await findCommitteeList();
+  const [discussions, committees] = await Promise.all([
+    getPoliticianDiscussions(id),
+    findCommitteeList(),
+  ]);
   const committeeIdByName = new Map(
     committees.map((committee) => [committee.title, committee.id])
   );
@@ -153,12 +156,18 @@ export async function PoliticianProfile({ id }: PoliticianProfileProps) {
           <ul className="mt-4 divide-y divide-mirai-border">
             {discussions.map((discussion) => (
               <li key={discussion.id} className="py-4">
-                <Link
-                  href={`/bills/${discussion.bills?.id}`}
-                  className="font-semibold text-primary hover:underline"
-                >
-                  {discussion.bills?.name ?? "関連議案"}
-                </Link>
+                {discussion.bills?.id ? (
+                  <Link
+                    href={`/bills/${discussion.bills.id}`}
+                    className="font-semibold text-primary hover:underline"
+                  >
+                    {discussion.bills.name}
+                  </Link>
+                ) : (
+                  <p className="font-semibold text-mirai-text">
+                    {discussion.bills?.name ?? "関連議案"}
+                  </p>
+                )}
                 {discussion.question_summary && (
                   <p className="mt-2 text-sm leading-6 text-mirai-text">
                     {discussion.question_summary}

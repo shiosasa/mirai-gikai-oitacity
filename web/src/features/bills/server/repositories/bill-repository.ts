@@ -53,6 +53,23 @@ export async function findPublishedBillById(id: string) {
   return data;
 }
 
+export async function findPublishedBillsByIds(ids: string[]) {
+  if (ids.length === 0) return [];
+
+  const supabase = createAdminClient();
+  const { data, error } = await supabase
+    .from("bills")
+    .select("id, name, bill_number")
+    .in("id", ids)
+    .eq("publish_status", "published");
+
+  if (error) {
+    throw new Error(`Failed to fetch published bills: ${error.message}`);
+  }
+
+  return data ?? [];
+}
+
 /**
  * 管理者用: ステータス問わず議案を1件取得
  */

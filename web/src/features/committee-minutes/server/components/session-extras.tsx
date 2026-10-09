@@ -1,3 +1,4 @@
+import { ArrowRight } from "lucide-react";
 import Link from "next/link";
 import { getPublishedPoliticians } from "@/features/politicians/server/loaders/get-published-politicians";
 import type {
@@ -133,7 +134,33 @@ export function BillsSection({ bills }: { bills: SessionBill[] }) {
                   {bill.number}
                 </span>
               )}
-              <span className="font-medium text-mirai-text">{bill.name}</span>
+              {bill.detail_bill_id ? (
+                <>
+                  <Link
+                    href={`/bills/${bill.detail_bill_id}`}
+                    className="font-medium text-mirai-text hover:text-primary hover:underline underline-offset-2"
+                  >
+                    {bill.name}
+                  </Link>
+                  <Link
+                    href={`/bills/${bill.detail_bill_id}`}
+                    className="inline-flex items-center gap-1 rounded-full bg-primary/10 px-2.5 py-1 text-xs font-semibold text-primary transition-colors hover:bg-primary/20"
+                    aria-label={`${bill.name}の詳細を見る`}
+                  >
+                    詳細を見る
+                    <ArrowRight aria-hidden="true" className="h-3 w-3" />
+                  </Link>
+                </>
+              ) : (
+                <>
+                  <span className="font-medium text-mirai-text">
+                    {bill.name}
+                  </span>
+                  <span className="rounded-full bg-mirai-surface-grouped px-2.5 py-1 text-xs text-mirai-text-muted">
+                    詳細ページ準備中
+                  </span>
+                </>
+              )}
               {bill.result && (
                 <span
                   className={`px-2 py-0.5 rounded text-xs font-medium ${resultClassName(bill.result)}`}
