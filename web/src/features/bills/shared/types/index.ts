@@ -22,6 +22,7 @@ export type TopicSourceRef = {
   bill_number: string | null;
   bill_name: string | null;
   evidence_quote: string | null;
+  detail_bill_id?: string | null;
 };
 
 export type BillArticle =

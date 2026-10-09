@@ -234,6 +234,15 @@ export function ArticleAccordionCard({ article }: ArticleAccordionCardProps) {
                         {ref.bill_name}
                       </p>
                     )}
+                    {ref.detail_bill_id && (
+                      <Link
+                        href={`/bills/${ref.detail_bill_id}`}
+                        className="mt-1 inline-flex items-center gap-1 text-xs font-semibold text-oita-pink hover:underline"
+                      >
+                        {ref.bill_number ?? "議案"}の詳細ページを見る
+                        <span>→</span>
+                      </Link>
+                    )}
                     {ref.evidence_quote && (
                       <blockquote className="mt-1 border-l-2 border-indigo-200 pl-2 text-xs text-gray-600">
                         「{ref.evidence_quote}」

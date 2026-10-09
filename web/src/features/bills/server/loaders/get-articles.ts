@@ -2,8 +2,9 @@ import "server-only";
 import { createAdminClient } from "@mirai-gikai/supabase";
 import { unstable_cache } from "next/cache";
 import { CACHE_TAGS } from "@/lib/cache-tags";
-import type { BillArticle } from "../../shared/types";
+import type { BillArticle, TopicSourceRef } from "../../shared/types";
 import { categoryEnumFromBadge } from "../../shared/utils/article-category";
+import { buildPublishedBillIdByName } from "../../shared/utils/build-published-bill-id-by-name";
 
 /**
  * 公開済みの記事（bill_articles）を最新順に取得
@@ -33,7 +34,6 @@ const ARTICLE_COLUMNS = `
         link_label,
         link_url,
         decision_date,
-        published_at,
         created_at,
         updated_at,
         proposal_id,
@@ -63,16 +63,52 @@ const _getCachedArticles = unstable_cache(
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
     const articlesTable = () => (supabase as any).from("bill_articles");
 
-    let { data, error } = await articlesTable()
-      .select(`${ARTICLE_COLUMNS}, source_refs`)
-      .order("published_at", { ascending: false, nullsFirst: false });
+    const fetchArticles = (
+      includePublishedAt: boolean,
+      includeSourceRefs: boolean
+    ) => {
+      const optionalColumns = [
+        includePublishedAt ? "published_at" : null,
+        includeSourceRefs ? "source_refs" : null,
+      ]
+        .filter((column) => column !== null)
+        .join(", ");
+      const columns = optionalColumns
+        ? `${ARTICLE_COLUMNS}, ${optionalColumns}`
+        : ARTICLE_COLUMNS;
 
-    if (error) {
-      // source_refs 列が未適用の環境向けフォールバック
-      console.warn("Falling back without source_refs:", error.message);
-      ({ data, error } = await articlesTable()
-        .select(ARTICLE_COLUMNS)
-        .order("published_at", { ascending: false, nullsFirst: false }));
+      return articlesTable()
+        .select(columns)
+        .order(includePublishedAt ? "published_at" : "created_at", {
+          ascending: false,
+          nullsFirst: false,
+        });
+    };
+
+    let includePublishedAt = true;
+    let includeSourceRefs = true;
+    let { data, error } = await fetchArticles(
+      includePublishedAt,
+      includeSourceRefs
+    );
+
+    while (error) {
+      if (includePublishedAt && error.message.includes("published_at")) {
+        includePublishedAt = false;
+      } else if (includeSourceRefs && error.message.includes("source_refs")) {
+        includeSourceRefs = false;
+      } else {
+        break;
+      }
+
+      console.warn(
+        "Retrying article query with legacy columns:",
+        error.message
+      );
+      ({ data, error } = await fetchArticles(
+        includePublishedAt,
+        includeSourceRefs
+      ));
     }
 
     if (error) {
@@ -81,16 +117,30 @@ const _getCachedArticles = unstable_cache(
     }
 
     // 記事タイトルと同名の議案（bills）に公開中のAIインタビューがあれば紐付ける
-    const [{ data: bills }, { data: configs }] = await Promise.all([
-      supabase.from("bills").select("id, name"),
+    const [
+      { data: bills, error: billsError },
+      { data: configs, error: configsError },
+    ] = await Promise.all([
+      supabase.from("bills").select("id, name, publish_status"),
       supabase
         .from("interview_configs")
         .select("bill_id")
         .eq("status", "public"),
     ]);
+    if (billsError) {
+      throw new Error(
+        `Failed to fetch bills for article links: ${billsError.message}`
+      );
+    }
+    if (configsError) {
+      throw new Error(
+        `Failed to fetch interview configs for article links: ${configsError.message}`
+      );
+    }
     const billIdByName = new Map(
       (bills ?? []).map((bill) => [bill.name, bill.id])
     );
+    const publishedBillIdByName = buildPublishedBillIdByName(bills ?? []);
     const billsWithInterview = new Set(
       (configs ?? []).map((config) => config.bill_id)
     );
@@ -105,6 +155,15 @@ const _getCachedArticles = unstable_cache(
       const linkedBillId = billIdByName.get(article.title);
       return {
         ...article,
+        published_at: article.published_at ?? null,
+        source_refs: Array.isArray(article.source_refs)
+          ? article.source_refs.map((ref: TopicSourceRef) => ({
+              ...ref,
+              detail_bill_id: ref.bill_name
+                ? (publishedBillIdByName.get(ref.bill_name) ?? null)
+                : null,
+            }))
+          : article.source_refs,
         interview_bill_id:
           linkedBillId && billsWithInterview.has(linkedBillId)
             ? linkedBillId
