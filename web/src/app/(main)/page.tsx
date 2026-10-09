@@ -1,21 +1,20 @@
 import { Container } from "@/components/layouts/container";
-import { CouncilSessionSkeleton } from "@/components/skeletons/council-session-skeleton";
 import { BillsByTagSectionSkeleton } from "@/components/skeletons/bills-by-tag-section-skeleton";
+import { CouncilSessionSkeleton } from "@/components/skeletons/council-session-skeleton";
 import { FeaturedBillSectionSkeleton } from "@/components/skeletons/featured-bill-section-skeleton";
 
 import { About } from "@/components/top/about";
 import { CommitteeBanner } from "@/components/top/committee-banner";
-import { PoliticiansBanner } from "@/components/top/politicians-banner";
-import { TopicsBanner } from "@/components/top/topics-banner";
 import { GeneralQuestionsBanner } from "@/components/top/general-questions-banner";
 import { Hero } from "@/components/top/hero";
+import { PoliticiansBanner } from "@/components/top/politicians-banner";
 import { TeamMirai } from "@/components/top/team-mirai";
+import { TopicsBanner } from "@/components/top/topics-banner";
 
 import { BillDisclaimer } from "@/features/bills/client/components/bill-detail/bill-disclaimer";
 import { BillsByTagSection } from "@/features/bills/server/components/bills-by-tag-section";
 import { FeaturedBillSection } from "@/features/bills/server/components/featured-bill-section";
 import { loadHomeData } from "@/features/bills/server/loaders/load-home-data";
-import { getPublishedArticles } from "@/features/bills/server/loaders/get-articles";
 
 import { CurrentCouncilSession } from "@/features/council-sessions/client/components/current-council-session";
 import { getCurrentCouncilSession } from "@/features/council-sessions/server/loaders/get-current-council-session";
@@ -26,7 +25,6 @@ import { getJapanTime } from "@/lib/utils/date";
 export default async function Home() {
   let billsByTag: any[] = [];
   let featuredBills: any[] = [];
-  let articles: any[] = [];
   let currentSession: any = null;
   let nextSession: any = null;
   let latestQuestionsSlug: any = null;
@@ -45,15 +43,6 @@ export default async function Home() {
     errorMessage =
       error instanceof Error ? error.message : "home data load failed";
     loadError = true;
-  }
-
-  // Load articles
-  try {
-    console.log("[DEBUG] Starting to load articles...");
-    articles = await getPublishedArticles();
-    console.log("[DEBUG] Articles loaded:", { count: articles.length });
-  } catch (error) {
-    console.error("[DEBUG] Failed to load articles:", error);
   }
 
   // Then, try to load session data
@@ -132,11 +121,9 @@ export default async function Home() {
 
       {/* トピックスバナー */}
 
-      {articles.length > 0 && (
-        <Container className="pt-3">
-          <TopicsBanner />
-        </Container>
-      )}
+      <Container className="pt-3">
+        <TopicsBanner />
+      </Container>
 
       {/* 委員会バナー */}
 
