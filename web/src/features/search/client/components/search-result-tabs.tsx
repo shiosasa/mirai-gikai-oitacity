@@ -1,31 +1,22 @@
 "use client";
 
-import {
-  BarChart2,
-  ChevronDown,
-  FileText,
-  MessageSquare,
-  Search,
-  Users,
-} from "lucide-react";
+import { ChevronDown, FileText, Newspaper, Search, Users } from "lucide-react";
 import Link from "next/link";
 import { useState } from "react";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import type {
   BillSearchResult,
-  BudgetSearchResult,
   CommitteeSearchResult,
-  QuestionSearchResult,
   SearchResults,
   SearchTab,
+  TopicSearchResult,
 } from "../../shared/types/search-types";
 
 const TAB_LABELS: Record<SearchTab, string> = {
   all: "すべて",
   bills: "議案",
-  questions: "一般質問",
-  budget: "予算",
+  topics: "トピックス",
   committees: "委員会",
 };
 
@@ -62,56 +53,24 @@ function BillCard({ bill }: { bill: BillSearchResult }) {
   );
 }
 
-function QuestionCard({ question }: { question: QuestionSearchResult }) {
+function TopicCard({ topic }: { topic: TopicSearchResult }) {
   return (
     <Link
-      href={`/questions/${question.id}`}
+      href={`/topics#article-${topic.id}`}
       className="block border border-mirai-border rounded-lg p-4 bg-white hover:bg-mirai-surface transition-colors"
     >
       <div className="flex items-center gap-2 mb-1">
-        <MessageSquare className="size-4 text-mirai-text-muted shrink-0" />
+        <Newspaper className="size-4 text-mirai-text-muted shrink-0" />
         <span className="text-xs text-mirai-text-muted">
-          一般質問 · {question.questioner} · {question.session}
-        </span>
-      </div>
-      {question.topics.length > 0 && (
-        <p className="font-medium text-mirai-text text-sm leading-snug mb-2">
-          {question.topics[0]}
-          {question.topics.length > 1 && (
-            <span className="text-mirai-text-muted font-normal">
-              {" "}
-              他{question.topics.length - 1}件
-            </span>
-          )}
-        </p>
-      )}
-      {question.summary && (
-        <p className="text-xs text-mirai-text-secondary line-clamp-2">
-          {question.summary}
-        </p>
-      )}
-    </Link>
-  );
-}
-
-function BudgetCard({ budget }: { budget: BudgetSearchResult }) {
-  return (
-    <Link
-      href={`/budget/${budget.sessionSlug}/${budget.departmentSlug}`}
-      className="block border border-mirai-border rounded-lg p-4 bg-white hover:bg-mirai-surface transition-colors"
-    >
-      <div className="flex items-center gap-2 mb-1">
-        <BarChart2 className="size-4 text-mirai-text-muted shrink-0" />
-        <span className="text-xs text-mirai-text-muted">
-          予算 · {budget.session}
+          トピックス · {topic.category}
         </span>
       </div>
       <p className="font-medium text-mirai-text text-sm leading-snug mb-2">
-        {budget.departmentName}
+        {topic.title}
       </p>
-      {budget.direction && (
+      {topic.summary && (
         <p className="text-xs text-mirai-text-secondary line-clamp-2">
-          {budget.direction}
+          {topic.summary}
         </p>
       )}
     </Link>
@@ -207,9 +166,8 @@ export function SearchResultTabs({ query, results }: Props) {
     );
   }
 
-  const { bills, questions, budgets, committees } = results;
-  const totalCount =
-    bills.length + questions.length + budgets.length + committees.length;
+  const { bills, topics, committees } = results;
+  const totalCount = bills.length + topics.length + committees.length;
 
   if (totalCount === 0) {
     return (
@@ -225,8 +183,7 @@ export function SearchResultTabs({ query, results }: Props) {
   const tabs: { key: SearchTab; count: number }[] = [
     { key: "all", count: totalCount },
     { key: "bills", count: bills.length },
-    { key: "questions", count: questions.length },
-    { key: "budget", count: budgets.length },
+    { key: "topics", count: topics.length },
     { key: "committees", count: committees.length },
   ];
 
@@ -271,18 +228,11 @@ export function SearchResultTabs({ query, results }: Props) {
             renderCard={(bill, i) => <BillCard key={i} bill={bill} />}
           />
         )}
-        {(tab === "all" || tab === "questions") && questions.length > 0 && (
+        {(tab === "all" || tab === "topics") && topics.length > 0 && (
           <ResultSection
-            title="一般質問"
-            items={questions}
-            renderCard={(q, i) => <QuestionCard key={i} question={q} />}
-          />
-        )}
-        {(tab === "all" || tab === "budget") && budgets.length > 0 && (
-          <ResultSection
-            title="予算"
-            items={budgets}
-            renderCard={(b, i) => <BudgetCard key={i} budget={b} />}
+            title="トピックス"
+            items={topics}
+            renderCard={(topic, i) => <TopicCard key={i} topic={topic} />}
           />
         )}
         {(tab === "all" || tab === "committees") && committees.length > 0 && (

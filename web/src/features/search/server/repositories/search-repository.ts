@@ -2,9 +2,7 @@ import "server-only";
 import { createAdminClient } from "@mirai-gikai/supabase";
 import type {
   BillSearchResult,
-  BudgetSearchResult,
   CommitteeSearchResult,
-  QuestionSearchResult,
 } from "../../shared/types/search-types";
 
 /**
@@ -65,77 +63,6 @@ export async function searchBills(query: string): Promise<BillSearchResult[]> {
           .filter((l): l is string => l != null),
       };
     });
-}
-
-export async function searchGeneralQuestions(
-  query: string
-): Promise<QuestionSearchResult[]> {
-  const supabase = createAdminClient();
-  const { data, error } = await supabase
-    .from("general_questions")
-    .select(
-      `
-      id,
-      questioner_name,
-      summary,
-      topics,
-      council_sessions (name)
-    `
-    )
-    .eq("publish_status", "published")
-    .or(`summary.ilike.%${query}%,questioner_name.ilike.%${query}%`)
-    .limit(50);
-
-  if (error) throw new Error(`Failed to search questions: ${error.message}`);
-
-  return (data ?? []).map((row) => {
-    const topics = Array.isArray(row.topics)
-      ? (row.topics as Array<{ title: string }>)
-      : [];
-    const session =
-      (row.council_sessions as { name: string } | null)?.name ?? "";
-    return {
-      id: row.id,
-      questioner: row.questioner_name,
-      topics: topics.map((t) => t.title),
-      summary: row.summary,
-      session,
-    };
-  });
-}
-
-export async function searchBudgets(
-  query: string
-): Promise<BudgetSearchResult[]> {
-  const supabase = createAdminClient();
-  const { data, error } = await supabase
-    .from("budget_overviews")
-    .select(
-      `
-      id,
-      department_name,
-      department_slug,
-      direction,
-      council_sessions!inner (name, slug)
-    `
-    )
-    .eq("publish_status", "published")
-    .or(`department_name.ilike.%${query}%,direction.ilike.%${query}%`)
-    .limit(50);
-
-  if (error) throw new Error(`Failed to search budgets: ${error.message}`);
-
-  return (data ?? []).map((row) => {
-    const session = row.council_sessions as { name: string; slug: string };
-    return {
-      id: row.id,
-      departmentName: row.department_name,
-      direction: row.direction,
-      session: session?.name ?? "",
-      sessionSlug: session?.slug ?? "",
-      departmentSlug: row.department_slug,
-    };
-  });
 }
 
 type CommitteeMeetingSearchRow = {

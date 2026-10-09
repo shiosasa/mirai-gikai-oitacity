@@ -1,4 +1,4 @@
-export type SearchTab = "all" | "bills" | "questions" | "budget" | "committees";
+export type SearchTab = "all" | "bills" | "topics" | "committees";
 
 export type BillSearchResult = {
   id: string;
@@ -9,21 +9,11 @@ export type BillSearchResult = {
   tags: string[];
 };
 
-export type QuestionSearchResult = {
+export type TopicSearchResult = {
   id: string;
-  questioner: string;
-  topics: string[];
-  summary: string | null;
-  session: string;
-};
-
-export type BudgetSearchResult = {
-  id: string;
-  departmentName: string;
-  direction: string | null;
-  session: string;
-  sessionSlug: string;
-  departmentSlug: string;
+  title: string;
+  category: string;
+  summary: string;
 };
 
 export type CommitteeSearchResult = {
@@ -39,7 +29,6 @@ export type CommitteeSearchResult = {
 
 export type SearchResults = {
   bills: BillSearchResult[];
-  questions: QuestionSearchResult[];
-  budgets: BudgetSearchResult[];
+  topics: TopicSearchResult[];
   committees: CommitteeSearchResult[];
 };
