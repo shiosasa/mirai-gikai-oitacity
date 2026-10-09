@@ -1,14 +1,17 @@
 import { z } from "zod";
 
 // 意見スキーマ
-const opinionSchema = z.object({
-  title: z.string().describe("意見のタイトル（40文字以内）"),
-  content: z.string().describe("意見の説明（120文字以内）"),
-  source_message_id: z
-    .string()
-    .nullable()
-    .describe("この意見の根拠となるユーザー発言のメッセージID"),
-});
+// OpenAIの構造化出力は全オブジェクトに additionalProperties: false を要求するため strict にする
+const opinionSchema = z
+  .object({
+    title: z.string().describe("意見のタイトル（40文字以内）"),
+    content: z.string().describe("意見の説明（120文字以内）"),
+    source_message_id: z
+      .string()
+      .nullable()
+      .describe("この意見の根拠となるユーザー発言のメッセージID"),
+  })
+  .strict();
 
 // 0-100のスコア（LLMが小数点を返す可能性があるため丸める）
 const scoreValueSchema = z
@@ -17,22 +20,25 @@ const scoreValueSchema = z
   .pipe(z.number().int().min(0).max(100));
 
 // スコアリングスキーマ
-const scoresSchema = z.object({
-  total: scoreValueSchema.describe("総合スコア（0-100の整数）"),
-  clarity: scoreValueSchema.describe(
-    "主張の明確さ（0-100）- 意見や立場が明確に表現されているか"
-  ),
-  specificity: scoreValueSchema.describe(
-    "具体性（0-100）- 実務経験に基づく具体的な事例や数値が含まれているか"
-  ),
-  impact: scoreValueSchema.describe(
-    "影響度（0-100）- 議案が与える県民生活や行政運営への影響について言及があるか"
-  ),
-  constructiveness: scoreValueSchema.describe(
-    "建設性（0-100）- 問題点の指摘だけでなく、改善案や代替案の提示があるか"
-  ),
-  reasoning: z.string().describe("スコアの根拠を簡潔に説明（100文字以内）"),
-});
+// opinionSchema と同様に strict（OpenAI構造化出力対応）
+const scoresSchema = z
+  .object({
+    total: scoreValueSchema.describe("総合スコア（0-100の整数）"),
+    clarity: scoreValueSchema.describe(
+      "主張の明確さ（0-100）- 意見や立場が明確に表現されているか"
+    ),
+    specificity: scoreValueSchema.describe(
+      "具体性（0-100）- 実務経験に基づく具体的な事例や数値が含まれているか"
+    ),
+    impact: scoreValueSchema.describe(
+      "影響度（0-100）- 議案が与える市民生活や行政運営への影響について言及があるか"
+    ),
+    constructiveness: scoreValueSchema.describe(
+      "建設性（0-100）- 問題点の指摘だけでなく、改善案や代替案の提示があるか"
+    ),
+    reasoning: z.string().describe("スコアの根拠を簡潔に説明（100文字以内）"),
+  })
+  .strict();
 
 export type InterviewScores = z.infer<typeof scoresSchema>;
 
@@ -112,13 +118,13 @@ export const interviewChatTextSchema = z.object({
 export type InterviewChatText = z.infer<typeof interviewChatTextSchema>;
 
 // summaryフェーズ用スキーマ（LLM出力用 - next_stageを含む）
-// chat遷移時はreportを省略できるようoptionalにしている
+// OpenAIの構造化出力は全プロパティ必須を要求するため、chat遷移時は report を null にする
 export const interviewChatWithReportSchema = z.object({
   text: z.string(),
   report: interviewReportSchema
-    .optional()
+    .nullable()
     .describe(
-      "インタビュー内容をまとめたレポート。next_stageがchatの場合は省略すること"
+      "インタビュー内容をまとめたレポート。next_stageがchatの場合はnullにすること"
     ),
   next_stage: interviewStageSchema.describe(
     "ステージ遷移判定。summary=レポート修正継続、summary_complete=レポート完了、chat=インタビュー再開"
@@ -132,7 +138,7 @@ export type InterviewChatWithReport = z.infer<
 // クライアント側で使う統一スキーマ（両方のレスポンスを受け取れる）
 export const interviewChatResponseSchema = z.object({
   text: z.string(),
-  report: interviewReportSchema.optional(),
+  report: interviewReportSchema.optional().nullable(),
   quick_replies: z.array(z.string()).optional().nullable(),
   question_id: z.string().optional().nullable(),
   topic_title: z.string().optional().nullable(),

@@ -11,9 +11,11 @@ import type { LoaderDeps } from "../utils/verify-session-ownership";
  */
 export async function createInterviewSessionCore({
   interviewConfigId,
+  nickname,
   deps,
 }: {
   interviewConfigId: string;
+  nickname?: string | null;
   deps?: LoaderDeps;
 }): Promise<InterviewSession> {
   const getUser = deps?.getUser ?? getChatSupabaseUser;
@@ -31,5 +33,6 @@ export async function createInterviewSessionCore({
   return await createInterviewSessionRecord({
     interviewConfigId,
     userId: user.id,
+    nickname,
   });
 }

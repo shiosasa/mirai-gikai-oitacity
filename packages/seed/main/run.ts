@@ -4,6 +4,7 @@ import {
   councilSessions,
   factions,
   committees,
+  politicians,
   createFactionStances,
   createBillsTags,
   createInterviewConfig,
@@ -23,6 +24,7 @@ import {
   DEMO_REPORT_ID_CITIZEN,
 } from "./data";
 import { createBillContents } from "./bill-contents-data";
+import { validateOitaSeed } from "./validate-oita-seed";
 import {
   createShippingBillInterviewConfig,
   createShippingBillQuestions,
@@ -37,6 +39,7 @@ async function seedDatabase() {
   console.log("🌱 Starting database seeding...");
 
   try {
+    validateOitaSeed({ councilSessions, bills, tags, politicians });
     await clearAllData(supabase);
 
     // Insert tags
@@ -115,6 +118,24 @@ async function seedDatabase() {
     }
 
     console.log(`✅ Inserted ${insertedFactions.length} factions`);
+
+    // Insert politicians
+    console.log("👤 Inserting politicians...");
+    const politiciansWithFaction = politicians.map((p, idx) => ({
+      ...p,
+      faction_id: insertedFactions[idx % insertedFactions.length]?.id,
+    }));
+    const { data: insertedPoliticians, error: politiciansError } =
+      await supabase
+        .from("politicians")
+        .insert(politiciansWithFaction)
+        .select("id, name");
+
+    if (politiciansError) {
+      console.warn(`Politicians insert note: ${politiciansError.message}`);
+    } else {
+      console.log(`✅ Inserted ${insertedPoliticians?.length ?? 0} politicians`);
+    }
 
     // Insert bills
     console.log("📄 Inserting bills...");

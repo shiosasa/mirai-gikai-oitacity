@@ -1,4 +1,5 @@
 import { MessageSquare } from "lucide-react";
+import Link from "next/link";
 import type { BillDiscussion } from "../../loaders/get-bill-discussions";
 
 interface BillDiscussionsSectionProps {
@@ -68,9 +69,18 @@ function DiscussionCard({ discussion }: { discussion: BillDiscussion }) {
     <div className="border border-mirai-border rounded-lg overflow-hidden">
       {/* 質問者 */}
       <div className="bg-mirai-surface px-4 py-3">
-        <p className="text-sm font-semibold text-mirai-text">
-          {questionerLabel}
-        </p>
+        {discussion.politician_id ? (
+          <Link
+            href={`/politicians/${discussion.politician_id}`}
+            className="text-sm font-semibold text-mirai-text hover:underline"
+          >
+            {questionerLabel}
+          </Link>
+        ) : (
+          <p className="text-sm font-semibold text-mirai-text">
+            {questionerLabel}
+          </p>
+        )}
       </div>
 
       <div className="px-4 py-4 space-y-4">

@@ -1,5 +1,6 @@
 import { createClient } from "@supabase/supabase-js";
 import type { Database } from "@mirai-gikai/supabase";
+import { assertLocalSeedResetAllowed } from "./assert-local-seed-reset";
 
 export type AdminClient = ReturnType<typeof createAdminClient>;
 
@@ -16,6 +17,7 @@ const TABLES_TO_CLEAR = [
   "interview_sessions",
   "interview_questions",
   "interview_configs",
+  "politicians",
   "faction_stances",
   "chats",
   "bill_contents",
@@ -28,6 +30,11 @@ const TABLES_TO_CLEAR = [
 ] as const;
 
 export async function clearAllData(supabase: AdminClient) {
+  assertLocalSeedResetAllowed(
+    process.env.SUPABASE_URL,
+    process.env.ALLOW_DESTRUCTIVE_SEED_RESET
+  );
+
   console.log("🧹 Clearing existing data...");
 
   for (const table of TABLES_TO_CLEAR) {

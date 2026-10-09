@@ -62,8 +62,10 @@ export function MakePublicModal({
           </CheckListItem>
           <p className="text-sm text-black">
             非公開で提出した場合でも、ご意見は
-            {formatPolicyReviewPhrase(siteConfig.managingParty, "での")}
-            に活用させていただきます。
+            {siteConfig.managingParty
+              ? `${formatPolicyReviewPhrase(siteConfig.managingParty, "での")}に`
+              : "市政への提言などに"}
+            活用させていただきます。
           </p>
         </div>
 

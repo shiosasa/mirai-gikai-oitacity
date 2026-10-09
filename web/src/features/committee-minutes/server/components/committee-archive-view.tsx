@@ -51,7 +51,7 @@ export function CommitteeArchiveView({ meetings }: Props) {
               >
                 <div className="flex items-center gap-2 text-sm font-bold text-mirai-text">
                   <CalendarDays className="w-4 h-4 text-primary-accent" />
-                  {formatJapaneseDate(m.meetingDate)}
+                  {m.meetingDate ? formatJapaneseDate(m.meetingDate) : ""}
                   {m.committeeName !== committeeName && (
                     <span className="text-xs font-normal text-mirai-text-muted">
                       （当時の名称: {m.committeeName}）

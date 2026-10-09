@@ -15,12 +15,14 @@ import { InterviewConsentModal } from "./interview-consent-modal";
 
 interface InterviewActionButtonsProps {
   billId: string;
+  interviewConfigId: string;
   sessionInfo: LatestInterviewSession | null;
   previewToken?: string;
 }
 
 export function InterviewActionButtons({
   billId,
+  interviewConfigId,
   sessionInfo,
   previewToken,
 }: InterviewActionButtonsProps) {
@@ -98,6 +100,7 @@ export function InterviewActionButtons({
         open={showConsentModal}
         onOpenChange={setShowConsentModal}
         billId={billId}
+        interviewConfigId={interviewConfigId}
         previewToken={previewToken}
       />
     </>

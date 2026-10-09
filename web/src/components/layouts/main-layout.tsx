@@ -16,7 +16,8 @@ interface MainLayoutProps {
 
 export function MainLayout({ children }: MainLayoutProps) {
   const pathname = usePathname();
-  const useSidebarLayout = isMainPage(pathname) && siteConfig.features.aiChat;
+  const useSidebarLayout =
+    pathname !== "/" && isMainPage(pathname) && siteConfig.features.aiChat;
   const isInterview = isInterviewSection(pathname);
   const isWide = isWidePage(pathname);
 

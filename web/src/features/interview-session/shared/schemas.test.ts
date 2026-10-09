@@ -409,13 +409,14 @@ describe("interviewChatWithReportSchema", () => {
     expect(result.next_stage).toBe("summary");
   });
 
-  it("report は optional（省略可能）", () => {
+  it("report は nullable（chat遷移時は null）", () => {
     const result = interviewChatWithReportSchema.parse({
       text: "インタビューを再開します",
+      report: null,
       next_stage: "chat" as const,
     });
     expect(result.text).toBe("インタビューを再開します");
-    expect(result.report).toBeUndefined();
+    expect(result.report).toBeNull();
     expect(result.next_stage).toBe("chat");
   });
 

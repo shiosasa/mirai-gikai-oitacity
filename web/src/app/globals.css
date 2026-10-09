@@ -55,6 +55,11 @@
 
   --color-gray-300: #c7c7cc;
 
+  /* 大分版 Pink Theme Tokens */
+  --color-oita-pink: #d97792;
+  --color-oita-pink-light: #fff5f7;
+  --color-oita-pink-accent: #ebdbe0;
+
   /* --- Mirai Design System Color Tokens --- */
 
   /* Text */
@@ -101,8 +106,8 @@
   --color-mirai-progress-fill: #a9e89d;
 
   /* Gradient endpoints */
-  --color-mirai-gradient-start: #dbd3f9;
-  --color-mirai-gradient-end: #ede9fd;
+  --color-mirai-gradient-start: #fbbdd0;
+  --color-mirai-gradient-end: #fce4ed;
 
   /* 事務事業評価: 3軸方向インジケータ */
   --color-jimu-up: #1f8a4c;
@@ -137,6 +142,8 @@
   --popover-foreground: oklch(0.145 0 0);
   --primary: #a495d6;
   --primary-accent: #7a6cc0;
+  --primary: #d97792;
+  --primary-accent: #c96581;
   --primary-foreground: oklch(0.985 0 0);
   --secondary: oklch(0.97 0 0);
   --secondary-foreground: oklch(0.205 0 0);
@@ -258,7 +265,7 @@
   }
 
   .bg-mirai-light-gradient {
-    background-image: linear-gradient(to bottom, #f2f0fe, #f9f7ff);
+    background-image: linear-gradient(to bottom, #fce4ed, #fef2f6);
   }
 
   .bg-mirai-white-fade {

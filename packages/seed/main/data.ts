@@ -185,21 +185,27 @@ export const committees: CommitteeInsert[] = [
 ];
 
 // タグデータ
+// タグデータ（大分市議会カテゴリー）
 export const tags: TagInsert[] = [
   {
-    label: "まちづくり・環境",
-    description: "まちづくり、環境保護、都市計画に関する議案",
+    label: "子育て・教育",
+    description: "子育て支援、学校教育、医療費助成などに関する議案",
     featured_priority: 1,
   },
   {
-    label: "子育て・教育",
-    description: "子育て支援、教育政策、若者支援に関する議案",
+    label: "安心・安全・防災",
+    description: "防災対策、防犯、インフラ点検、救命体制に関する議案",
     featured_priority: 2,
   },
   {
-    label: "福祉・医療",
-    description: "福祉、医療、高齢者支援に関する議案",
+    label: "まちづくり・暮らし",
+    description: "地域活性化、公共交通、公園整備、環境・ごみ処理に関する議案",
     featured_priority: 3,
+  },
+  {
+    label: "まちの仕組み・選挙",
+    description: "議会改革、行政手続デジタル化、選挙、条例改正に関する議案",
+    featured_priority: 4,
   },
 ];
 
@@ -912,3 +918,40 @@ export function createAdditionalDemoReports(): InterviewReportInsert[] {
     },
   ];
 }
+
+type PoliticianInsert = Database["public"]["Tables"]["politicians"]["Insert"];
+
+export const politicians: PoliticianInsert[] = [
+  {
+    name: "大分 太郎",
+    name_kana: "おおいた たろう",
+    avatar_url: "/img/politicians/oita_taro.webp",
+    terms_count: 4,
+    committee_names: ["総務常任委員会", "防災・減災特別委員会"],
+    website_url: "https://example.com/oita-taro",
+    twitter_url: "https://x.com/oita_taro",
+    contact_info: "oita-taro@example.com",
+    bio: "市民の皆さまの声に寄り添い、安全で安心して暮らせる大分市の未来を創ります！",
+  },
+  {
+    name: "豊後 花子",
+    name_kana: "ぶんご はなこ",
+    avatar_url: "/img/politicians/bungo_hanako.webp",
+    terms_count: 2,
+    committee_names: ["厚生保健常任委員会", "子育て支援特別委員会"],
+    website_url: "https://example.com/bungo-hanako",
+    twitter_url: "https://x.com/bungo_hanako",
+    contact_info: "bungo-hanako@example.com",
+    bio: "子育て・教育支援の拡充と、女性が働きやすい街づくりに全力を尽くします。",
+  },
+  {
+    name: "高崎 健一",
+    name_kana: "たかさき けんいち",
+    avatar_url: "/img/politicians/takasaki_kenichi.webp",
+    terms_count: 3,
+    committee_names: ["都市環境常任委員会"],
+    website_url: "https://example.com/takasaki-k",
+    contact_info: "takasaki@example.com",
+    bio: "大分駅周辺の活性化とスマートシティ推進、デジタルイノベーションを先導します。",
+  },
+];

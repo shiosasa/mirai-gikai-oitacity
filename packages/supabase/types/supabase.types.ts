@@ -34,6 +34,164 @@ export type Database = {
   }
   public: {
     Tables: {
+      politicians: {
+        Row: {
+          id: string
+          name: string
+          name_kana: string
+          avatar_url: string | null
+          terms_count: number
+          seat_number: number | null
+          faction_id: string | null
+          committee_names: string[]
+          is_published: boolean
+          data_verified_at: string | null
+          profile_source_url: string | null
+          website_url: string | null
+          twitter_url: string | null
+          contact_info: string | null
+          bio: string | null
+          created_at: string
+          updated_at: string
+        }
+        Insert: {
+          id?: string
+          name: string
+          name_kana: string
+          avatar_url?: string | null
+          terms_count?: number
+          seat_number?: number | null
+          faction_id?: string | null
+          committee_names?: string[]
+          is_published?: boolean
+          data_verified_at?: string | null
+          profile_source_url?: string | null
+          website_url?: string | null
+          twitter_url?: string | null
+          contact_info?: string | null
+          bio?: string | null
+          created_at?: string
+          updated_at?: string
+        }
+        Update: {
+          id?: string
+          name?: string
+          name_kana?: string
+          avatar_url?: string | null
+          terms_count?: number
+          seat_number?: number | null
+          faction_id?: string | null
+          committee_names?: string[]
+          is_published?: boolean
+          data_verified_at?: string | null
+          profile_source_url?: string | null
+          website_url?: string | null
+          twitter_url?: string | null
+          contact_info?: string | null
+          bio?: string | null
+          created_at?: string
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "politicians_faction_id_fkey"
+            columns: ["faction_id"]
+            isOneToOne: false
+            referencedRelation: "factions"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      politician_factions: {
+        Row: {
+          created_at: string
+          ended_on: string | null
+          faction_id: string
+          id: string
+          politician_id: string
+          source_url: string | null
+          started_on: string | null
+        }
+        Insert: {
+          created_at?: string
+          ended_on?: string | null
+          faction_id: string
+          id?: string
+          politician_id: string
+          source_url?: string | null
+          started_on?: string | null
+        }
+        Update: {
+          created_at?: string
+          ended_on?: string | null
+          faction_id?: string
+          id?: string
+          politician_id?: string
+          source_url?: string | null
+          started_on?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "politician_factions_faction_id_fkey"
+            columns: ["faction_id"]
+            isOneToOne: false
+            referencedRelation: "factions"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "politician_factions_politician_id_fkey"
+            columns: ["politician_id"]
+            isOneToOne: false
+            referencedRelation: "politicians"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      politician_committees: {
+        Row: {
+          committee_id: string
+          created_at: string
+          ended_on: string | null
+          id: string
+          politician_id: string
+          source_url: string | null
+          started_on: string | null
+        }
+        Insert: {
+          committee_id: string
+          created_at?: string
+          ended_on?: string | null
+          id?: string
+          politician_id: string
+          source_url?: string | null
+          started_on?: string | null
+        }
+        Update: {
+          committee_id?: string
+          created_at?: string
+          ended_on?: string | null
+          id?: string
+          politician_id?: string
+          source_url?: string | null
+          started_on?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "politician_committees_committee_id_fkey"
+            columns: ["committee_id"]
+            isOneToOne: false
+            referencedRelation: "committees"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "politician_committees_politician_id_fkey"
+            columns: ["politician_id"]
+            isOneToOne: false
+            referencedRelation: "politicians"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       bill_contents: {
         Row: {
           bill_id: string
@@ -41,9 +199,15 @@ export type Database = {
           created_at: string
           difficulty_level: Database["public"]["Enums"]["difficulty_level_enum"]
           id: string
+          key_points: string[]
+          reasons: string | null
           summary: string
+          supporting_arguments: Json
+          cautious_arguments: Json
+          target_audience: string[]
           title: string
           updated_at: string
+          updates: Json
         }
         Insert: {
           bill_id: string
@@ -51,9 +215,15 @@ export type Database = {
           created_at?: string
           difficulty_level: Database["public"]["Enums"]["difficulty_level_enum"]
           id?: string
+          key_points?: string[]
+          reasons?: string | null
           summary: string
+          supporting_arguments?: Json
+          cautious_arguments?: Json
+          target_audience?: string[]
           title: string
           updated_at?: string
+          updates?: Json
         }
         Update: {
           bill_id?: string
@@ -61,9 +231,15 @@ export type Database = {
           created_at?: string
           difficulty_level?: Database["public"]["Enums"]["difficulty_level_enum"]
           id?: string
+          key_points?: string[]
+          reasons?: string | null
           summary?: string
+          supporting_arguments?: Json
+          cautious_arguments?: Json
+          target_audience?: string[]
           title?: string
           updated_at?: string
+          updates?: Json
         }
         Relationships: [
           {
@@ -90,6 +266,8 @@ export type Database = {
           questioner_name: string
           questioner_number: string | null
           questioner_party: string | null
+          politician_id: string | null
+          source_url: string | null
           session_day: number
         }
         Insert: {
@@ -106,6 +284,8 @@ export type Database = {
           questioner_name: string
           questioner_number?: string | null
           questioner_party?: string | null
+          politician_id?: string | null
+          source_url?: string | null
           session_day: number
         }
         Update: {
@@ -122,6 +302,8 @@ export type Database = {
           questioner_name?: string
           questioner_number?: string | null
           questioner_party?: string | null
+          politician_id?: string | null
+          source_url?: string | null
           session_day?: number
         }
         Relationships: [
@@ -130,6 +312,13 @@ export type Database = {
             columns: ["bill_id"]
             isOneToOne: false
             referencedRelation: "bills"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "bill_discussions_politician_id_fkey"
+            columns: ["politician_id"]
+            isOneToOne: false
+            referencedRelation: "politicians"
             referencedColumns: ["id"]
           },
         ]
@@ -784,6 +973,7 @@ export type Database = {
           council_session_id: string
           created_at: string | null
           id: string
+          politician_id: string | null
           publish_status: string
           question_order: number
           questioner_name: string
@@ -801,6 +991,7 @@ export type Database = {
           council_session_id: string
           created_at?: string | null
           id?: string
+          politician_id?: string | null
           publish_status?: string
           question_order?: number
           questioner_name: string
@@ -818,6 +1009,7 @@ export type Database = {
           council_session_id?: string
           created_at?: string | null
           id?: string
+          politician_id?: string | null
           publish_status?: string
           question_order?: number
           questioner_name?: string
@@ -836,6 +1028,13 @@ export type Database = {
             columns: ["council_session_id"]
             isOneToOne: false
             referencedRelation: "council_sessions"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "general_questions_politician_id_fkey"
+            columns: ["politician_id"]
+            isOneToOne: false
+            referencedRelation: "politicians"
             referencedColumns: ["id"]
           },
         ]
@@ -1034,6 +1233,7 @@ export type Database = {
           id: string
           interview_config_id: string
           langfuse_session_id: string | null
+          nickname: string | null
           rating: number | null
           started_at: string
           updated_at: string
@@ -1046,6 +1246,7 @@ export type Database = {
           id?: string
           interview_config_id: string
           langfuse_session_id?: string | null
+          nickname?: string | null
           rating?: number | null
           started_at?: string
           updated_at?: string
@@ -1058,6 +1259,7 @@ export type Database = {
           id?: string
           interview_config_id?: string
           langfuse_session_id?: string | null
+          nickname?: string | null
           rating?: number | null
           started_at?: string
           updated_at?: string
@@ -1287,6 +1489,84 @@ export type Database = {
             referencedColumns: ["id"]
           },
         ]
+      }
+      proposals: {
+        Row: {
+          id: string
+          title: string
+          status: string
+          status_class: string
+          badge: string | null
+          summary1: string | null
+          summary2: string | null
+          summary3: string | null
+          gikai_detail: string | null
+          reason: string | null
+          point1: string | null
+          point2: string | null
+          point3: string | null
+          impact: string | null
+          pro: string | null
+          con: string | null
+          link_label: string | null
+          link_url: string | null
+          giketu_date: string | null
+          published_date: string | null
+          publish_status: string
+          created_at: string
+          updated_at: string
+        }
+        Insert: {
+          id?: string
+          title: string
+          status: string
+          status_class?: string
+          badge?: string | null
+          summary1?: string | null
+          summary2?: string | null
+          summary3?: string | null
+          gikai_detail?: string | null
+          reason?: string | null
+          point1?: string | null
+          point2?: string | null
+          point3?: string | null
+          impact?: string | null
+          pro?: string | null
+          con?: string | null
+          link_label?: string | null
+          link_url?: string | null
+          giketu_date?: string | null
+          published_date?: string | null
+          publish_status?: string
+          created_at?: string
+          updated_at?: string
+        }
+        Update: {
+          id?: string
+          title?: string
+          status?: string
+          status_class?: string
+          badge?: string | null
+          summary1?: string | null
+          summary2?: string | null
+          summary3?: string | null
+          gikai_detail?: string | null
+          reason?: string | null
+          point1?: string | null
+          point2?: string | null
+          point3?: string | null
+          impact?: string | null
+          pro?: string | null
+          con?: string | null
+          link_label?: string | null
+          link_url?: string | null
+          giketu_date?: string | null
+          published_date?: string | null
+          publish_status?: string
+          created_at?: string
+          updated_at?: string
+        }
+        Relationships: []
       }
       press_conferences: {
         Row: {

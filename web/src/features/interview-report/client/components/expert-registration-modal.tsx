@@ -101,7 +101,7 @@ export function ExpertRegistrationModal({
             </DialogTitle>
           </DialogHeader>
           <p className="text-sm font-medium text-gray-800">
-            政策検討のために、有識者として
+            市政への提言に役立てるために、有識者として
             {formatContactorName(
               siteConfig.managingParty,
               siteConfig.operator.name
@@ -128,7 +128,7 @@ export function ExpertRegistrationModal({
         </DialogHeader>
 
         <p className="text-sm text-gray-800 mt-2 font-medium">
-          政策検討のために、有識者として
+          市政への提言に役立てるために、有識者として
           {formatContactorName(
             siteConfig.managingParty,
             siteConfig.operator.name

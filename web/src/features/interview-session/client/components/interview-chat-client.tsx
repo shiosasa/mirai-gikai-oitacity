@@ -17,10 +17,14 @@ import { InterviewRatingWidget } from "./interview-rating-widget";
 import { InterviewSummaryInput } from "./interview-summary-input";
 import { QuickReplyButtons } from "./quick-reply-buttons";
 import { TimeUpPrompt } from "./time-up-prompt";
+import { NicknameDialog } from "./nickname-dialog";
+import { submitInterviewNickname } from "../../server/actions/submit-interview-nickname";
 
 interface InterviewChatClientProps {
   billId: string;
   sessionId: string;
+  /** 初期表示の挨拶に使う議案タイトル */
+  billTitle?: string;
   initialMessages: Array<{
     id: string;
     role: "assistant" | "user";
@@ -38,6 +42,7 @@ interface InterviewChatClientProps {
 export function InterviewChatClient({
   billId,
   sessionId,
+  billTitle,
   initialMessages,
   mode,
   totalQuestions,
@@ -72,6 +77,7 @@ export function InterviewChatClient({
   });
 
   const [timeUpDismissed, setTimeUpDismissed] = useState(false);
+  const [userNickname, setUserNickname] = useState<string | null>(null);
 
   const progress = useMemo(
     () => calcInterviewProgress(totalQuestions, stage, messages),
@@ -164,10 +170,12 @@ export function InterviewChatClient({
             {messages.length === 0 && !object && (
               <div className="flex flex-col gap-4">
                 <p className="text-sm font-bold leading-[1.8] text-mirai-text">
-                  議案についてのAIインタビューを開始します。
+                  あ、来てくれてありがとう！
+                  {billTitle ? `「${billTitle}」` : "この取り組み"}
+                  について、ざっくばらんにあなたの本音を教えてほしいっちゃ。
                 </p>
                 <p className="text-sm text-gray-600">
-                  あなたの意見や経験をお聞かせください。
+                  思ったことをそのまま話してくれたらいいけんな。
                 </p>
               </div>
             )}
@@ -277,6 +285,15 @@ export function InterviewChatClient({
             />
           )}
         </div>
+
+        <NicknameDialog
+          isOpen={!userNickname}
+          onConfirm={(name) => {
+            setUserNickname(name);
+            // セッションに保存（失敗してもチャットは継続できるため待たない）
+            void submitInterviewNickname(sessionId, name);
+          }}
+        />
       </div>
     </div>
   );

@@ -50,3 +50,41 @@ export type CommitteeArchive = {
   meetingCount: number;
   latestMeetingDate: string;
 };
+
+export type MeetingType = "本会議" | "委員会";
+
+export type MeetingSession = {
+  id: number;
+  meeting_id: number;
+  session_title: string;
+  date: string;
+  content: string;
+  created_at: string;
+};
+
+export type Meeting = {
+  id: number;
+  title: string;
+  meeting_type: MeetingType;
+  date: string;
+  term: string;
+  created_at: string;
+};
+
+export type MeetingSummary = {
+  id: number;
+  title: string;
+  meetingType: MeetingType;
+  date: string;
+  term: string;
+  sessions: MeetingSession[];
+};
+
+export type MeetingArchive = {
+  id: number;
+  title: string;
+  meetingType: MeetingType;
+  term: string;
+  sessionCount: number;
+  latestSessionDate: string;
+};

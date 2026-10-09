@@ -156,13 +156,13 @@ describe("buildBulkModeSystemPrompt", () => {
     expect(result).toContain("Bulk Mode");
   });
 
-  it("質問が空の場合「（賛成か、反対か）」がフォールバックとして含まれる", () => {
+  it("質問が空の場合、中立な聞き役の質問が含まれる", () => {
     const result = buildBulkModeSystemPrompt({
       ...baseParams,
       questions: [],
     });
 
-    expect(result).toContain("（賛成か、反対か）");
+    expect(result).toContain("この議案について、どんなことを感じましたか？");
   });
 
   describe("nextQuestionIdが指定されている場合", () => {
@@ -187,7 +187,7 @@ describe("buildBulkModeSystemPrompt", () => {
       });
 
       // 通常プロンプトのフォールバック
-      expect(result).toContain("半構造化デプスインタビュー");
+      expect(result).toContain("大分弁の聞き役AI");
       expect(result).toContain("<bill_detail>");
     });
 

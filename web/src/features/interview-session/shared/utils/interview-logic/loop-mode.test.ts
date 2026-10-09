@@ -163,22 +163,21 @@ describe("buildLoopModeSystemPrompt", () => {
     expect(result).toContain("Loop Mode");
   });
 
-  it("質問が空の場合「（賛成か、反対か）」がフォールバックとして含まれる", () => {
+  it("質問が空の場合、中立な聞き役の質問が含まれる", () => {
     const result = buildLoopModeSystemPrompt({
       ...baseParams,
       questions: [],
     });
 
-    expect(result).toContain("（賛成か、反対か）");
+    expect(result).toContain("この議案について、どんなことを感じましたか？");
   });
 
   it("深掘りテクニックが含まれる", () => {
     const result = buildLoopModeSystemPrompt(baseParams);
 
-    expect(result).toContain("抽象⇔具体の往復");
-    expect(result).toContain("仮定質問");
-    expect(result).toContain("逆側の視点");
-    expect(result).toContain("中間要約と追加確認");
+    expect(result).toContain("1回の返答で質問するのは必ず1つ");
+    expect(result).toContain("方言を誇張しない");
+    expect(result).not.toContain("逆側の視点");
   });
 
   it("トピックタイトルのガイダンスが含まれる", () => {

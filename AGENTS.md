@@ -20,14 +20,18 @@ cp .env ../mirai-gikai-<branch-name>/
 cd ../mirai-gikai-<branch-name> && pnpm install --frozen-lockfile
 ```
 
-- **目的**: fukuoka-pref/developブランチを常にクリーンに保ち、作業の分離と並列作業を容易にする
+- **目的**: 開発ブランチを常にクリーンに保ち、作業の分離と並列作業を容易にする
+
+### 大分市版「みらいぎかいっち」専用リポジトリ
+本リポジトリは大分市議会向けの市民情報サイト「みらいぎかいっち＠大分市」専用リポジトリです。
+福岡版等の他地域向けコードは含まれず、全ての機能・コンテンツは大分市仕様で実装します。
 
 ### 実装完了後は即PR作成
 実装完了後は「コミットしますか？」等の確認を挟まず、コミット → push → PR作成まで一気に進めること。ユーザーへの確認は不要。
 
-**ベースブランチは必ず `fukuoka-pref/develop`**。`kawasaki/develop` や `main` へのPRは出さないこと。
+**ベースブランチは大分版のブランチ（`oita-city/develop` 等）**。`fukuoka-pref/develop` や `kawasaki/develop` へのPRは出さないこと。
 ```bash
-gh pr create --base fukuoka-pref/develop ...
+gh pr create --base oita-city/develop ...
 ```
 
 ### レビューはCodeRabbit

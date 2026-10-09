@@ -1,11 +1,11 @@
 import { Coins, ExternalLink } from "lucide-react";
 
 const TAX_MAP_URL =
-  "https://inshatancountry-jpn-tax-map.com/local-tax/?pref=40&entity=400009";
+  "https://inshatancountry-jpn-tax-map.com/local-tax/?pref=44&entity=442011";
 
 /**
  * トップページから「税金の使い道マップ（外部サイト）」への導線バナー。
- * 福岡県の歳入・歳出を可視化する外部サイトに遷移する。
+ * 大分市の歳入・歳出を可視化する外部サイトに遷移する。
  */
 export function PrefFinanceBanner() {
   return (
@@ -19,10 +19,10 @@ export function PrefFinanceBanner() {
         <Coins className="w-6 h-6 text-primary shrink-0 mt-0.5" />
         <div>
           <p className="font-bold text-mirai-text">
-            福岡県のお金の使い道（外部サイト）
+            大分市のお金の使い道（外部サイト）
           </p>
           <p className="mt-0.5 text-sm text-mirai-text-secondary">
-            「税金の使い道マップ」で県の収入と支出をわかりやすく見られます
+            「税金の使い道マップ」で市の収入と支出をわかりやすく見られます
           </p>
         </div>
       </div>

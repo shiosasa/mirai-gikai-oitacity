@@ -109,6 +109,7 @@ export async function findSessionOwnerById(sessionId: string) {
 export async function createInterviewSessionRecord(params: {
   interviewConfigId: string;
   userId: string;
+  nickname?: string | null;
 }): Promise<InterviewSession> {
   const supabase = createAdminClient();
   const { data, error } = await supabase
@@ -116,6 +117,7 @@ export async function createInterviewSessionRecord(params: {
     .insert({
       interview_config_id: params.interviewConfigId,
       user_id: params.userId,
+      nickname: params.nickname ?? null,
       started_at: new Date().toISOString(),
     })
     .select()
@@ -126,6 +128,26 @@ export async function createInterviewSessionRecord(params: {
   }
 
   return data;
+}
+
+/**
+ * セッションのニックネームを更新
+ */
+export async function updateInterviewSessionNickname(
+  sessionId: string,
+  nickname: string | null
+): Promise<void> {
+  const supabase = createAdminClient();
+  const { error } = await supabase
+    .from("interview_sessions")
+    .update({ nickname })
+    .eq("id", sessionId);
+
+  if (error) {
+    throw new Error(
+      `Failed to update interview session nickname: ${error.message}`
+    );
+  }
 }
 
 /**

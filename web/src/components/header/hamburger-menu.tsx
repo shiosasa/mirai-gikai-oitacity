@@ -13,10 +13,9 @@ import { TextSizeToggle } from "@/lib/text-size";
 
 const NAV_LINKS = [
   { href: "/", label: "トップページ" },
-  { href: "/sessions", label: "過去の定例会" },
-  { href: "/budget", label: "過去の予算" },
-  { href: "/committees", label: "委員会" },
-  { href: "/press-conferences", label: "知事記者会見" },
+  { href: "/topics", label: "トピックス" },
+  { href: "/committees", label: "本会議・委員会" },
+  { href: "/politicians", label: "議員紹介" },
 ] as const;
 
 export function HamburgerMenu() {

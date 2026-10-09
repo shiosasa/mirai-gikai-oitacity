@@ -11,9 +11,36 @@ export type BillContentInsert =
 export type BillContentUpdate =
   Database["public"]["Tables"]["bill_contents"]["Update"];
 
+// トピックス記事の裏付けとなる会議・議案への参照（bill_articles.source_refs の要素）
+export type TopicSourceRef = {
+  session_id: number;
+  meeting_id: number;
+  meeting_type: "本会議" | "委員会" | string;
+  meeting_title: string;
+  session_label: string;
+  date: string;
+  bill_number: string | null;
+  bill_name: string | null;
+  evidence_quote: string | null;
+};
+
+export type BillArticle =
+  Database["public"]["Tables"]["bill_articles"]["Row"] & {
+    published_at: string | null;
+    source_refs?: TopicSourceRef[] | null;
+    /** 記事と同名の議案に公開中のAIインタビューがある場合、その bills.id */
+    interview_bill_id?: string | null;
+  };
+export type BillArticleInsert =
+  Database["public"]["Tables"]["bill_articles"]["Insert"];
+export type BillArticleUpdate =
+  Database["public"]["Tables"]["bill_articles"]["Update"];
+
 // Enums
 export type BillStatusEnum = Database["public"]["Enums"]["bill_status_enum"];
 export type StanceTypeEnum = Database["public"]["Enums"]["stance_type_enum"];
+export type ArticleCategoryEnum =
+  Database["public"]["Enums"]["article_category_enum"];
 
 // mirai_stances テーブルは福岡県DB上には存在しないが、
 // stance-styles.ts と関連テストが参照するためローカル型として定義する
@@ -67,6 +94,7 @@ export type FeaturedTag = {
 
 export type BillWithContent = Bill & {
   bill_content?: BillContent;
+  bill_article?: BillArticle;
   faction_stances?: FactionStance[];
   committee_id: string | null;
   tags: BillTag[];
