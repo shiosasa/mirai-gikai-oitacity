@@ -2,8 +2,8 @@ import "./globals.css";
 import type { Metadata, Viewport } from "next";
 import { Lexend_Giga, Noto_Sans_JP } from "next/font/google";
 import NextTopLoader from "nextjs-toploader";
-import { siteConfig } from "@/config/site.config";
 import type { ReactNode } from "react";
+import { siteConfig } from "@/config/site.config";
 import { env } from "@/lib/env";
 
 const notoSansJP = Noto_Sans_JP({
@@ -19,7 +19,7 @@ const lexendGiga = Lexend_Giga({
 });
 
 const ogImage = {
-  url: "/ogp.jpg",
+  url: "/ogp-oita-city.jpg",
   width: 1200,
   height: 630,
   alt: `${siteConfig.siteName}のOGPイメージ`,
