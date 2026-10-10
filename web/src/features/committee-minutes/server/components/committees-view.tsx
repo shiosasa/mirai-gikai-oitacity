@@ -1,22 +1,18 @@
 import "server-only";
-import { ChevronRight, Landmark, ListChecks } from "lucide-react";
+import { ChevronRight, Landmark } from "lucide-react";
 import Link from "next/link";
 import type { MeetingArchive } from "../repositories/meeting-repository";
 
 type Props = {
   plenaryMeetings: MeetingArchive[];
-  committeeMeetings: MeetingArchive[];
-  committeeArchives: MeetingArchive[];
-  allMeetings: MeetingArchive[];
   allCommitteeMeetings: MeetingArchive[];
+  billPickupCount: number;
 };
 
 export function CommitteesView({
   plenaryMeetings,
-  committeeMeetings,
-  committeeArchives,
-  allMeetings,
   allCommitteeMeetings,
+  billPickupCount,
 }: Props) {
   // 委員会を一意な名前でグループ化
   const uniqueCommittees = Array.from(
@@ -44,95 +40,84 @@ export function CommitteesView({
       <header className="rounded-2xl bg-gradient-to-br from-mirai-gradient-start to-mirai-gradient-end px-6 py-6 flex flex-col gap-3">
         <span className="inline-flex items-center gap-1.5 text-xs font-medium text-primary-accent bg-white/70 rounded-full px-3 py-1 w-fit">
           <Landmark className="w-3.5 h-3.5" />
-          委員会・本会議アーカイブ
+          本会議・委員会アーカイブ
         </span>
         <h1 className="text-xl sm:text-2xl font-bold text-mirai-text leading-snug">
-          委員会・本会議で話し合われたこと
+          本会議・委員会で話し合われたこと
         </h1>
         <p className="text-sm text-mirai-text-secondary leading-relaxed">
-          大分市議会には、テーマごとにくわしく議論する「委員会」と、議案の最終決定を行う「本会議」があります。
+          大分市議会には、議案の最終決定を行う「本会議」と、テーマごとにくわしく議論する「委員会」があります。
           それぞれでどんな議題が話し合われたのかを、会議ごとに記録して残していきます。
         </p>
       </header>
 
-      {!hasContent ? (
-        <div className="flex flex-col gap-4">
-          <p className="text-sm text-mirai-text-muted">
-            委員会・本会議の記録は準備中です。
-          </p>
-          <BillPickupsLink />
-        </div>
-      ) : (
-        <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
-          <BillPickupsLink />
-          {/* 本会議への入り口 */}
-          {plenaryMeetings.length > 0 && (
-            <Link href={`/committees/plenary`}>
-              <div className="flex items-center justify-between gap-2 rounded-2xl border border-mirai-border bg-white p-6 hover:border-primary/50 hover:shadow-md transition-all duration-200 h-full">
-                <div>
-                  <div className="text-xs text-mirai-text-muted mb-2">
-                    <span className="text-xs text-white bg-red-500 rounded-full px-2 py-0.5 font-medium">
-                      本会議
-                    </span>
-                  </div>
-                  <div className="font-bold text-mirai-text text-lg">
-                    本会議
-                  </div>
-                  <div className="mt-1 text-xs text-mirai-text-muted">
-                    {plenaryMeetings.length}件の開催記録
-                  </div>
-                </div>
-                <ChevronRight className="w-5 h-5 shrink-0 text-primary-accent" />
-              </div>
-            </Link>
-          )}
-
-          {/* 各委員会への入り口（常任→特別の順） */}
-          {sortedCommittees.map((meeting) => (
-            <Link key={meeting.id} href={`/committees/committee/${meeting.id}`}>
-              <div className="flex items-center justify-between gap-2 rounded-2xl border border-mirai-border bg-white p-6 hover:border-primary/50 hover:shadow-md transition-all duration-200 h-full">
-                <div>
-                  <div className="text-xs text-mirai-text-muted mb-2">
-                    <span className="text-xs text-primary-accent bg-mirai-gradient-end rounded-full px-2 py-0.5 font-medium">
-                      委員会
-                    </span>
-                  </div>
-                  <div className="font-bold text-mirai-text text-lg">
-                    {meeting.title}
-                  </div>
-                  <div className="mt-1 text-xs text-mirai-text-muted">
-                    {meeting.sessions.length}件の開催記録
-                  </div>
-                </div>
-                <ChevronRight className="w-5 h-5 shrink-0 text-primary-accent" />
-              </div>
-            </Link>
-          ))}
-        </div>
+      {!hasContent && (
+        <p className="text-sm text-mirai-text-muted">
+          本会議・委員会の記録は準備中です。
+        </p>
       )}
-    </div>
-  );
-}
+      <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
+        <Link href="/committees/bill-pickups">
+          <div className="flex h-full items-center justify-between gap-2 rounded-2xl border border-mirai-border bg-white p-6 transition-all duration-200 hover:border-primary/50 hover:shadow-md">
+            <div>
+              <div className="mb-2 text-xs text-mirai-text-muted">
+                <span className="rounded-full bg-amber-100 px-2 py-0.5 text-xs font-medium text-amber-800">
+                  議案一覧
+                </span>
+              </div>
+              <div className="text-lg font-bold text-mirai-text">
+                議案ピックアップ
+              </div>
+              <div className="mt-1 text-xs text-mirai-text-muted">
+                {billPickupCount}件の議案
+              </div>
+            </div>
+            <ChevronRight className="w-5 h-5 shrink-0 text-primary-accent" />
+          </div>
+        </Link>
 
-function BillPickupsLink() {
-  return (
-    <Link href="/committees/bill-pickups">
-      <div className="flex h-full items-center justify-between gap-2 rounded-2xl border border-bill-pickup-text/40 bg-white p-6 transition-all duration-200 hover:border-bill-pickup-text hover:shadow-md">
-        <div>
-          <div className="mb-2 text-xs text-mirai-text-muted">
-            <span className="rounded-full bg-bill-pickup-bg px-2 py-0.5 text-xs font-medium text-bill-pickup-text">
-              議案一覧
-            </span>
-          </div>
-          <div className="text-lg font-bold text-mirai-text">
-            議案ピックアップ
-          </div>
-          <div className="mt-1 text-xs text-mirai-text-muted">
-            会議で取り上げられた議案を見る
-          </div>
-        </div>
-        <ListChecks className="h-5 w-5 shrink-0 text-bill-pickup-text" />
+        {/* 本会議への入り口 */}
+        {plenaryMeetings.length > 0 && (
+          <Link href={`/committees/plenary`}>
+            <div className="flex items-center justify-between gap-2 rounded-2xl border border-mirai-border bg-white p-6 hover:border-primary/50 hover:shadow-md transition-all duration-200 h-full">
+              <div>
+                <div className="text-xs text-mirai-text-muted mb-2">
+                  <span className="text-xs text-white bg-red-500 rounded-full px-2 py-0.5 font-medium">
+                    本会議
+                  </span>
+                </div>
+                <div className="font-bold text-mirai-text text-lg">本会議</div>
+                <div className="mt-1 text-xs text-mirai-text-muted">
+                  {plenaryMeetings.length}件の開催記録
+                </div>
+              </div>
+              <ChevronRight className="w-5 h-5 shrink-0 text-primary-accent" />
+            </div>
+          </Link>
+        )}
+
+        {/* 各委員会への入り口（常任→特別の順） */}
+        {sortedCommittees.map((meeting) => (
+          <Link key={meeting.id} href={`/committees/committee/${meeting.id}`}>
+            <div className="flex items-center justify-between gap-2 rounded-2xl border border-mirai-border bg-white p-6 hover:border-primary/50 hover:shadow-md transition-all duration-200 h-full">
+              <div>
+                <div className="text-xs text-mirai-text-muted mb-2">
+                  <span className="text-xs text-primary-accent bg-mirai-gradient-end rounded-full px-2 py-0.5 font-medium">
+                    委員会
+                  </span>
+                </div>
+                <div className="font-bold text-mirai-text text-lg">
+                  {meeting.title}
+                </div>
+                <div className="mt-1 text-xs text-mirai-text-muted">
+                  {meeting.sessions.length}件の開催記録
+                </div>
+              </div>
+              <ChevronRight className="w-5 h-5 shrink-0 text-primary-accent" />
+            </div>
+          </Link>
+        ))}
       </div>
-    </Link>
+    </div>
   );
 }

@@ -1,5 +1,27 @@
 import { describe, expect, it } from "vitest";
-import { categoryEnumFromBadge, getCategoryLabel } from "./article-category";
+import {
+  categoryEnumFromBadge,
+  filterArticlesByCategory,
+  getCategoryLabel,
+} from "./article-category";
+
+describe("filterArticlesByCategory", () => {
+  const articles = [
+    { id: "1", category: "childcare_education" },
+    { id: "2", category: "safety_disaster" },
+    { id: "3", category: "community_living" },
+  ];
+
+  it("returns every article for the all-categories selection", () => {
+    expect(filterArticlesByCategory(articles, "すべて")).toEqual(articles);
+  });
+
+  it("returns only articles in the selected category", () => {
+    expect(filterArticlesByCategory(articles, "安心・安全・防災")).toEqual([
+      { id: "2", category: "safety_disaster" },
+    ]);
+  });
+});
 
 describe("getCategoryLabel", () => {
   it("enumキーから日本語ラベルを取得できる", () => {

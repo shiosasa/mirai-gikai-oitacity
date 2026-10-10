@@ -5,6 +5,10 @@ import Link from "next/link";
 import { useState } from "react";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
+import {
+  type ArticleCategoryFilter,
+  getCategoryLabel,
+} from "@/features/bills/shared/utils/article-category";
 import type {
   BillSearchResult,
   CommitteeSearchResult,
@@ -17,7 +21,7 @@ const TAB_LABELS: Record<SearchTab, string> = {
   all: "すべて",
   bills: "議案",
   topics: "トピックス",
-  committees: "委員会",
+  committees: "議事録",
 };
 
 const SECTION_LIMIT = 3;
@@ -62,7 +66,7 @@ function TopicCard({ topic }: { topic: TopicSearchResult }) {
       <div className="flex items-center gap-2 mb-1">
         <Newspaper className="size-4 text-mirai-text-muted shrink-0" />
         <span className="text-xs text-mirai-text-muted">
-          トピックス · {topic.category}
+          トピックス · {getCategoryLabel(topic.category)}
         </span>
       </div>
       <p className="font-medium text-mirai-text text-sm leading-snug mb-2">
@@ -86,7 +90,7 @@ function CommitteeCard({ committee }: { committee: CommitteeSearchResult }) {
       <div className="flex items-center gap-2 mb-1">
         <Users className="size-4 text-mirai-text-muted shrink-0" />
         <span className="text-xs text-mirai-text-muted">
-          委員会 · {committee.committeeName}
+          議事録 · {committee.committeeName}
         </span>
       </div>
       <p className="font-medium text-mirai-text text-sm leading-snug mb-2">
@@ -151,17 +155,27 @@ function ResultSection<T>({
 
 type Props = {
   query: string;
+  category?: ArticleCategoryFilter;
   results: SearchResults | null;
 };
 
-export function SearchResultTabs({ query, results }: Props) {
+export function SearchResultTabs({
+  query,
+  category = "すべて",
+  results,
+}: Props) {
   const [tab, setTab] = useState<SearchTab>("all");
+  const searchLabel = [query, category === "すべて" ? "" : category]
+    .filter(Boolean)
+    .join(" / ");
 
-  if (!query || !results) {
+  if (!results) {
     return (
       <div className="text-center py-16 text-mirai-text-muted">
         <Search className="size-10 mx-auto mb-3 opacity-30" />
-        <p className="text-sm">キーワードを入力すると検索結果が表示されます</p>
+        <p className="text-sm">
+          キーワードを入力するか、カテゴリを選んでください
+        </p>
       </div>
     );
   }
@@ -173,24 +187,26 @@ export function SearchResultTabs({ query, results }: Props) {
     return (
       <div className="text-center py-16 text-mirai-text-muted">
         <p className="text-sm font-medium text-mirai-text mb-1">
-          「{query}」に一致する結果はありませんでした
+          「{searchLabel}」に一致する結果はありませんでした
         </p>
-        <p className="text-xs">別のキーワードで試してみてください</p>
+        <p className="text-xs">
+          キーワードやカテゴリを変えて試してみてください
+        </p>
       </div>
     );
   }
 
   const tabs: { key: SearchTab; count: number }[] = [
     { key: "all", count: totalCount },
-    { key: "bills", count: bills.length },
     { key: "topics", count: topics.length },
     { key: "committees", count: committees.length },
+    { key: "bills", count: bills.length },
   ];
 
   return (
     <div>
       <p className="text-xs text-mirai-text-muted mb-4">
-        「{query}」の検索結果 全{totalCount}件
+        「{searchLabel}」の検索結果 全{totalCount}件
       </p>
 
       <div className="flex gap-2 mb-6 flex-wrap">
@@ -221,13 +237,6 @@ export function SearchResultTabs({ query, results }: Props) {
       </div>
 
       <div className="flex flex-col gap-8">
-        {(tab === "all" || tab === "bills") && bills.length > 0 && (
-          <ResultSection
-            title="議案"
-            items={bills}
-            renderCard={(bill, i) => <BillCard key={i} bill={bill} />}
-          />
-        )}
         {(tab === "all" || tab === "topics") && topics.length > 0 && (
           <ResultSection
             title="トピックス"
@@ -237,9 +246,16 @@ export function SearchResultTabs({ query, results }: Props) {
         )}
         {(tab === "all" || tab === "committees") && committees.length > 0 && (
           <ResultSection
-            title="委員会"
+            title="議事録"
             items={committees}
             renderCard={(c, i) => <CommitteeCard key={i} committee={c} />}
+          />
+        )}
+        {(tab === "all" || tab === "bills") && bills.length > 0 && (
+          <ResultSection
+            title="議案"
+            items={bills}
+            renderCard={(bill, i) => <BillCard key={i} bill={bill} />}
           />
         )}
       </div>

@@ -1,5 +1,5 @@
+import { ArticleCategoryFilter } from "../../client/components/articles/article-category-filter";
 import type { BillArticle } from "../../shared/types";
-import { ArticleAccordionCard } from "../../client/components/articles/article-accordion-card";
 
 interface ArticlesSectionProps {
   articles: BillArticle[];
@@ -22,12 +22,7 @@ export function ArticlesSection({ articles }: ArticlesSectionProps) {
         </p>
       </div>
 
-      {/* 記事アコーディオン一覧 */}
-      <div className="flex flex-col gap-4">
-        {articles.map((article) => (
-          <ArticleAccordionCard key={article.id} article={article} />
-        ))}
-      </div>
+      <ArticleCategoryFilter articles={articles} />
     </section>
   );
 }
