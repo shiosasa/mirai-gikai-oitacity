@@ -1,0 +1,235 @@
+みらいぎかいっち＠大分市　公開版の場所と引き継ぎ
+記録日時：2026年10月10日 14:55ごろ（日本時間）
+
+【1．公開した本物のサイト】
+
+一般公開URL：
+https://mirai-gikai-oitacity-wxga.vercel.app/
+
+このURLを携帯・パソコンで開く。ログイン不要。
+確認用の長いURLや http://127.0.0.1:3008/ は一般公開URLではない。
+公開サイトはVercel上で動く。パソコンのコードを編集しただけでは更新されない。
+
+公開版のコードを保存した正しい作業フォルダー：
+C:\Users\詩織\mirai-gikai-oita-approved-preview
+
+ユーザーが「これが公開したかった版」と確認した編集元：
+C:\Users\詩織\mirai-gikai-oita-search-categories
+
+編集元の確認画面：
+http://127.0.0.1:3008/
+パソコン内の確認用。再起動等でサーバーが止まると見られなくなるが、
+それはファイルが消えたという意味ではない。
+
+【2．今回公開した版を識別する情報】
+
+GitHub：
+https://github.com/shiosasa/mirai-gikai-oitacity
+
+完成版ブランチ：fix/oita-approved-preview
+公開したコードのコミット：
+dda11104981c105a1d6d2a851de0b3a766fedd1b
+
+完成版のPR：
+https://github.com/shiosasa/mirai-gikai-oitacity/pull/4
+統合先：release/oita-v1
+この記録時点ではPR #4はOPENで、まだマージしていない。
+公開はPRのマージではなく、このコミットを明示してVercelから実行した。
+PR #4はPR #3のビルド修正を含む。#3だけを後から重複マージしない。
+
+Vercel：
+https://vercel.com/shiopan1/mirai-gikai-oitacity-wxga
+Project ID：prj_8VjVsVhXPi4V6QmOCsEDssQsjlP1
+今回の本番Deployment ID：dpl_6CnJsWjywDJg2qS41LMKXEnBTYvh
+Root Directory：web
+ルート外の共有パッケージもビルドに含める。
+Build Command：pnpm run build --turbopack
+
+【重要な未整理事項】
+VercelのProduction Branch設定は、この記録時点でまだ
+mirai-gikai-oita-migration-and-features になっている。
+今回の本番は正しいコミット dda1110 を直接指定したので完成版を公開できた。
+ただし、次回「設定されたブランチ」を何も確認せずデプロイすると古い版を使う危険がある。
+次の担当はPR #4の統合状態を確認し、完成版を含むrelease/oita-v1へ
+Production Branchを整理すること。整理済みだと決めつけない。
+
+web/vercel.json の git.deploymentEnabled は false。
+pushやPRマージだけで自動公開されると思わないこと。
+
+【3．完成版を画面で確認するポイント】
+
+・TOPにサザンカの絵付きのピンク色のinformation欄がある。
+・次回定例会は「閉会中（次回 Ｒ8第4回 11/30〜12/14）」。
+  2026年11月30日から会期中表示、12月15日以降は登録日程に応じて再判定する。
+・トピックスに「サイト公開日」が表示され、新しい公開日順に並ぶ。
+・検索カテゴリは、すべて／子育て・教育／安心・安全・防災／
+  まちづくり・暮らし／まちの仕組み・選挙。
+・承認済みの議案詳細は /committees/bill-pickups/[id]。
+  AI質問欄のある /bills/[id] と混同しない。
+・今回のお知らせ：
+
+  2026/10/10
+  お引越ししました。
+  「みらいぎかいっち」本家バージョンに生まれ変わりました！
+
+【4．似た名前のフォルダーを取り違えない】
+
+今回、途中保存版を完成版と取り違えてアップロードしたことがあった。
+タイトルやフォルダー名が似ているだけでは正しい版と判断しない。
+元フォルダーは消したり上書きしたりしていない。
+
+以下は現在の公開版の基準にしない：
+
+C:\Users\詩織\mirai-gikai-oitacity
+  最初のVS Code作業場所だった別コピー。完成版ではない。
+
+C:\Users\詩織\miraigikai-oitacity
+  元の大分作業フォルダーだが、その後の編集は別worktreeにある。
+  Gitの接続先には福岡リポジトリが残るので、ここからpushしない。
+  本番接続情報はここの .env.production を確認した。
+
+C:\Users\詩織\mirai-gikai-oitacity-release
+  42ed653の途中保存版。単独では完成版ではない。
+  release/oita-v1もPR #4を取り込む前の状態は途中保存版。
+
+C:\Users\詩織\mirai-gikai-oitacity-preview-build-fix
+  PR #3の型修正版。ビルドは通ったが、ユーザーの最終編集を含まなかった。
+
+C:\Users\詩織\mirai-gikai-oita-publish
+  前担当の公開準備コピー。今後はapproved-previewの完成版とGitHubを基準にする。
+
+以前の完成版Preview：
+https://mirai-gikai-oitacity-wxga-l719xusgx-shiopan1.vercel.app/
+ログイン保護あり。お知らせを有効にする前のビルドなので、
+このPreviewでは「準備中」のままでも本番は掲載済み。
+
+【5．本番DBと今回のお知らせ登録】
+
+Supabaseプロジェクト名：みらいぎかいっち
+Project ref：ombopirqedzbhuqpsvkw
+別地域のDBへ接続してはいけない。
+接続情報は .env.production を値を表示せず読み込み、
+プロジェクト名または大分市の議案名で実際の接続先を確認する。
+
+ユーザーは2026年10月10日、お知らせの全文・当日の日付・一般公開を承認済み。
+今回本番に実行したもの：
+・20261010120000_create_site_information.sql のみ適用。
+・supabase_migrations.schema_migrations にversionとnameを記録。
+・site_information に上記お知らせを1件登録し、is_published=true。
+・published_at は2026-10-10T00:00:00+09:00。
+  UTCでは2026-10-09 15:00:00+00だが、画面は日本時間の2026/10/10。
+・RLS有効、ポリシー0件を確認。サーバーのAdmin Clientで取得。
+・SITE_INFORMATION_ENABLED=true を設定して本番を再ビルド。
+
+既存の議案・議員・トピックス本文を変更する作業やseedはしていない。
+次回、このお知らせを再INSERTして重複させない。
+管理用アプリに /information があるが、Admin自体は今回公開していない。
+Adminも本番DBへ接続し得るので、書き込みは内容確認・承認後に行う。
+
+未適用・未有効：
+・20261010110000_add_topic_publication.sql は未適用。
+・TOPIC_PUBLICATION_ENABLED は未有効。
+  トピックスの公開／下書き管理用。今回の一般公開には不要なので変更していない。
+
+Supabase Authは匿名サインイン有効。
+site_urlはhttp://localhost:3000、redirect allow listは空のまま。
+現在の匿名サインインはリダイレクトを使わない。
+メール認証等を導入するときは公開ドメインへの設定を別途確認する。
+
+【6．本番環境変数・閲覧制限】
+
+Vercel Productionに登録済み（値はこの資料へ書かない）：
+SUPABASE_URL
+SUPABASE_SERVICE_ROLE_KEY（Secret）
+NEXT_PUBLIC_SUPABASE_URL
+NEXT_PUBLIC_SUPABASE_ANON_KEY（Config）
+AI_GATEWAY_API_KEY（Secret）
+REVALIDATE_SECRET（Secret）
+SITE_INFORMATION_ENABLED=true
+NEXT_PUBLIC_WEB_URL=https://mirai-gikai-oitacity-wxga.vercel.app
+CHAT_DAILY_COST_LIMIT_USD=0.5
+
+PreviewにもSupabaseの4変数、AI Gateway、revalidate、
+information、コスト制限が登録済み。
+既存のPreviewは再ビルドしないと新しい環境変数を反映しない。
+
+本番にBASIC_AUTH_USER／BASIC_AUTH_PASSWORDは登録していない。
+Vercel Authentication：
+prod_deployment_urls_and_all_previews
+一般公開ドメインはログイン不要、Previewと個別Deployment URLは保護。
+プロジェクト全体の保護を無条件に削除しない。
+
+NEXT_PUBLIC_* はVercelのSecret型ではなくConfigで登録する。
+秘密鍵の値はチャット・資料・Gitへ出さない。
+環境変数インポート用の一時ファイルは登録直後に削除済み。
+
+【7．次回の修正とアップロードの順番】
+
+1．この資料と公開URLを確認する。途中保存版から作り直さない。
+2．GitHubのPR #4がOPEN／MERGED／CLOSEDのどれか確認する。
+   release/oita-v1がPR #4を含むか確認する。
+   未統合なら完成版コミットdda1110を基準にする。
+3．approved-previewを基準に新しいgit worktreeを作る。
+   保存済みの元フォルダーは直接編集しない。
+4．Git remoteがshiosasa/mirai-gikai-oitacityか確認する。
+   今回ユーザーが承認したPRのベースはrelease/oita-v1。
+   fukuoka-pref/developやmainへPRを出さない。
+5．必要な.envを安全にコピーし、値を表示・コミットしない。
+   .claude/settings.local.jsonは今回確認したコピーにはなかった。
+   ファイルがあると決めつけてコピー成功扱いにしない。
+6．実装と局所テスト後、pnpm lint／pnpm typecheck／pnpm testを実行。
+7．差分を自己レビューし、commit→push→PR作成。
+   マージ済みブランチへの追加pushや重複PRを避ける。
+8．DB変更があれば、対象DB・SQL・影響・掲載文章を確認して承認を取る。
+   必要なmigrationだけ適用し、履歴も記録してからビルドする。
+9．新しいGit SHAを指定したPreviewで表示・データ・携帯表示を確認。
+10．一般公開の承認後、ProductionでビルドしREADYを確認。
+    公開ドメインが正しいGit SHAのDeploymentへ向いているか照合する。
+11．ログインしていない通信でTOP、お知らせ、主要ページを確認する。
+12．次の引き継ぎにURL・Git SHA・適用済みmigration・残作業を更新する。
+
+使用禁止の経路：
+・コピーされたdeployスキルの福岡県版の値を大分へそのまま使わない。
+・.github/workflows/deploy_web.yml は福岡向けコピー。
+  workflow_dispatchを実行しない。
+・supabase db push --include-all、DB reset、全seedを公開作業へ流用しない。
+・Vercel Deploy Hookだけ直接叩いてDB確認を省略しない。
+・supabase config pushでローカル用認証URLを本番に上書きしない。
+・元フォルダーを削除して整理しない。
+
+【8．検証済み事項と残作業】
+
+検証済み：
+・pnpm lint通過（既存警告あり）。
+・pnpm typecheck全workspace通過。
+・pnpm test全workspace通過。
+・議案出典リンク／会期表示／任意コンテンツ展開の9テスト通過。
+・TurbopackでPreview、本番ともREADY。
+・未ログインの本番TOP：HTTP 200、お知らせ全文、日付、最終会期表示を確認。
+・未ログインで/topics、/search、/committees、/politicians、
+  承認済み議案詳細：HTTP 200。
+・Previewは未ログインHTTP 302で保護されている。
+・AI Gatewayキーは短い確認でHTTP 200。
+
+残作業・注意：
+・PR #4はこの記録時点では未マージ。
+・Vercel Production Branchは旧ブランチのままなので整理が必要。
+・CodeRabbitの自動レビューは待ったがまだ届いていない。
+  レビュー完了とは言わず、次回確認する。
+・実際のAIインタビューを本番で一巡しDB保存するテストは今回実施していない。
+・topic_publication migrationは未適用、フラグ未有効。
+・webpackのGoogle Fonts処理は失敗したためTurbopackを使う。
+・Windowsの改行差だけで大量のGit変更表示が出る。
+  git diff --ignore-space-at-eol --statと実際の差分で確認し、
+  無関係な改行差をまとめてコミットしない。
+・gh CLIは無い。Gitは認証済み。PR・Vercel・Supabaseはブラウザーで操作した。
+
+【9．次の担当にそのまま渡す文章】
+
+大分市版の公開済み完成版を更新してください。
+まずC:\Users\詩織\mirai-gikai-oita-approved-preview\README.mdと
+docs\20261010_1455_大分市版公開と引き継ぎ.txtを読んでください。
+公開URLはhttps://mirai-gikai-oitacity-wxga.vercel.app/です。
+途中保存版からやり直さず、公開コミットdda1110とPR #4を基準に、
+新しいworktreeで作業してください。PR #4の統合状態と
+Vercel Production Branchの未整理状態を最初に確認してください。
