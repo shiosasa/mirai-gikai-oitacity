@@ -19,7 +19,7 @@ const lexendGiga = Lexend_Giga({
 });
 
 const ogImage = {
-  url: "/ogp-oita-city.jpg?v=2",
+  url: "/ogp-oita-city.jpg",
   width: 1200,
   height: 630,
   alt: `${siteConfig.siteName}のOGPイメージ`,
