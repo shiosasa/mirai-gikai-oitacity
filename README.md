@@ -2,6 +2,25 @@
 
 公開URL: （デプロイ後に更新）
 
+## 大分市版の初回確認用デプロイ
+
+- Vercel プロジェクト: `mirai-gikai-oitacity-wxga`
+- Root Directory: `web`（ルート外の共有パッケージもビルドに含める）
+- アップロード用ブランチ: `release/oita-v1`
+- 初回は **Preview Deployment** を作成し、Vercel Authentication を有効にしたまま確認する。
+  確認が済むまで Production への昇格や認証保護の解除を行わない。
+- Preview に `SUPABASE_URL`、`SUPABASE_SERVICE_ROLE_KEY`、
+  `NEXT_PUBLIC_SUPABASE_URL`、`NEXT_PUBLIC_SUPABASE_ANON_KEY` を登録する。
+  接続先は大分市用の Supabase プロジェクトで確認し、他地域の設定を流用しない。
+- `SUPABASE_SERVICE_ROLE_KEY` は **Secret**、
+  公開用の `NEXT_PUBLIC_SUPABASE_ANON_KEY` は **Config** として登録する。
+  Supabase の Publishable key を後者に、Secret key を前者に使用できる。
+- Next.js 15 のページでは `params` と `searchParams` を Promise として受け取り、
+  `await` してから使用する。型チェックを無効化せずビルドを検証する。
+- 大分市用の `bill_articles`、`meeting_sessions`、`bill_contents` と
+  記事カテゴリの型は実際の DB スキーマに合わせる。
+  `bill_contents` の追加解説項目は任意であり、未登録でも表示できるようにする。
+
 ## 注意事項
 
 - このプロジェクトは「チームみらい」が開発・運営している「みらい議会」をForkして開発したものとなります。
