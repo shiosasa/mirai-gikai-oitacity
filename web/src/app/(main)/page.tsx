@@ -14,17 +14,20 @@ import { TopicsBanner } from "@/components/top/topics-banner";
 import { BillDisclaimer } from "@/features/bills/client/components/bill-detail/bill-disclaimer";
 import { BillsByTagSection } from "@/features/bills/server/components/bills-by-tag-section";
 import { FeaturedBillSection } from "@/features/bills/server/components/featured-bill-section";
+import { getPublishedArticles } from "@/features/bills/server/loaders/get-articles";
 import { loadHomeData } from "@/features/bills/server/loaders/load-home-data";
 
 import { CurrentCouncilSession } from "@/features/council-sessions/client/components/current-council-session";
 import { getCurrentCouncilSession } from "@/features/council-sessions/server/loaders/get-current-council-session";
 import { getNextCouncilSession } from "@/features/council-sessions/server/loaders/get-next-council-session";
 import { getLatestSessionWithQuestions } from "@/features/general-questions/server/loaders/get-latest-session-with-questions";
+import { InformationSection } from "@/features/information/server/components/information-section";
 import { getJapanTime } from "@/lib/utils/date";
 
 export default async function Home() {
   let billsByTag: any[] = [];
   let featuredBills: any[] = [];
+  let articles: any[] = [];
   let currentSession: any = null;
   let nextSession: any = null;
   let latestQuestionsSlug: any = null;
@@ -43,6 +46,15 @@ export default async function Home() {
     errorMessage =
       error instanceof Error ? error.message : "home data load failed";
     loadError = true;
+  }
+
+  // Load articles
+  try {
+    console.log("[DEBUG] Starting to load articles...");
+    articles = await getPublishedArticles();
+    console.log("[DEBUG] Articles loaded:", { count: articles.length });
+  } catch (error) {
+    console.error("[DEBUG] Failed to load articles:", error);
   }
 
   // Then, try to load session data
@@ -108,6 +120,10 @@ export default async function Home() {
       )}
 
       <Container className="pt-6">
+        <InformationSection />
+      </Container>
+
+      <Container className="pt-6">
         <div className="flex items-center gap-3">
           <span className="inline-flex items-center rounded-full border border-oita-pink-accent bg-oita-pink-light px-3 py-1 text-[10px] font-bold text-oita-pink">
             議会
@@ -121,9 +137,11 @@ export default async function Home() {
 
       {/* トピックスバナー */}
 
-      <Container className="pt-3">
-        <TopicsBanner />
-      </Container>
+      {articles.length > 0 && (
+        <Container className="pt-3">
+          <TopicsBanner />
+        </Container>
+      )}
 
       {/* 委員会バナー */}
 
@@ -139,25 +157,27 @@ export default async function Home() {
 
       {/* 議案一覧セクション */}
 
-      <Container className="">
-        <div className="py-10">
-          <main className="flex flex-col gap-16">
-            {/* 注目の議案セクション */}
-            {loadError ? (
-              <FeaturedBillSectionSkeleton />
-            ) : (
-              <FeaturedBillSection bills={featuredBills} />
-            )}
+      {(loadError || featuredBills.length > 0 || billsByTag.length > 0) && (
+        <Container>
+          <div className="py-10">
+            <main className="flex flex-col gap-16">
+              {/* 注目の議案セクション */}
+              {loadError ? (
+                <FeaturedBillSectionSkeleton />
+              ) : (
+                <FeaturedBillSection bills={featuredBills} />
+              )}
 
-            {/* タグ別議案一覧セクション */}
-            {loadError ? (
-              <BillsByTagSectionSkeleton />
-            ) : (
-              <BillsByTagSection billsByTag={billsByTag} />
-            )}
-          </main>
-        </div>
-      </Container>
+              {/* タグ別議案一覧セクション */}
+              {loadError ? (
+                <BillsByTagSectionSkeleton />
+              ) : (
+                <BillsByTagSection billsByTag={billsByTag} />
+              )}
+            </main>
+          </div>
+        </Container>
+      )}
 
       <Container>
         {/* みらい議会とは セクション */}

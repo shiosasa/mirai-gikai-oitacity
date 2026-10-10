@@ -37,8 +37,10 @@ export type BillArticle = Omit<
   Database["public"]["Tables"]["bill_articles"]["Row"],
   "source_refs"
 > & {
-  published_at: string | null;
+  published_date: string | null;
   source_refs?: TopicSourceRef[] | null;
+  /** 記事タイトルと同名の公開済み議案の bills.id */
+  related_bill_id?: string | null;
   /** 記事と同名の議案に公開中のAIインタビューがある場合、その bills.id */
   interview_bill_id?: string | null;
 };

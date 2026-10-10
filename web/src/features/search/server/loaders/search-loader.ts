@@ -1,43 +1,24 @@
 import "server-only";
 import { getPublishedArticles } from "@/features/bills/server/loaders/get-articles";
-import type { TopicSourceRef } from "@/features/bills/shared/types";
+import type { ArticleCategoryFilter } from "@/features/bills/shared/utils/article-category";
 import type { SearchResults } from "../../shared/types/search-types";
+import { filterSearchTopics } from "../../shared/utils/search-category";
 import {
   searchBills,
   searchCommittees,
 } from "../repositories/search-repository";
 
-export async function loadSearchResults(query: string): Promise<SearchResults> {
+export async function loadSearchResults(
+  query: string,
+  category: ArticleCategoryFilter = "すべて"
+): Promise<SearchResults> {
   const [bills, articles, committees] = await Promise.all([
-    searchBills(query),
+    category === "すべて" ? searchBills(query) : Promise.resolve([]),
     getPublishedArticles(),
-    searchCommittees(query),
+    category === "すべて" ? searchCommittees(query) : Promise.resolve([]),
   ]);
-  const normalizedQuery = query.toLocaleLowerCase();
-  const topics = articles
-    .filter((article) =>
-      [
-        article.title,
-        article.category,
-        article.summary_line_1,
-        article.summary_line_2,
-        article.summary_line_3,
-        article.details,
-        article.reason,
-        article.point_1,
-        article.point_2,
-        article.point_3,
-        article.target_audience,
-        article.positive_voice,
-        article.cautious_voice,
-        ...(article.source_refs ?? []).flatMap((ref: TopicSourceRef) => [
-          ref.meeting_title,
-          ref.bill_name ?? "",
-          ref.evidence_quote ?? "",
-        ]),
-      ].some((value) => value.toLocaleLowerCase().includes(normalizedQuery))
-    )
-    .map((article) => ({
+  const topics = filterSearchTopics(articles, query, category).map(
+    (article) => ({
       id: article.id,
       title: article.title,
       category: article.category,
@@ -48,7 +29,8 @@ export async function loadSearchResults(query: string): Promise<SearchResults> {
       ]
         .filter(Boolean)
         .join(" "),
-    }));
+    })
+  );
 
   return { bills, topics, committees };
 }

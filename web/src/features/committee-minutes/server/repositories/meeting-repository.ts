@@ -1,6 +1,10 @@
 import "server-only";
 import { createAdminClient } from "@mirai-gikai/supabase";
-import { summarizeMeetingContent } from "../utils/summarize-with-ai";
+import type { SessionBill } from "../../shared/types";
+import {
+  linkSessionBills,
+  type TopicBillReference,
+} from "../../shared/utils/link-session-bills";
 
 export type SessionAttendees = {
   chair: string | null;
@@ -8,14 +12,6 @@ export type SessionAttendees = {
   members: string[];
   absent: string[];
   officials: string[];
-};
-
-export type SessionBill = {
-  number: string | null;
-  name: string;
-  description: string | null;
-  result: string | null;
-  detail_bill_id?: string | null;
 };
 
 type SessionRow = {
@@ -61,7 +57,18 @@ export type MeetingArchive = {
   sessions: SessionRow[]; // セッション情報を含める
 };
 
-function mapMeeting(row: MeetingRow): MeetingSummary {
+function mapMeeting(
+  row: MeetingRow,
+  publishedBills: {
+    id: string;
+    name: string;
+    bill_number: string | null;
+    sessionName: string | null;
+    sessionStartDate: string | null;
+    sessionEndDate: string | null;
+  }[],
+  topicReferences: TopicBillReference[]
+): MeetingSummary {
   const firstSession = row.meeting_sessions?.[0];
   const targetDate = firstSession?.date || row.date || "";
 
@@ -71,7 +78,22 @@ function mapMeeting(row: MeetingRow): MeetingSummary {
     meetingType: row.meeting_type === "委員会" ? "委員会" : "本会議",
     date: targetDate,
     term: row.term ?? "",
-    sessions: Array.isArray(row.meeting_sessions) ? row.meeting_sessions : [],
+    sessions: Array.isArray(row.meeting_sessions)
+      ? row.meeting_sessions.map((session) => ({
+          ...session,
+          bills: session.bills
+            ? linkSessionBills(
+                session.bills,
+                publishedBills,
+                row.title,
+                session.date,
+                session.id,
+                topicReferences,
+                row.term
+              )
+            : session.bills,
+        }))
+      : [],
   };
 }
 
@@ -80,28 +102,42 @@ function isMissingTableError(error: { code?: string | null }): boolean {
 }
 
 export async function findAllMeetings(): Promise<MeetingSummary[]> {
-  try {
-    const supabase = createAdminClient();
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    const { data, error } = await (supabase as any)
-      .from("meetings")
-      .select(
-        "id, title, meeting_type, date, term, created_at, meeting_sessions (*)"
-      )
-      .order("date", { ascending: false })
-      .order("date", { referencedTable: "meeting_sessions", ascending: true })
-      .order("id", { referencedTable: "meeting_sessions", ascending: true });
+  const supabase = createAdminClient();
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  const { data, error } = await (supabase as any)
+    .from("meetings")
+    .select(
+      "id, title, meeting_type, date, term, created_at, meeting_sessions (*)"
+    )
+    .order("date", { ascending: false })
+    .order("date", { referencedTable: "meeting_sessions", ascending: true })
+    .order("id", { referencedTable: "meeting_sessions", ascending: true });
 
-    if (error) {
-      console.warn(`Meetings query error: ${error.message}`);
-      if (isMissingTableError(error)) return [];
-      return [];
-    }
-    return (data ?? []).map((row: MeetingRow) => mapMeeting(row));
-  } catch (err) {
-    console.warn("Failed to fetch meetings:", err);
-    return [];
+  if (error) {
+    if (isMissingTableError(error)) return [];
+    throw new Error(`Failed to fetch meetings: ${error.message}`);
   }
+
+  const { data: publishedBills, error: billsError } = await supabase
+    .from("bills")
+    .select(
+      "id, name, bill_number, council_sessions(name, start_date, end_date)"
+    )
+    .eq("publish_status", "published");
+
+  if (billsError) {
+    throw new Error(`Failed to fetch published bills: ${billsError.message}`);
+  }
+
+  const billLinks = (publishedBills ?? []).map((bill) => ({
+    id: bill.id,
+    name: bill.name,
+    bill_number: bill.bill_number,
+    sessionName: bill.council_sessions?.name ?? null,
+    sessionStartDate: bill.council_sessions?.start_date ?? null,
+    sessionEndDate: bill.council_sessions?.end_date ?? null,
+  }));
+  return (data ?? []).map((row: MeetingRow) => mapMeeting(row, billLinks, []));
 }
 
 export type CommitteeListItem = {

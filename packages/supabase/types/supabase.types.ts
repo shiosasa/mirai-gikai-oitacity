@@ -84,8 +84,38 @@ export type Database = {
           },
         ]
       }
+      site_information: {
+        Row: {
+          id: string
+          title: string
+          body: string
+          published_at: string
+          is_published: boolean
+          created_at: string
+          updated_at: string
+        }
+        Insert: {
+          id?: string
+          title: string
+          body?: string
+          published_at?: string
+          is_published?: boolean
+          created_at?: string
+          updated_at?: string
+        }
+        Update: {
+          title?: string
+          body?: string
+          published_at?: string
+          is_published?: boolean
+          updated_at?: string
+        }
+        Relationships: []
+      }
       bill_articles: {
         Row: {
+          publish_status: "draft" | "published"
+          first_published_at: string | null
           bill_id: number
           category: Database["public"]["Enums"]["article_category_enum"]
           cautious_voice: string
@@ -112,6 +142,8 @@ export type Database = {
           updated_at: string
         }
         Insert: {
+          publish_status?: "draft" | "published"
+          first_published_at?: string | null
           bill_id: number
           category: Database["public"]["Enums"]["article_category_enum"]
           cautious_voice: string
@@ -138,6 +170,8 @@ export type Database = {
           updated_at?: string
         }
         Update: {
+          publish_status?: "draft" | "published"
+          first_published_at?: string | null
           bill_id?: number
           category?: Database["public"]["Enums"]["article_category_enum"]
           cautious_voice?: string
@@ -1613,79 +1647,73 @@ export type Database = {
       }
       proposals: {
         Row: {
-          id: string
-          title: string
-          status: string
-          status_class: string
           badge: string | null
-          summary1: string | null
-          summary2: string | null
-          summary3: string | null
-          gikai_detail: string | null
-          reason: string | null
+          con: string | null
+          created_at: string
+          gikaiDetail: string | null
+          giketu_date: string | null
+          id: number
+          impact: string | null
+          link_label: string | null
+          link_url: string | null
           point1: string | null
           point2: string | null
           point3: string | null
-          impact: string | null
           pro: string | null
-          con: string | null
-          link_label: string | null
-          link_url: string | null
-          giketu_date: string | null
           published_date: string | null
-          publish_status: string
-          created_at: string
-          updated_at: string
+          reason: string | null
+          status: string | null
+          statusClass: string | null
+          summary1: string | null
+          summary2: string | null
+          summary3: string | null
+          title: string | null
         }
         Insert: {
-          id?: string
-          title: string
-          status: string
-          status_class?: string
           badge?: string | null
-          summary1?: string | null
-          summary2?: string | null
-          summary3?: string | null
-          gikai_detail?: string | null
-          reason?: string | null
+          con?: string | null
+          created_at?: string
+          gikaiDetail?: string | null
+          giketu_date?: string | null
+          id?: number
+          impact?: string | null
+          link_label?: string | null
+          link_url?: string | null
           point1?: string | null
           point2?: string | null
           point3?: string | null
-          impact?: string | null
           pro?: string | null
-          con?: string | null
-          link_label?: string | null
-          link_url?: string | null
-          giketu_date?: string | null
           published_date?: string | null
-          publish_status?: string
-          created_at?: string
-          updated_at?: string
+          reason?: string | null
+          status?: string | null
+          statusClass?: string | null
+          summary1?: string | null
+          summary2?: string | null
+          summary3?: string | null
+          title?: string | null
         }
         Update: {
-          id?: string
-          title?: string
-          status?: string
-          status_class?: string
           badge?: string | null
-          summary1?: string | null
-          summary2?: string | null
-          summary3?: string | null
-          gikai_detail?: string | null
-          reason?: string | null
+          con?: string | null
+          created_at?: string
+          gikaiDetail?: string | null
+          giketu_date?: string | null
+          id?: number
+          impact?: string | null
+          link_label?: string | null
+          link_url?: string | null
           point1?: string | null
           point2?: string | null
           point3?: string | null
-          impact?: string | null
           pro?: string | null
-          con?: string | null
-          link_label?: string | null
-          link_url?: string | null
-          giketu_date?: string | null
           published_date?: string | null
-          publish_status?: string
-          created_at?: string
-          updated_at?: string
+          reason?: string | null
+          status?: string | null
+          statusClass?: string | null
+          summary1?: string | null
+          summary2?: string | null
+          summary3?: string | null
+          title?: string | null
         }
         Relationships: []
       }
@@ -1992,12 +2020,12 @@ export type Database = {
       }
     }
     Enums: {
+      bill_publish_status: "draft" | "published" | "coming_soon"
       article_category_enum:
         | "childcare_education"
         | "safety_disaster"
         | "community_living"
         | "governance_election"
-      bill_publish_status: "draft" | "published" | "coming_soon"
       bill_status_enum:
         | "preparing"
         | "submitted"
@@ -2191,4 +2219,3 @@ export const Constants = {
     },
   },
 } as const
-

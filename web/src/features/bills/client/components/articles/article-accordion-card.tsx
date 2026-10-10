@@ -17,7 +17,10 @@ export function ArticleAccordionCard({ article }: ArticleAccordionCardProps) {
   const [isOpen, setIsOpen] = useState(false);
 
   return (
-    <div className="w-full rounded-lg border border-mirai-border bg-white overflow-hidden">
+    <div
+      id={`article-${article.id}`}
+      className="w-full rounded-lg border border-mirai-border bg-white overflow-hidden"
+    >
       {/* ヘッダー（常に表示） */}
       <div className="p-4 sm:p-6 flex items-start justify-between gap-3">
         <div className="flex-1 min-w-0">
@@ -29,11 +32,12 @@ export function ArticleAccordionCard({ article }: ArticleAccordionCardProps) {
             <span className="text-xs text-mirai-text-secondary ml-2">
               議決日: {formatDate(article.decision_date)}
             </span>
-            {article.published_at && (
-              <span className="text-xs text-mirai-text-secondary ml-2">
-                | 公開日: {formatDate(article.published_at)}
-              </span>
-            )}
+            <span className="text-xs text-mirai-text-secondary ml-2">
+              | サイト公開日:{" "}
+              {article.published_date
+                ? formatDate(article.published_date)
+                : "未設定"}
+            </span>
           </div>
 
           {/* ステータス + タイトル */}
@@ -236,11 +240,10 @@ export function ArticleAccordionCard({ article }: ArticleAccordionCardProps) {
                     )}
                     {ref.detail_bill_id && (
                       <Link
-                        href={`/bills/${ref.detail_bill_id}`}
+                        href={`/committees/bill-pickups/${ref.detail_bill_id}`}
                         className="mt-1 inline-flex items-center gap-1 text-xs font-semibold text-oita-pink hover:underline"
                       >
-                        {ref.bill_number ?? "議案"}の詳細ページを見る
-                        <span>→</span>
+                        {ref.bill_number ?? "議案"}の詳細ページを見る →
                       </Link>
                     )}
                     {ref.evidence_quote && (

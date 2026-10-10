@@ -1,4 +1,5 @@
 import type { DifficultyLevelEnum } from "@/features/bill-difficulty/shared/types";
+import { selectBillContent } from "../../../shared/utils/select-bill-content";
 import { findBillContentByDifficulty } from "../../repositories/bill-repository";
 
 /**
@@ -10,5 +11,13 @@ export async function getBillContentWithDifficulty(
   billId: string,
   difficultyLevel: DifficultyLevelEnum
 ) {
-  return findBillContentByDifficulty(billId, difficultyLevel);
+  const levels: DifficultyLevelEnum[] =
+    difficultyLevel === "hard" ? ["hard", "normal"] : ["normal"];
+  const contents = await Promise.all(
+    levels.map((level) => findBillContentByDifficulty(billId, level))
+  );
+  return selectBillContent(
+    contents.filter((content) => content !== null),
+    difficultyLevel
+  );
 }

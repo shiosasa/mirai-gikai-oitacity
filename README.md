@@ -6,7 +6,11 @@
 
 - Vercel プロジェクト: `mirai-gikai-oitacity-wxga`
 - Root Directory: `web`（ルート外の共有パッケージもビルドに含める）
-- アップロード用ブランチ: `release/oita-v1`
+- 承認済み画面の確認用ブランチ: `fix/oita-approved-preview`
+  （PR のベースは `release/oita-v1`）。
+- 完成画面の元は `mirai-gikai-oita-search-categories` の保存済み作業内容。
+  `release/oita-v1` だけでは途中の保存版になるため、完成版として扱わない。
+- Vercel の Build Command は `pnpm run build --turbopack` を使用する。
 - 初回は **Preview Deployment** を作成し、Vercel Authentication を有効にしたまま確認する。
   確認が済むまで Production への昇格や認証保護の解除を行わない。
 - Preview に `SUPABASE_URL`、`SUPABASE_SERVICE_ROLE_KEY`、
@@ -20,6 +24,12 @@
 - 大分市用の `bill_articles`、`meeting_sessions`、`bill_contents` と
   記事カテゴリの型は実際の DB スキーマに合わせる。
   `bill_contents` の追加解説項目は任意であり、未登録でも表示できるようにする。
+- `SITE_INFORMATION_ENABLED` と `TOPIC_PUBLICATION_ENABLED` は対応する
+  DB マイグレーションの適用・ユーザー確認前には有効化しない。
+  この確認用デプロイではマイグレーションを実行しない。
+- 一般公開日に information へ掲載する承認済みのお知らせ:
+  「お引越ししました。『みらいぎかいっち』本家バージョンに生まれ変わりました！」
+  日付は実際の一般公開日を日本時間で記録し、確認用デプロイの日付は使わない。
 
 ## 注意事項
 

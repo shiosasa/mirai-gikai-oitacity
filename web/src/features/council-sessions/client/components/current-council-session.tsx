@@ -1,6 +1,8 @@
+import { unstable_noStore } from "next/cache";
+import { siteConfig } from "@/config/site.config";
 import type { CouncilSession } from "../../shared/types";
 import { getCouncilSessionStatus } from "../../shared/utils/get-council-session-status";
-import { formatDateJST } from "@/lib/utils/date";
+import { selectCouncilSchedule } from "../../shared/utils/select-council-schedule";
 
 type CurrentCouncilSessionProps = {
   currentSession: CouncilSession | null;
@@ -8,39 +10,38 @@ type CurrentCouncilSessionProps = {
 };
 
 export function CurrentCouncilSession({
-  currentSession,
-  nextSession,
+  currentSession: databaseCurrentSession,
+  nextSession: databaseNextSession,
 }: CurrentCouncilSessionProps) {
+  unstable_noStore();
+  const { currentSession, nextSession } = selectCouncilSchedule(
+    [
+      ...siteConfig.councilSchedule,
+      ...(databaseCurrentSession ? [databaseCurrentSession] : []),
+      ...(databaseNextSession ? [databaseNextSession] : []),
+    ],
+    new Date()
+  );
   const status = getCouncilSessionStatus(currentSession, nextSession);
-  const session = currentSession ?? nextSession;
 
   return (
-    <section className="w-full bg-mirai-surface-warm px-6 py-6">
+    <section className="w-full bg-mirai-surface-warm px-4 py-6 sm:px-6">
       <div className="mx-auto flex max-w-5xl flex-col items-start justify-between gap-3 sm:flex-row sm:items-center">
-        <div className="flex flex-col items-start gap-3 sm:flex-row sm:items-center">
+        <div className="flex flex-wrap items-center gap-3">
           <h2 className="text-lg font-bold text-mirai-text sm:text-xl">
             現在の大分市議会の活動ステータス
           </h2>
           <span
             role="status"
-            className={`inline-flex items-center rounded-full px-5 py-1.5 text-sm font-bold ${
+            className={`inline-flex shrink-0 items-center whitespace-nowrap rounded-full border px-3 py-1.5 text-xs font-semibold text-mirai-text ${
               status.kind === "active"
-                ? "bg-oita-pink text-white"
-                : "bg-mirai-border-muted text-mirai-text"
+                ? "border-oita-pink bg-oita-pink-accent"
+                : "border-oita-pink-accent bg-oita-pink-light"
             }`}
           >
             {status.label}
           </span>
         </div>
-        {session && (
-          <div className="text-sm leading-[1.5] text-mirai-text-secondary sm:text-right">
-            <div className="font-bold text-mirai-text">{session.name}</div>
-            <div>
-              {formatDateJST(session.start_date)}〜
-              {session.end_date ? formatDateJST(session.end_date) : ""}
-            </div>
-          </div>
-        )}
       </div>
     </section>
   );

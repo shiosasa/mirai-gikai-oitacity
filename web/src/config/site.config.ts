@@ -9,6 +9,13 @@ export const siteConfig = {
     "「おおいたん市議会っち何しよん？」「今、どんな議論しちょるん？」…そういう思いから作った、大分市議会を暮らしの視点でやさしく伝えるプラットフォームなんよ",
   cityName: "大分市",
   councilName: "大分市議会",
+  councilSchedule: [
+    {
+      name: "Ｒ8第4回",
+      start_date: "2026-11-30",
+      end_date: "2026-12-14",
+    },
+  ],
   catchphrase: "おおいたん市議会いま何しよん？",
   subCatchphrase: "むずかしい議会をわかりやすく。",
   keywords: [
