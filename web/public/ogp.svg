@@ -9,7 +9,8 @@
   <!-- 区切り線 -->
   <line x1="280" y1="305" x2="920" y2="305" stroke="#a495d6" stroke-width="2"/>
   <!-- サブテキスト -->
-  <text x="600" y="360" font-family="sans-serif" font-size="36" fill="#555555" text-anchor="middle">（非公式）　福岡県版</text>
+  <text x="600" y="360" font-family="sans-serif" font-size="36" fill="#555555" text-anchor="middle">（非公式）　大分市版</text>
   <!-- 下部キャッチコピー -->
-  <text x="600" y="560" font-family="sans-serif" font-size="24" fill="#888888" text-anchor="middle">福岡県議会で今どんな議案が検討されているか、わかりやすく伝えるプラットフォーム</text>
+  <text x="600" y="560" font-family="sans-serif" font-size="24" fill="#888888" text-anchor="middle">大分市議会で今どんな議案が検討されているか、わかりやすく伝えるプラットフォーム</text>
+  <image href="illustrations/sazanka.svg" x="835" y="357" width="136" height="122"/>
 </svg>
