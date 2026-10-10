@@ -284,7 +284,7 @@ export function ArticleAccordionCard({ article }: ArticleAccordionCardProps) {
   );
 }
 
-function formatDate(date?: string | Date): string {
+function formatDate(date?: string | Date | null): string {
   if (!date) return "";
   const d = typeof date === "string" ? new Date(date) : date;
   return d.toLocaleDateString("ja-JP", {

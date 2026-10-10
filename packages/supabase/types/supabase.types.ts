@@ -34,6 +34,145 @@ export type Database = {
   }
   public: {
     Tables: {
+      meeting_sessions: {
+        Row: {
+          attendees: Json | null
+          bills: Json | null
+          content: string | null
+          created_at: string
+          date: string | null
+          decisions: string | null
+          detailed_summary: string | null
+          id: number
+          meeting_id: number | null
+          session_title: string | null
+          summary: string | null
+        }
+        Insert: {
+          attendees?: Json | null
+          bills?: Json | null
+          content?: string | null
+          created_at?: string
+          date?: string | null
+          decisions?: string | null
+          detailed_summary?: string | null
+          id?: number
+          meeting_id?: number | null
+          session_title?: string | null
+          summary?: string | null
+        }
+        Update: {
+          attendees?: Json | null
+          bills?: Json | null
+          content?: string | null
+          created_at?: string
+          date?: string | null
+          decisions?: string | null
+          detailed_summary?: string | null
+          id?: number
+          meeting_id?: number | null
+          session_title?: string | null
+          summary?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "meeting_sessions_meeting_id_fkey"
+            columns: ["meeting_id"]
+            isOneToOne: false
+            referencedRelation: "meetings"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      bill_articles: {
+        Row: {
+          bill_id: number
+          category: Database["public"]["Enums"]["article_category_enum"]
+          cautious_voice: string
+          created_at: string
+          decision_date: string | null
+          details: string
+          id: string
+          link_label: string | null
+          link_url: string | null
+          point_1: string
+          point_2: string
+          point_3: string
+          positive_voice: string
+          proposal_id: number | null
+          reason: string
+          source_refs: Json | null
+          status_class: string
+          status_label: string
+          summary_line_1: string
+          summary_line_2: string
+          summary_line_3: string
+          target_audience: string
+          title: string
+          updated_at: string
+        }
+        Insert: {
+          bill_id: number
+          category: Database["public"]["Enums"]["article_category_enum"]
+          cautious_voice: string
+          created_at?: string
+          decision_date?: string | null
+          details: string
+          id?: string
+          link_label?: string | null
+          link_url?: string | null
+          point_1: string
+          point_2: string
+          point_3: string
+          positive_voice: string
+          proposal_id?: number | null
+          reason: string
+          source_refs?: Json | null
+          status_class: string
+          status_label: string
+          summary_line_1: string
+          summary_line_2: string
+          summary_line_3: string
+          target_audience: string
+          title: string
+          updated_at?: string
+        }
+        Update: {
+          bill_id?: number
+          category?: Database["public"]["Enums"]["article_category_enum"]
+          cautious_voice?: string
+          created_at?: string
+          decision_date?: string | null
+          details?: string
+          id?: string
+          link_label?: string | null
+          link_url?: string | null
+          point_1?: string
+          point_2?: string
+          point_3?: string
+          positive_voice?: string
+          proposal_id?: number | null
+          reason?: string
+          source_refs?: Json | null
+          status_class?: string
+          status_label?: string
+          summary_line_1?: string
+          summary_line_2?: string
+          summary_line_3?: string
+          target_audience?: string
+          title?: string
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "bill_articles_bill_id_fkey"
+            columns: ["bill_id"]
+            isOneToOne: true
+            referencedRelation: "proposals"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       politicians: {
         Row: {
           id: string
@@ -199,15 +338,9 @@ export type Database = {
           created_at: string
           difficulty_level: Database["public"]["Enums"]["difficulty_level_enum"]
           id: string
-          key_points: string[]
-          reasons: string | null
           summary: string
-          supporting_arguments: Json
-          cautious_arguments: Json
-          target_audience: string[]
           title: string
           updated_at: string
-          updates: Json
         }
         Insert: {
           bill_id: string
@@ -215,15 +348,9 @@ export type Database = {
           created_at?: string
           difficulty_level: Database["public"]["Enums"]["difficulty_level_enum"]
           id?: string
-          key_points?: string[]
-          reasons?: string | null
           summary: string
-          supporting_arguments?: Json
-          cautious_arguments?: Json
-          target_audience?: string[]
           title: string
           updated_at?: string
-          updates?: Json
         }
         Update: {
           bill_id?: string
@@ -231,15 +358,9 @@ export type Database = {
           created_at?: string
           difficulty_level?: Database["public"]["Enums"]["difficulty_level_enum"]
           id?: string
-          key_points?: string[]
-          reasons?: string | null
           summary?: string
-          supporting_arguments?: Json
-          cautious_arguments?: Json
-          target_audience?: string[]
           title?: string
           updated_at?: string
-          updates?: Json
         }
         Relationships: [
           {
@@ -1871,6 +1992,11 @@ export type Database = {
       }
     }
     Enums: {
+      article_category_enum:
+        | "childcare_education"
+        | "safety_disaster"
+        | "community_living"
+        | "governance_election"
       bill_publish_status: "draft" | "published" | "coming_soon"
       bill_status_enum:
         | "preparing"

@@ -1,11 +1,19 @@
-import type { Database } from "@mirai-gikai/supabase";
+import type { Database, Json } from "@mirai-gikai/supabase";
 
 // Database types
 export type Bill = Database["public"]["Tables"]["bills"]["Row"];
 export type BillInsert = Database["public"]["Tables"]["bills"]["Insert"];
 export type BillUpdate = Database["public"]["Tables"]["bills"]["Update"];
 
-export type BillContent = Database["public"]["Tables"]["bill_contents"]["Row"];
+export type BillContent =
+  Database["public"]["Tables"]["bill_contents"]["Row"] & {
+    key_points?: string[];
+    reasons?: string | null;
+    supporting_arguments?: Json;
+    cautious_arguments?: Json;
+    target_audience?: string[];
+    updates?: Json;
+  };
 export type BillContentInsert =
   Database["public"]["Tables"]["bill_contents"]["Insert"];
 export type BillContentUpdate =
@@ -25,13 +33,15 @@ export type TopicSourceRef = {
   detail_bill_id?: string | null;
 };
 
-export type BillArticle =
-  Database["public"]["Tables"]["bill_articles"]["Row"] & {
-    published_at: string | null;
-    source_refs?: TopicSourceRef[] | null;
-    /** 記事と同名の議案に公開中のAIインタビューがある場合、その bills.id */
-    interview_bill_id?: string | null;
-  };
+export type BillArticle = Omit<
+  Database["public"]["Tables"]["bill_articles"]["Row"],
+  "source_refs"
+> & {
+  published_at: string | null;
+  source_refs?: TopicSourceRef[] | null;
+  /** 記事と同名の議案に公開中のAIインタビューがある場合、その bills.id */
+  interview_bill_id?: string | null;
+};
 export type BillArticleInsert =
   Database["public"]["Tables"]["bill_articles"]["Insert"];
 export type BillArticleUpdate =
