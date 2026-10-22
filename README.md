@@ -56,6 +56,11 @@
 
 ## セットアップ
 
+Node.js 24.x を使用してください。web / admin の `engines.node` と
+GitHub Actions も 24 系に統一しています。
+Vercel の Settings → Build and Deployment → Node.js Version も
+24.x に設定し、依存関係の更新後は再デプロイしてください。
+
 ```bash
 # Supabaseの起動
 npx supabase start
