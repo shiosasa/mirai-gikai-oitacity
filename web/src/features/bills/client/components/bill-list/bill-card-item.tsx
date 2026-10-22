@@ -130,7 +130,7 @@ export function BillCard({ bill, onOpenAiModal }: BillCardProps) {
         <div className="space-y-2 rounded-md border border-oita-pink-accent/60 bg-oita-pink-light p-4">
           <h3 className="flex items-center gap-1.5 text-xs font-bold text-primary">
             <Sparkles aria-hidden="true" className="size-4" />📢
-            この取り組みを3行でいうと？
+            この取り組みの３つの要点は？
           </h3>
           {summaryPoints.length > 0 ? (
             <ul className="space-y-1.5 text-sm leading-relaxed text-mirai-text">
