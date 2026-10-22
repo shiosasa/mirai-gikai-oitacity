@@ -1,6 +1,6 @@
 # みらい議会ー大分市版
 
-公開URL: https://mirai-gikai-oitacity-wxga.vercel.app/
+公開URL: https://mirai-gikai-oitacity-web.vercel.app/
 
 **次回の作業は、まず [公開版の場所と引き継ぎ（テキスト）](./docs/20261010_1455_大分市版公開と引き継ぎ.txt) を読んでください。**
 公開した完成版の保存先は `C:\Users\詩織\mirai-gikai-oita-approved-preview` です。
