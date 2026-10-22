@@ -29,11 +29,13 @@ export function ArticleAccordionCard({ article }: ArticleAccordionCardProps) {
             <span className="inline-flex items-center rounded-full bg-oita-pink-light px-3 py-1 text-xs font-medium text-oita-pink">
               {getCategoryLabel(article.category)}
             </span>
+            {article.decision_date && (
+              <span className="text-xs text-mirai-text-secondary ml-2">
+                議決日: {formatDate(article.decision_date)}
+              </span>
+            )}
             <span className="text-xs text-mirai-text-secondary ml-2">
-              議決日: {formatDate(article.decision_date)}
-            </span>
-            <span className="text-xs text-mirai-text-secondary ml-2">
-              | サイト公開日:{" "}
+              {article.decision_date && "| "}サイト公開日:{" "}
               {article.published_date
                 ? formatDate(article.published_date)
                 : "未設定"}
