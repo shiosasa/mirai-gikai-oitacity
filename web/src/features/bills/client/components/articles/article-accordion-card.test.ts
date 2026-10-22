@@ -58,4 +58,29 @@ describe("ArticleAccordionCard", () => {
     expect(titleRow?.classList.contains("sm:col-span-1")).toBe(true);
     expect(titleRow?.classList.contains("sm:flex-row")).toBe(true);
   });
+
+  it("shows a recorded decision date alongside the publication date", () => {
+    render(createElement(ArticleAccordionCard, { article }));
+
+    expect(screen.getByText("議決日: 2026/6/24")).toBeDefined();
+    expect(screen.getByText("| サイト公開日: 2026/9/1")).toBeDefined();
+  });
+
+  it("omits the decision label and separator for a report without a vote", () => {
+    render(
+      createElement(ArticleAccordionCard, {
+        article: {
+          ...article,
+          decision_date: null,
+          status_label: "委員会報告",
+          status_class: "status-discussions",
+        },
+      })
+    );
+
+    expect(screen.queryByText(/議決日/)).toBeNull();
+    expect(screen.getByText("サイト公開日: 2026/9/1")).toBeDefined();
+    expect(screen.queryByText(/\| サイト公開日/)).toBeNull();
+    expect(screen.getByText("委員会報告")).toBeDefined();
+  });
 });
