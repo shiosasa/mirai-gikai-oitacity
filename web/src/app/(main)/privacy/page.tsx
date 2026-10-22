@@ -16,7 +16,7 @@ export const metadata: Metadata = {
 export default function PrivacyPage() {
   return (
     <LegalPageLayout
-      className="bg-transparent pt-24 md:pt-12"
+      className="bg-transparent"
       title="プライバシーポリシー"
       description={`${siteConfig.siteName}における個人情報の取り扱いについてご説明します。`}
     >
