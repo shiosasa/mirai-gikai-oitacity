@@ -75,8 +75,8 @@ importers:
         specifier: ^2.57.0
         version: 2.74.0
       '@tailwindcss/typography':
-        specifier: ^0.5.19
-        version: 0.5.19(tailwindcss@4.1.14)
+        specifier: ^0.5.20
+        version: 0.5.20(tailwindcss@4.1.14)
       ai:
         specifier: ^6.0.3
         version: 6.0.3(zod@4.1.12)
@@ -313,7 +313,7 @@ importers:
         version: 15.6.6(react@19.1.10)
       recharts:
         specifier: ^3.9.2
-        version: 3.9.2(@types/react@19.2.2)(react-dom@19.1.10(react@19.1.10))(react-is@17.0.2)(react@19.1.10)(redux@5.0.1)
+        version: 3.9.2(@types/react@19.2.2)(react-dom@19.1.10(react@19.1.10))(react-is@16.13.1)(react@19.1.10)(redux@5.0.1)
       rehype-sanitize:
         specifier: ^6.0.0
         version: 6.0.0
@@ -358,8 +358,8 @@ importers:
         specifier: ^4
         version: 4.1.14
       '@tailwindcss/typography':
-        specifier: ^0.5.16
-        version: 0.5.19(tailwindcss@4.1.14)
+        specifier: ^0.5.20
+        version: 0.5.20(tailwindcss@4.1.14)
       '@testing-library/jest-dom':
         specifier: ^6.9.1
         version: 6.9.1
@@ -2207,10 +2207,10 @@ packages:
   '@tailwindcss/postcss@4.1.14':
     resolution: {integrity: sha512-BdMjIxy7HUNThK87C7BC8I1rE8BVUsfNQSI5siQ4JK3iIa3w0XyVvVL9SXLWO//CtYTcp1v7zci0fYwJOjB+Zg==}
 
-  '@tailwindcss/typography@0.5.19':
-    resolution: {integrity: sha512-w31dd8HOx3k9vPtcQh5QHP9GwKcgbMp87j58qi6xgiBnFFtKEAgCWnDw4qUT8aHwkCp8bKvb/KGKWWHedP0AAg==}
+  '@tailwindcss/typography@0.5.20':
+    resolution: {integrity: sha512-hwbzQuNUfcPvbegQFatVPl/MY/tcM9KLl963hQ5laJKPh81TEZ1+dNG9PirGvcaDBkp+BCshExAyKVPW91dozw==}
     peerDependencies:
-      tailwindcss: '>=3.0.0 || insiders || >=4.0.0-alpha.20 || >=4.0.0-beta.1'
+      tailwindcss: '>=3.0.0 || >=4.0.0 || insiders'
 
   '@testing-library/dom@10.4.1':
     resolution: {integrity: sha512-o4PXJQidqJl82ckFaXUeoAW+XysPLauYI43Abki5hABd853iMhitooc6znOnczgbTYmEP6U6/y1ZyKAIsvMKGg==}
@@ -6188,7 +6188,7 @@ snapshots:
       postcss: 8.5.6
       tailwindcss: 4.1.14
 
-  '@tailwindcss/typography@0.5.19(tailwindcss@4.1.14)':
+  '@tailwindcss/typography@0.5.20(tailwindcss@4.1.14)':
     dependencies:
       postcss-selector-parser: 6.0.10
       tailwindcss: 4.1.14
@@ -8332,7 +8332,7 @@ snapshots:
 
   react@19.1.10: {}
 
-  recharts@3.9.2(@types/react@19.2.2)(react-dom@19.1.10(react@19.1.10))(react-is@17.0.2)(react@19.1.10)(redux@5.0.1):
+  recharts@3.9.2(@types/react@19.2.2)(react-dom@19.1.10(react@19.1.10))(react-is@16.13.1)(react@19.1.10)(redux@5.0.1):
     dependencies:
       '@reduxjs/toolkit': 2.12.0(react-redux@9.3.0(@types/react@19.2.2)(react@19.1.10)(redux@5.0.1))(react@19.1.10)
       clsx: 2.1.1
@@ -8342,7 +8342,7 @@ snapshots:
       immer: 11.1.11
       react: 19.1.10
       react-dom: 19.1.10(react@19.1.10)
-      react-is: 17.0.2
+      react-is: 16.13.1
       react-redux: 9.3.0(@types/react@19.2.2)(react@19.1.10)(redux@5.0.1)
       reselect: 5.2.0
       tiny-invariant: 1.3.3
