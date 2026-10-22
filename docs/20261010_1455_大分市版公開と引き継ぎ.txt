@@ -4,7 +4,7 @@
 【1．公開した本物のサイト】
 
 一般公開URL：
-https://mirai-gikai-oitacity-wxga.vercel.app/
+https://mirai-gikai-oitacity-web.vercel.app/
 
 このURLを携帯・パソコンで開く。ログイン不要。
 確認用の長いURLや http://127.0.0.1:3008/ は一般公開URLではない。
@@ -38,7 +38,7 @@ https://github.com/shiosasa/mirai-gikai-oitacity/pull/4
 PR #4はPR #3のビルド修正を含む。#3だけを後から重複マージしない。
 
 Vercel：
-https://vercel.com/shiopan1/mirai-gikai-oitacity-wxga
+https://vercel.com/shiopan1/mirai-gikai-oitacity-web
 Project ID：prj_8VjVsVhXPi4V6QmOCsEDssQsjlP1
 今回の本番Deployment ID：dpl_6CnJsWjywDJg2qS41LMKXEnBTYvh
 Root Directory：web
