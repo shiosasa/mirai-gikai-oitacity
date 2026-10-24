@@ -38,7 +38,7 @@ https://github.com/shiosasa/mirai-gikai-oitacity/pull/4
 PR #4はPR #3のビルド修正を含む。#3だけを後から重複マージしない。
 
 Vercel：
-https://vercel.com/shiopan1/mirai-gikai-oitacity-wxga
+https://vercel.com/shiopan1/mirai-gikai-oitacity-web
 Project ID：prj_8VjVsVhXPi4V6QmOCsEDssQsjlP1
 今回の本番Deployment ID：dpl_6CnJsWjywDJg2qS41LMKXEnBTYvh
 Root Directory：web
@@ -59,7 +59,9 @@ pushやPRマージだけで自動公開されると思わないこと。
 【3．完成版を画面で確認するポイント】
 
 ・TOPにサザンカの絵付きのピンク色のinformation欄がある。
-・次回定例会は「閉会中（次回 令和8年第4回 11/30〜12/14）」。
+・LINE等のリンクプレビュー画像は web/public/ogp-oita-city.jpg
+  （1200×630、大分市版・サザンカ入り）を使用する。
+・次回定例会は「閉会中（次回 Ｒ8第4回 11/30〜12/14）」。
   2026年11月30日から会期中表示、12月15日以降は登録日程に応じて再判定する。
 ・トピックスに「サイト公開日」が表示され、新しい公開日順に並ぶ。
 ・検索カテゴリは、すべて／子育て・教育／安心・安全・防災／
