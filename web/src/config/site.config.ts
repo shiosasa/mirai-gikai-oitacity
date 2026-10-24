@@ -11,7 +11,7 @@ export const siteConfig = {
   councilName: "大分市議会",
   councilSchedule: [
     {
-      name: "Ｒ8第4回",
+      name: "令和8年第4回",
       start_date: "2026-11-30",
       end_date: "2026-12-14",
     },

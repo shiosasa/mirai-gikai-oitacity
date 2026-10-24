@@ -375,4 +375,49 @@ describe("linkSessionBills", () => {
 
     expect(result[0].billId).toBeNull();
   });
+
+  describe("budget bill department-specific matching", () => {
+    const inoshishiPublishedBill = {
+      id: "inoshishi-bill",
+      name: "令和8年度大分市一般会計予算（農林水産部所管分：農林水産業費・災害復旧費）",
+      bill_number: "令和8年 議第1号",
+      sessionName: "令和8年第1回定例会",
+      sessionStartDate: null,
+      sessionEndDate: null,
+    };
+
+    it("links to department budget when session bill name matches department", () => {
+      const result = linkSessionBills(
+        [
+          {
+            number: "議第1号",
+            name: "令和8年度大分市一般会計予算（農林水産部所管分：農林水産業費・災害復旧費）",
+            description: null,
+            result: null,
+          },
+        ],
+        [inoshishiPublishedBill],
+        "経済環境常任委員会",
+        "2026-03-25"
+      );
+      expect(result[0].billId).toBe("inoshishi-bill");
+    });
+
+    it("does not link department budget to other committee with general budget name", () => {
+      const result = linkSessionBills(
+        [
+          {
+            number: "議第1号",
+            name: "令和8年度大分市一般会計予算",
+            description: null,
+            result: null,
+          },
+        ],
+        [inoshishiPublishedBill],
+        "文教常任委員会",
+        "2026-03-23"
+      );
+      expect(result[0].billId).toBeNull();
+    });
+  });
 });

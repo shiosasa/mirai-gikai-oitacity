@@ -1,8 +1,12 @@
 import "server-only";
 import { getPublishedArticles } from "@/features/bills/server/loaders/get-articles";
-import { findBillUpdatedAtByIds } from "@/features/bills/server/repositories/bill-repository";
+import {
+  findBillStatusByIds,
+  findBillUpdatedAtByIds,
+} from "@/features/bills/server/repositories/bill-repository";
 import {
   addBillPickupCategories,
+  addBillPickupStatuses,
   addBillPickupUpdatedAt,
   buildBillPickupItems,
 } from "../../shared/utils/build-bill-pickup-items";
@@ -15,12 +19,14 @@ export async function getBillPickups() {
     ...plenaryMeetings,
     ...committeeMeetings,
   ]);
-  const [articles, dates] = await Promise.all([
+  const billIds = items.map((item) => item.billId);
+  const [articles, dates, statuses] = await Promise.all([
     getPublishedArticles(),
-    findBillUpdatedAtByIds(items.map((item) => item.billId)),
+    findBillUpdatedAtByIds(billIds),
+    findBillStatusByIds(billIds),
   ]);
-  return addBillPickupUpdatedAt(
-    addBillPickupCategories(items, articles),
-    dates
+  return addBillPickupStatuses(
+    addBillPickupUpdatedAt(addBillPickupCategories(items, articles), dates),
+    statuses
   );
 }

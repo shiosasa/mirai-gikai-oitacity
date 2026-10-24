@@ -22,10 +22,30 @@ function matchesReference(
   if (source.session_id !== reference.sessionId) return false;
 
   if (source.bill_number && reference.billNumber) {
-    return (
+    const numberMatches =
       normalizeReference(source.bill_number) ===
-      normalizeReference(reference.billNumber)
-    );
+      normalizeReference(reference.billNumber);
+    if (!numberMatches) return false;
+
+    if (source.bill_name && reference.billName) {
+      const normSource = normalizeReference(source.bill_name);
+      const normRef = normalizeReference(reference.billName);
+
+      // If either name contains a specification (e.g., parentheses), require exact match after normalization
+      const hasSpec =
+        /[（(]/.test(normSource) ||
+        /[）)]/.test(normSource) ||
+        /[（(]/.test(normRef) ||
+        /[）)]/.test(normRef);
+      if (hasSpec) {
+        return normSource === normRef;
+      }
+
+      // Fallback to flexible matching for generic names
+      return normSource.includes(normRef) || normRef.includes(normSource);
+    }
+
+    return true;
   }
 
   return Boolean(

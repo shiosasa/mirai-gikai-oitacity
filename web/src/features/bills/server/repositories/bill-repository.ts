@@ -72,6 +72,28 @@ export async function findBillUpdatedAtByIds(
 }
 
 /**
+ * 複数のbill_idに紐づくstatusを一括取得し、bill_idごとにマップで返す
+ */
+export async function findBillStatusByIds(
+  billIds: string[]
+): Promise<Map<string, string | null>> {
+  if (billIds.length === 0) return new Map();
+
+  const supabase = createAdminClient();
+  const { data, error } = await supabase
+    .from("bills")
+    .select("id, status")
+    .in("id", billIds);
+
+  if (error) {
+    console.error(`Failed to fetch bill statuses: ${error.message}`);
+    return new Map();
+  }
+
+  return new Map((data ?? []).map((bill) => [bill.id, bill.status ?? null]));
+}
+
+/**
  * 管理者用: ステータス問わず議案を1件取得
  */
 export async function findBillById(id: string) {
