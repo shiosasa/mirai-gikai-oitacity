@@ -2,7 +2,7 @@ import { parseMarkdown } from "@/lib/markdown";
 import type { BillWithContent } from "../../../shared/types";
 
 interface BillContentProps {
-  bill: BillWithContent;
+  bill: Pick<BillWithContent, "bill_content">;
 }
 
 export async function BillContent({ bill }: BillContentProps) {

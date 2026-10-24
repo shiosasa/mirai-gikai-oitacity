@@ -5,19 +5,19 @@ import { useRouter } from "next/navigation";
 import { useState } from "react";
 import Markdown from "react-markdown";
 import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
+import { siteConfig } from "@/config/site.config";
 import {
   Dialog,
   DialogContent,
   DialogHeader,
   DialogTitle,
 } from "@/components/ui/dialog";
-import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
 import { ScrollArea } from "@/components/ui/scroll-area";
-import { siteConfig } from "@/config/site.config";
 import { getInterviewChatLink } from "@/features/interview-config/shared/utils/interview-links";
-import { createInterviewSession } from "@/features/interview-session/server/actions/create-interview-session";
 import { formatPolicyReviewPhrase } from "@/lib/utils/party-text";
+import { createInterviewSession } from "@/features/interview-session/server/actions/create-interview-session";
 
 const TERMS_MARKDOWN = `本サービスは、AIを活用したインタビュー機能を提供しています。ご利用にあたり、以下の事項にご同意いただく必要があります。
 
@@ -139,9 +139,9 @@ export function InterviewConsentModal({
 
         <div className="space-y-4 mt-4">
           <p className="text-sm font-bold">
-            {siteConfig.managingParty
-              ? `回答データは${formatPolicyReviewPhrase(siteConfig.managingParty, "での")}に利用します。`
-              : "回答データは市政への提言や公開データとして活用します。"}
+            回答データは
+            {formatPolicyReviewPhrase(siteConfig.managingParty, "での")}
+            に利用します。
           </p>
           <p className="text-sm font-bold leading-[22px]">
             対話内容は保存され、AI処理と市民の声の整理に利用されます。本名・住所・連絡先など、個人を特定できる情報は入力しないでください。

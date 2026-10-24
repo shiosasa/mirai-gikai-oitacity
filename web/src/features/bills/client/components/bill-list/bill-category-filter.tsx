@@ -1,16 +1,13 @@
 "use client";
 
 import { Button } from "@/components/ui/button";
+import {
+  ARTICLE_CATEGORIES,
+  type ArticleCategoryFilter,
+} from "../../../shared/utils/article-category";
 
-export const OITA_CATEGORIES = [
-  "すべて",
-  "子育て・教育",
-  "安心・安全・防災",
-  "まちづくり・暮らし",
-  "まちの仕組み・選挙",
-] as const;
-
-export type OitaCategory = (typeof OITA_CATEGORIES)[number];
+export const OITA_CATEGORIES = ARTICLE_CATEGORIES;
+export type OitaCategory = ArticleCategoryFilter;
 
 interface BillCategoryFilterProps {
   selectedCategory: OitaCategory;
@@ -23,7 +20,7 @@ export function BillCategoryFilter({
 }: BillCategoryFilterProps) {
   return (
     <div className="flex flex-wrap items-center gap-2 py-2">
-      {OITA_CATEGORIES.map((category) => {
+      {ARTICLE_CATEGORIES.map((category) => {
         const isSelected = selectedCategory === category;
         return (
           <Button

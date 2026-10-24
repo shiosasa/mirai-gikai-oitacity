@@ -8,7 +8,10 @@ import { siteConfig } from "@/config/site.config";
 import { DifficultySelector } from "@/features/bill-difficulty/client/components/difficulty-selector";
 import type { DifficultyLevelEnum } from "@/features/bill-difficulty/shared/types";
 import { InterviewHeaderActions } from "@/features/interview-session/client/components/interview-header-actions";
-import { isInterviewPage, isMainPage } from "@/lib/page-layout-utils";
+import {
+  isInterviewPage,
+  shouldShowDifficultySelector,
+} from "@/lib/page-layout-utils";
 import { HamburgerMenu } from "./hamburger-menu";
 
 interface HeaderClientProps {
@@ -17,7 +20,7 @@ interface HeaderClientProps {
 
 export function HeaderClient({ difficultyLevel }: HeaderClientProps) {
   const pathname = usePathname();
-  const showDifficultySelector = isMainPage(pathname) && pathname !== "/";
+  const showDifficultySelector = shouldShowDifficultySelector(pathname);
   const showInterviewActions = isInterviewPage(pathname);
 
   return (

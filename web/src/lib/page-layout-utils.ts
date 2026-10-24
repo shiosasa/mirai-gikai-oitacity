@@ -39,6 +39,14 @@ export function isInterviewSection(pathname: string): boolean {
   return /\/bills\/[^/]+\/interview(\/|$)/.test(pathname);
 }
 
+export function shouldShowDifficultySelector(pathname: string): boolean {
+  return (
+    isMainPage(pathname) &&
+    pathname !== "/" &&
+    !/\/bills\/[^/]+(?:\/|$)/.test(pathname)
+  );
+}
+
 /** インタビューページからbillIdを抽出 */
 export function extractBillIdFromPath(pathname: string): string | null {
   const match = pathname.match(/\/bills\/([^/]+)/);

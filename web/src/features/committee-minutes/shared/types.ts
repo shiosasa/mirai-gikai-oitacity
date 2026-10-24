@@ -62,6 +62,14 @@ export type MeetingSession = {
   created_at: string;
 };
 
+export type SessionBill = {
+  number: string | null;
+  name: string;
+  description: string | null;
+  result: string | null;
+  billId?: string | null;
+};
+
 export type Meeting = {
   id: number;
   title: string;

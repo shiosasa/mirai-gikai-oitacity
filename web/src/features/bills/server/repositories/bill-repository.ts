@@ -53,21 +53,44 @@ export async function findPublishedBillById(id: string) {
   return data;
 }
 
-export async function findPublishedBillsByIds(ids: string[]) {
-  if (ids.length === 0) return [];
+export async function findBillUpdatedAtByIds(
+  billIds: string[]
+): Promise<Map<string, string>> {
+  if (billIds.length === 0) return new Map();
 
   const supabase = createAdminClient();
   const { data, error } = await supabase
     .from("bills")
-    .select("id, name, bill_number")
-    .in("id", ids)
-    .eq("publish_status", "published");
+    .select("id, updated_at")
+    .in("id", billIds);
 
   if (error) {
-    throw new Error(`Failed to fetch published bills: ${error.message}`);
+    throw new Error(`Failed to fetch bill update dates: ${error.message}`);
   }
 
-  return data ?? [];
+  return new Map((data ?? []).map((bill) => [bill.id, bill.updated_at]));
+}
+
+/**
+ * 複数のbill_idに紐づくstatusを一括取得し、bill_idごとにマップで返す
+ */
+export async function findBillStatusByIds(
+  billIds: string[]
+): Promise<Map<string, string | null>> {
+  if (billIds.length === 0) return new Map();
+
+  const supabase = createAdminClient();
+  const { data, error } = await supabase
+    .from("bills")
+    .select("id, status")
+    .in("id", billIds);
+
+  if (error) {
+    console.error(`Failed to fetch bill statuses: ${error.message}`);
+    return new Map();
+  }
+
+  return new Map((data ?? []).map((bill) => [bill.id, bill.status ?? null]));
 }
 
 /**
@@ -163,11 +186,10 @@ export async function findBillContentByDifficulty(
     .select("*")
     .eq("bill_id", billId)
     .eq("difficulty_level", difficultyLevel)
-    .single();
+    .maybeSingle();
 
   if (error) {
-    console.error(`Failed to fetch bill content: ${error.message}`);
-    return null;
+    throw new Error(`Failed to fetch bill content: ${error.message}`);
   }
 
   return data;

@@ -17,35 +17,29 @@ export function ArticleAccordionCard({ article }: ArticleAccordionCardProps) {
   const [isOpen, setIsOpen] = useState(false);
 
   return (
-    <div className="w-full rounded-lg border border-mirai-border bg-white overflow-hidden">
+    <div
+      id={`article-${article.id}`}
+      className="w-full rounded-lg border border-mirai-border bg-white overflow-hidden"
+    >
       {/* ヘッダー（常に表示） */}
-      <div className="p-4 sm:p-6 flex items-start justify-between gap-3">
-        <div className="flex-1 min-w-0">
+      <div className="p-4 sm:p-6 grid grid-cols-[minmax(0,1fr)_auto] items-start gap-x-3">
+        <div className="min-w-0">
           {/* カテゴリバッジ */}
           <div className="mb-2">
             <span className="inline-flex items-center rounded-full bg-oita-pink-light px-3 py-1 text-xs font-medium text-oita-pink">
               {getCategoryLabel(article.category)}
             </span>
-            <span className="text-xs text-mirai-text-secondary ml-2">
-              議決日: {formatDate(article.decision_date)}
-            </span>
-            {article.published_at && (
+            {article.decision_date && (
               <span className="text-xs text-mirai-text-secondary ml-2">
-                | 公開日: {formatDate(article.published_at)}
+                議決日: {formatDate(article.decision_date)}
               </span>
             )}
-          </div>
-
-          {/* ステータス + タイトル */}
-          <div className="flex items-start gap-2 mb-3">
-            <span
-              className={`inline-flex items-center rounded-full px-3 py-1 text-xs font-bold text-white flex-shrink-0 ${getStatusBadgeClass(article.status_class || article.status_label)}`}
-            >
-              {article.status_label}
+            <span className="text-xs text-mirai-text-secondary ml-2">
+              {article.decision_date && "| "}サイト公開日:{" "}
+              {article.published_date
+                ? formatDate(article.published_date)
+                : "未設定"}
             </span>
-            <h3 className="text-base sm:text-lg font-bold text-mirai-text leading-snug break-words">
-              {article.title}
-            </h3>
           </div>
         </div>
 
@@ -54,7 +48,7 @@ export function ArticleAccordionCard({ article }: ArticleAccordionCardProps) {
           type="button"
           variant="ghost"
           onClick={() => setIsOpen(!isOpen)}
-          className="flex-shrink-0 flex flex-col items-center gap-1 h-auto p-1.5 hover:bg-transparent hover:opacity-70"
+          className="col-start-2 row-start-1 sm:row-span-2 flex-shrink-0 flex flex-col items-center gap-1 h-auto p-1.5 hover:bg-transparent hover:opacity-70"
         >
           {isOpen ? (
             <ChevronUp className="size-5 text-oita-pink" />
@@ -67,6 +61,18 @@ export function ArticleAccordionCard({ article }: ArticleAccordionCardProps) {
             ポイント
           </span>
         </Button>
+
+        {/* ステータス + タイトル */}
+        <div className="col-span-2 sm:col-span-1 sm:col-start-1 flex flex-col items-start gap-2 mb-3 sm:flex-row">
+          <span
+            className={`inline-flex items-center rounded-full px-3 py-1 text-xs font-bold text-white flex-shrink-0 ${getStatusBadgeClass(article.status_class || article.status_label)}`}
+          >
+            {article.status_label}
+          </span>
+          <h3 className="w-full min-w-0 text-base sm:text-lg font-bold text-mirai-text leading-snug break-words">
+            {article.title}
+          </h3>
+        </div>
       </div>
 
       {/* 要約（フルサイズ） */}
@@ -75,7 +81,7 @@ export function ArticleAccordionCard({ article }: ArticleAccordionCardProps) {
         article.summary_line_3) && (
         <div className="px-4 sm:px-6 pb-4 border-t border-gray-200">
           <p className="text-xs font-bold text-gray-700 mb-2">
-            📢 この取り組みを3行でいうと？
+            📢 この取り組みの３つの要点は？
           </p>
           <div className="bg-gradient-to-r from-oita-pink-light to-blue-50 border-l-4 border-oita-pink rounded p-3 space-y-1">
             {article.summary_line_1 && (
@@ -236,11 +242,10 @@ export function ArticleAccordionCard({ article }: ArticleAccordionCardProps) {
                     )}
                     {ref.detail_bill_id && (
                       <Link
-                        href={`/bills/${ref.detail_bill_id}`}
+                        href={`/committees/bill-pickups/${ref.detail_bill_id}`}
                         className="mt-1 inline-flex items-center gap-1 text-xs font-semibold text-oita-pink hover:underline"
                       >
-                        {ref.bill_number ?? "議案"}の詳細ページを見る
-                        <span>→</span>
+                        {ref.bill_number ?? "議案"}の詳細ページを見る →
                       </Link>
                     )}
                     {ref.evidence_quote && (
@@ -284,7 +289,7 @@ export function ArticleAccordionCard({ article }: ArticleAccordionCardProps) {
   );
 }
 
-function formatDate(date?: string | Date): string {
+function formatDate(date?: string | Date | null): string {
   if (!date) return "";
   const d = typeof date === "string" ? new Date(date) : date;
   return d.toLocaleDateString("ja-JP", {

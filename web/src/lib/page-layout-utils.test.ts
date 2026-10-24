@@ -6,7 +6,31 @@ import {
   isInterviewSection,
   isMainPage,
   isWidePage,
+  shouldShowDifficultySelector,
 } from "./page-layout-utils";
+
+describe("shouldShowDifficultySelector", () => {
+  it("hides the selector throughout interviews including previews", () => {
+    for (const prefix of ["", "/preview"]) {
+      for (const suffix of ["", "/disclosure", "/chat"]) {
+        expect(
+          shouldShowDifficultySelector(`${prefix}/bills/abc/interview${suffix}`)
+        ).toBe(false);
+      }
+    }
+  });
+
+  it("hides the header selector on bill details and the home page", () => {
+    expect(shouldShowDifficultySelector("/bills/abc")).toBe(false);
+    expect(shouldShowDifficultySelector("/preview/bills/abc")).toBe(false);
+    expect(shouldShowDifficultySelector("/")).toBe(false);
+  });
+
+  it("preserves the selector on budget and evaluation pages", () => {
+    expect(shouldShowDifficultySelector("/budget/r8")).toBe(true);
+    expect(shouldShowDifficultySelector("/jimu-jigyo/r7")).toBe(true);
+  });
+});
 
 describe("isMainPage", () => {
   it("returns true for the top page", () => {

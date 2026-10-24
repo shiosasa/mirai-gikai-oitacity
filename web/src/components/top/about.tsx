@@ -1,4 +1,3 @@
-import Image from "next/image";
 import Link from "next/link";
 import { siteConfig } from "@/config/site.config";
 import { LinkButton } from "./link-button";
@@ -91,10 +90,10 @@ export function About() {
                   <LinkButton
                     href="https://team-mir.ai/"
                     icon={{
-                      src: "/img/logo.svg",
-                      alt: "",
-                      width: 23,
-                      height: 22,
+                      src: "/icons/team-mirai-logo.png",
+                      alt: "Team Mirai",
+                      width: 48,
+                      height: 41,
                     }}
                   >
                     「チームみらい」について
