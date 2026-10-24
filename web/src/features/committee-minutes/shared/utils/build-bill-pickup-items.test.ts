@@ -40,6 +40,7 @@ describe("buildBillPickupItems", () => {
         description: "学校給食費の管理方法を改める条例案です。",
         kind: "法案",
         updatedAt: null,
+        status: null,
         categories: [],
         relatedTopicTitles: [],
         references: [
