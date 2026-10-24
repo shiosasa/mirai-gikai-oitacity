@@ -48,6 +48,48 @@ function getCategoryTagClass(category: string): string {
   }
 }
 
+function getStatusLabel(status: string | null): string {
+  switch (status) {
+    case "preparing":
+      return "議案上程前";
+    case "submitted":
+      return "上程済み";
+    case "in_committee":
+      return "委員会審査中";
+    case "plenary_session":
+      return "本会議採決中";
+    case "approved":
+      return "可決";
+    case "rejected":
+      return "否決";
+    case "adopted":
+      return "採択";
+    case "partially_adopted":
+      return "趣旨採択";
+    case "reported":
+      return "専決処分報告";
+    default:
+      return "";
+  }
+}
+
+function getStatusBadgeClass(status: string | null): string {
+  switch (status) {
+    case "approved":
+    case "adopted":
+    case "reported":
+      return "bg-primary text-white";
+    case "rejected":
+      return "bg-gray-700 text-white";
+    case "submitted":
+    case "in_committee":
+    case "plenary_session":
+      return "bg-primary/20 text-primary-accent";
+    default:
+      return "hidden";
+  }
+}
+
 function getSessionHref(
   meetingType: string,
   meetingId: number,
@@ -146,6 +188,13 @@ export function BillPickupsView({ items, detailMode = false }: Props) {
                         <span className="rounded-full bg-primary/10 px-3 py-1 text-xs font-semibold text-primary-accent">
                           {item.kind}
                         </span>
+                        {item.status && getStatusLabel(item.status) && (
+                          <span
+                            className={`rounded-full px-3 py-1 text-xs font-bold ${getStatusBadgeClass(item.status)}`}
+                          >
+                            {getStatusLabel(item.status)}
+                          </span>
+                        )}
                         {formatBillPickupNumber(
                           firstReference.billNumber,
                           firstReference.date

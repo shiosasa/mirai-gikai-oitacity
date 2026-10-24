@@ -34,6 +34,7 @@ export type BillPickupItem = {
   description: string | null;
   kind: BillPickupKind;
   updatedAt: string | null;
+  status: string | null;
   categories: string[];
   relatedTopicTitles: string[];
   references: BillPickupReference[];
@@ -81,6 +82,7 @@ export function buildBillPickupItems(
             description: bill.description?.trim() || null,
             kind: getBillPickupKind(bill.number, bill.name),
             updatedAt: null,
+            status: null,
             categories: [],
             relatedTopicTitles: [],
             references: [],
@@ -122,6 +124,18 @@ export function addBillPickupUpdatedAt(
   return items.map((item) => ({
     ...item,
     updatedAt: updatedAtByBillId.get(item.billId) ?? null,
+  }));
+}
+
+export function addBillPickupStatuses(
+  items: BillPickupItem[],
+  statusByBillId: Map<string, string | null>
+): BillPickupItem[] {
+  return items.map((item) => ({
+    ...item,
+    status: statusByBillId.has(item.billId)
+      ? (statusByBillId.get(item.billId) ?? null)
+      : null,
   }));
 }
 

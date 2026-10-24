@@ -75,9 +75,51 @@ export function linkSessionBills(
           bill.bill_number !== null &&
           normalizeBillNumber(bill.bill_number) === normalizedNumber
       );
+
+      if (matches.length === 1) {
+        const candidate = matches[0];
+        const isBudget =
+          normalizedNumber === "1" ||
+          (candidate.name && candidate.name.includes("一般会計予算")) ||
+          (sessionBill.name && sessionBill.name.includes("一般会計予算"));
+
+        if (isBudget && sessionBill.name && candidate.name) {
+          const normSession = normalize(sessionBill.name);
+          const normCandidate = normalize(candidate.name);
+
+          if (normSession !== normCandidate) {
+            const extractSpec = (str: string) => {
+              const m = str.match(/[（(]([^）)]+)[）)]/);
+              return m ? m[1] : "";
+            };
+            const sSpec = extractSpec(normSession);
+            const cSpec = extractSpec(normCandidate);
+
+            if (sSpec || cSpec) {
+              const isSpecCompatible =
+                Boolean(sSpec && cSpec) &&
+                (sSpec === cSpec ||
+                  sSpec.includes(cSpec) ||
+                  cSpec.includes(sSpec));
+              if (!isSpecCompatible) {
+                return {
+                  ...sessionBill,
+                  billId: null,
+                };
+              }
+            }
+          }
+        }
+
+        return {
+          ...sessionBill,
+          billId: candidate.id,
+        };
+      }
+
       return {
         ...sessionBill,
-        billId: matches.length === 1 ? matches[0].id : null,
+        billId: null,
       };
     }
 
