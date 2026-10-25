@@ -1,6 +1,6 @@
 # みらい議会ー大分市版
 
-公開URL: https://mirai-gikai-oitacity-wxga.vercel.app/
+公開URL: https://mirai-gikai-oitacity-web.vercel.app/
 
 **次回の作業は、まず [公開版の場所と引き継ぎ（テキスト）](./docs/20261010_1455_大分市版公開と引き継ぎ.txt) を読んでください。**
 公開した完成版の保存先は `C:\Users\詩織\mirai-gikai-oita-approved-preview` です。
@@ -41,6 +41,15 @@
 - **非公式**ですので、ここでの不具合や気になる点についての問い合わせは
   党公式ではなく開発担当者にご連絡ください。
 
+## 公開画面のレイアウト
+
+- 固定ヘッダーを使う画面では、共通の `MainLayout` がスマートフォン・PCともに
+  上部96pxを確保します（ヘッダーの上余白16px＋高さ64px＋本文との間隔16px）。
+- 各ページではヘッダー分の余白を重ねて追加せず、本文固有の余白だけを設定します。
+  全画面のチャットも、この96pxを除いた高さを使用します。
+- トピックスの「議決日」は、実際の議決日が登録されている場合だけ表示します。
+  委員会報告・実証結果の報告を議決扱いにせず、サイト公開日とは区別します。
+
 ## 他地方議会向けForkガイド
 
 - 他の市議会・県議会等のバージョンを作成したい場合は、
@@ -55,6 +64,11 @@
 [![codecov](https://codecov.io/gh/team-mirai/mirai-gikai/branch/develop/graph/badge.svg)](https://codecov.io/gh/team-mirai/mirai-gikai)
 
 ## セットアップ
+
+Node.js 24.x を使用してください。web / admin の `engines.node` と
+GitHub Actions も 24 系に統一しています。
+Vercel の Settings → Build and Deployment → Node.js Version も
+24.x に設定し、依存関係の更新後は再デプロイしてください。
 
 ```bash
 # Supabaseの起動

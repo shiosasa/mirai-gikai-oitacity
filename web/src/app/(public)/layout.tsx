@@ -7,7 +7,7 @@ export default function PublicLayout({ children }: { children: ReactNode }) {
   return (
     <MainLayout>
       <Header />
-      <main className="min-h-dvh md:min-h-[calc(100dvh-96px)] bg-mirai-surface">
+      <main className="min-h-[calc(100dvh-96px)] bg-mirai-surface">
         {children}
       </main>
       <Footer />

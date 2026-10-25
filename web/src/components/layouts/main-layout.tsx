@@ -32,7 +32,7 @@ export function MainLayout({ children }: MainLayoutProps) {
   return (
     <div
       className={cn(
-        "relative max-w-[700px] mx-auto md:mt-24",
+        "relative max-w-[700px] mx-auto mt-24",
         // インタビューページ以外ではshadowを表示
         !isInterview && "sm:shadow-lg",
         // TOPページと法案詳細ページのみ、チャットサイドバー用のオフセット
