@@ -3,9 +3,11 @@ import { MessageCircle } from "lucide-react";
 import Link from "next/link";
 import { notFound } from "next/navigation";
 import { Button } from "@/components/ui/button";
+import { BillStatusProgress } from "@/features/bills/client/components/bill-detail/bill-status-progress";
 import { BillContent } from "@/features/bills/server/components/bill-detail/bill-content";
 import { getPublishedArticles } from "@/features/bills/server/loaders/get-articles";
 import { getBillContentWithDifficulty } from "@/features/bills/server/loaders/helpers/get-bill-content";
+import type { BillStatusEnum } from "@/features/bills/shared/types";
 import { getBillTopicInterviews } from "../../shared/utils/get-bill-topic-interviews";
 import { getBillPickups } from "../loaders/get-bill-pickups";
 import { BillPickupsView } from "./bill-pickups-view";
@@ -26,6 +28,11 @@ export async function BillPickupDetailView({ id }: { id: string }) {
   return (
     <div className="space-y-6">
       <BillPickupsView items={[item]} detailMode />
+      {item.status && (
+        <section className="rounded-xl border border-mirai-border bg-white p-6">
+          <BillStatusProgress status={item.status as BillStatusEnum} />
+        </section>
+      )}
       <BillContent bill={{ bill_content: content }} />
       {interviews.length > 0 && (
         <section className="space-y-4 rounded-xl border border-mirai-border bg-white p-6">

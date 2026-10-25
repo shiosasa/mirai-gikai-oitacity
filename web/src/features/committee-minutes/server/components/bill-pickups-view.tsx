@@ -235,10 +235,37 @@ export function BillPickupsView({ items, detailMode = false }: Props) {
                           ))}
                         </div>
                       )}
-                      {item.description && (
-                        <p className="mt-3 line-clamp-3 text-sm leading-relaxed text-mirai-text-secondary">
-                          {item.description}
+                      {item.description ? (
+                        <p className="mt-3 text-sm leading-relaxed text-mirai-text-secondary">
+                          <span className="line-clamp-3">
+                            {item.description}
+                          </span>
+                          {!detailMode && (
+                            <>
+                              {" "}
+                              <Link
+                                href={`/committees/bill-pickups/${item.billId}`}
+                                className="inline-flex items-center gap-0.5 text-sm font-semibold text-primary-accent hover:underline"
+                              >
+                                詳細を見る
+                                <Link2
+                                  aria-hidden="true"
+                                  className="size-3.5"
+                                />
+                              </Link>
+                            </>
+                          )}
                         </p>
+                      ) : (
+                        !detailMode && (
+                          <Link
+                            href={`/committees/bill-pickups/${item.billId}`}
+                            className="mt-3 inline-flex items-center gap-0.5 text-sm font-semibold text-primary-accent hover:underline"
+                          >
+                            詳細を見る
+                            <Link2 aria-hidden="true" className="size-3.5" />
+                          </Link>
+                        )
                       )}
                       {item.updatedAt && (
                         <p className="mt-3 text-xs text-mirai-text-muted">
@@ -248,15 +275,6 @@ export function BillPickupsView({ items, detailMode = false }: Props) {
                       <p className="mt-3 text-xs text-mirai-text-muted">
                         関連する議事録 {item.references.length}件
                       </p>
-                      {!detailMode && (
-                        <Link
-                          href={`/committees/bill-pickups/${item.billId}`}
-                          className="mt-4 inline-flex items-center gap-1.5 rounded-full bg-primary/10 px-3 py-1.5 text-xs font-semibold text-primary-accent"
-                        >
-                          詳細ページを見る
-                          <Link2 aria-hidden="true" className="size-3.5" />
-                        </Link>
-                      )}
                     </div>
 
                     <ul className="space-y-2 border-t border-mirai-border px-6 py-4">
