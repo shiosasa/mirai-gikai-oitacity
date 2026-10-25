@@ -41,7 +41,7 @@ export function About() {
               <ul className="list-disc space-y-2 pl-5">
                 <li>
                   <strong>免責事項：</strong>
-                  本サイトは政党チームみらいが運営しているものではありません。
+                  本サイトは政党チームみらいや大分市議会が運営しているものではありません。
                 </li>
                 <li>
                   <strong>運営について：</strong>

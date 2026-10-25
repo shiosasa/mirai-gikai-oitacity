@@ -3,10 +3,12 @@
  * Fork して別の地方議会向けに使用する場合はこのファイルを変更してください。
  */
 export const siteConfig = {
-  siteName: "みらい議会ー福岡県版",
-  cityName: "福岡県",
-  councilName: "福岡県議会",
-  councilBaseUrl: "https://www.gikai.pref.fukuoka.lg.jp/",
-  councilBillsDetailUrl: "https://www.gikai.pref.fukuoka.lg.jp/site/honkaigi/",
-  councilFactionExamples: "自民党県議団、民主県政県議団、公明党、新政会等",
+  siteName: "みらい議会ー大分市版",
+  cityName: "大分市",
+  councilName: "大分市議会",
+  councilBaseUrl: "https://mirai-gikai-oitacity-web.vercel.app/",
+  councilBillsDetailUrl:
+    "https://mirai-gikai-oitacity-web.vercel.app/committees",
+  councilFactionExamples:
+    "大分市議会、みらいぎかいっち、おおいた、おんせん県、大友宗麟",
 } as const;
