@@ -2,13 +2,34 @@ import Link from "next/link";
 import { Container } from "@/components/layouts/container";
 import { ArticlesSection } from "@/features/bills/server/components/articles-section";
 import { getPublishedArticles } from "@/features/bills/server/loaders/get-articles";
+import { addTopicSourceBillDetailIds } from "@/features/bills/shared/utils/add-topic-source-bill-detail-ids";
+import { getAllMeetingsAndCommittees } from "@/features/committee-minutes/server/loaders/get-all-meetings";
+import { buildBillPickupItems } from "@/features/committee-minutes/shared/utils/build-bill-pickup-items";
 
 export const metadata = {
   title: "トピックス | みらいぎかいっち＠大分",
 };
 
 export default async function TopicsPage() {
-  const articles = await getPublishedArticles();
+  const [articles, { plenaryMeetings, committeeMeetings }] = await Promise.all([
+    getPublishedArticles(),
+    getAllMeetingsAndCommittees(),
+  ]);
+  const billReferences = buildBillPickupItems([
+    ...plenaryMeetings,
+    ...committeeMeetings,
+  ]).flatMap((item) =>
+    item.references.map((reference) => ({
+      sessionId: reference.sessionId,
+      billNumber: reference.billNumber,
+      billName: reference.billName,
+      billId: item.billId,
+    }))
+  );
+  const articlesWithBillLinks = addTopicSourceBillDetailIds(
+    articles,
+    billReferences
+  );
 
   return (
     <Container className="py-8">
@@ -21,12 +42,12 @@ export default async function TopicsPage() {
         </Link>
       </div>
 
-      {articles.length === 0 ? (
+      {articlesWithBillLinks.length === 0 ? (
         <p className="text-sm text-mirai-text-muted text-center">
           記事はまだ掲載されていません。
         </p>
       ) : (
-        <ArticlesSection articles={articles} />
+        <ArticlesSection articles={articlesWithBillLinks} />
       )}
     </Container>
   );

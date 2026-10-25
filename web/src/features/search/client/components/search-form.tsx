@@ -2,22 +2,27 @@
 
 import { Search } from "lucide-react";
 import { useRouter, useSearchParams } from "next/navigation";
+import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-
-const SUGGESTED_KEYWORDS = ["子育て", "防災", "道路", "環境", "福祉", "予算"];
+import { ARTICLE_CATEGORIES } from "@/features/bills/shared/utils/article-category";
+import {
+  buildSearchUrl,
+  parseSearchCategory,
+} from "../../shared/utils/search-category";
 
 export function SearchForm() {
   const searchParams = useSearchParams();
   const router = useRouter();
   const query = searchParams.get("q") ?? "";
+  const category = parseSearchCategory(
+    searchParams.get("category") ?? undefined
+  );
 
   function handleSubmit(e: React.FormEvent<HTMLFormElement>) {
     e.preventDefault();
     const q = new FormData(e.currentTarget).get("q") as string;
     const trimmed = q.trim();
-    router.push(
-      trimmed ? `/search?q=${encodeURIComponent(trimmed)}` : "/search"
-    );
+    router.push(buildSearchUrl(trimmed, category));
   }
 
   return (
@@ -33,20 +38,32 @@ export function SearchForm() {
           autoFocus
         />
       </form>
-      {!query && (
-        <div className="flex flex-wrap gap-2 mt-3">
-          {SUGGESTED_KEYWORDS.map((kw) => (
-            <button
-              key={kw}
-              type="button"
-              onClick={() => router.push(`/search?q=${encodeURIComponent(kw)}`)}
-              className="px-3 py-1 text-xs border border-mirai-border rounded-full text-mirai-text-secondary hover:bg-mirai-surface transition-colors"
-            >
-              {kw}
-            </button>
-          ))}
-        </div>
-      )}
+      <div
+        className="flex flex-wrap gap-2 mt-3"
+        role="group"
+        aria-label="検索カテゴリ"
+      >
+        {ARTICLE_CATEGORIES.map((item) => (
+          <Button
+            key={item}
+            type="button"
+            variant="ghost"
+            size="sm"
+            aria-pressed={category === item}
+            onClick={() => router.push(buildSearchUrl(query, item))}
+            className={`px-3 py-1 text-xs border rounded-full transition-colors ${
+              category === item
+                ? "border-mirai-text bg-mirai-text text-white hover:bg-mirai-text hover:text-white"
+                : "border-mirai-border text-mirai-text-secondary hover:bg-mirai-surface"
+            }`}
+          >
+            {item}
+          </Button>
+        ))}
+      </div>
+      <p className="mt-2 text-xs text-mirai-text-muted">
+        カテゴリを選ぶとトピックスを絞り込みます。キーワードと組み合わせて検索できます。
+      </p>
     </div>
   );
 }

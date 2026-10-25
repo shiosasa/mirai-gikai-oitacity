@@ -25,6 +25,7 @@ export default function ConsentModalPreview() {
             open={openDefault}
             onOpenChange={setOpenDefault}
             billId="mock-bill-001"
+            interviewConfigId="mock-interview-config-001"
           />
         </PreviewSection>
       </ComponentShowcase>

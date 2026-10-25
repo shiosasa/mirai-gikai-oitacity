@@ -73,7 +73,7 @@ const _getCachedBillById = unstable_cache(
       tags,
     };
   },
-  ["bill-by-id"],
+  ["bill-by-id-with-normal-content-v2"],
   {
     revalidate: 600, // 10分（600秒）
     tags: [CACHE_TAGS.BILLS],

@@ -175,7 +175,7 @@ export function BillCard({ bill, onOpenAiModal }: BillCardProps) {
               </p>
             </section>
           )}
-          {content?.key_points.length > 0 && (
+          {content?.key_points && content.key_points.length > 0 && (
             <section>
               <h3 className="mb-1 font-bold">重要ポイント</h3>
               <ul className="list-inside list-disc space-y-1">
@@ -185,7 +185,7 @@ export function BillCard({ bill, onOpenAiModal }: BillCardProps) {
               </ul>
             </section>
           )}
-          {content?.target_audience.length > 0 && (
+          {content?.target_audience && content.target_audience.length > 0 && (
             <section>
               <h3 className="mb-1 font-bold">主に影響を受ける人</h3>
               <p>{content.target_audience.join("・")}</p>

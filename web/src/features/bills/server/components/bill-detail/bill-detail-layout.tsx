@@ -10,8 +10,8 @@ import { BillDisclaimer } from "../../../client/components/bill-detail/bill-disc
 import { BillStatusProgress } from "../../../client/components/bill-detail/bill-status-progress";
 import { FactionStanceCard } from "../../../client/components/bill-detail/faction-stance-card";
 import type { BillWithContent } from "../../../shared/types";
-import { BillShareButtons } from "../share/bill-share-buttons";
 import { getBillDiscussions } from "../../loaders/get-bill-discussions";
+import { BillShareButtons } from "../share/bill-share-buttons";
 import { BillContent } from "./bill-content";
 import { BillDetailHeader } from "./bill-detail-header";
 import { BillDiscussionsSection } from "./bill-discussions-section";
@@ -64,6 +64,12 @@ export async function BillDetailLayout({
             />
           </div>
 
+          {currentDifficulty === "hard" &&
+            bill.bill_content?.difficulty_level === "normal" && (
+              <p className="mb-4 text-sm text-mirai-text-muted" role="status">
+                詳しい説明はまだ作成されていないため、通常の説明を表示しています。
+              </p>
+            )}
           <BillContent bill={bill} />
           {discussions.length > 0 && (
             <div className="my-8">

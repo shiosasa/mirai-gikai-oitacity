@@ -16,7 +16,8 @@ export async function POST(request: NextRequest) {
     const { summary, decisions } = await summarizeMeetingContent(content);
 
     const supabase = createAdminClient();
-    const { error } = await (supabase.from("meeting_sessions") as any)
+    const { error } = await supabase
+      .from("meeting_sessions")
       .update({
         summary,
         decisions,

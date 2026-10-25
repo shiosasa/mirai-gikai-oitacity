@@ -1,3 +1,23 @@
+export const ARTICLE_CATEGORIES = [
+  "すべて",
+  "子育て・教育",
+  "安心・安全・防災",
+  "まちづくり・暮らし",
+  "まちの仕組み・選挙",
+] as const;
+
+export type ArticleCategoryFilter = (typeof ARTICLE_CATEGORIES)[number];
+
+export function filterArticlesByCategory<T extends { category: string | null }>(
+  articles: T[],
+  category: ArticleCategoryFilter
+): T[] {
+  if (category === "すべて") return articles;
+  return articles.filter(
+    (article) => getCategoryLabel(article.category) === category
+  );
+}
+
 /**
  * 記事カテゴリ（article_category_enum または日本語バッジ）から表示用ラベルを取得する
  */
