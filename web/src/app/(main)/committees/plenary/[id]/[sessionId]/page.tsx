@@ -122,6 +122,19 @@ export default async function PlenarySessionDetailPage({
               📝 詳細議事録
             </h2>
             <MinutesContent content={session.content} />
+
+            {/* 出典情報・検索システムへのリンク */}
+            <div className="mt-6 pt-4 border-t border-mirai-border text-xs text-mirai-text-muted flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2">
+              <span>出典：大分市議会会議録検索システム</span>
+              <a
+                href="https://www.kensakusystem.jp/oita/index.html"
+                target="_blank"
+                rel="noopener noreferrer"
+                className="text-primary-accent hover:underline inline-flex items-center gap-1 font-medium"
+              >
+                「会議録閲覧」より ↗
+              </a>
+            </div>
           </section>
         )}
       </div>
