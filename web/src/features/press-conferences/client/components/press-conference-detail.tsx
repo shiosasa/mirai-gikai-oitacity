@@ -78,7 +78,9 @@ export function PressConferenceDetail({ pressConference }: Props) {
           </span>
         </div>
         <p className="text-xs text-mirai-text-muted -mt-2">
-          タップすると詳しいやりとりが読めます
+          {qaItems.length > 0
+            ? "タップすると要約や、登録されたやりとりを確認できます。"
+            : "質疑の内容は準備中です。"}
         </p>
         <div className="flex flex-col gap-2">
           {qaItems.map((item, i) => (

@@ -95,6 +95,30 @@ describe("MayorDetailContent", () => {
     expect(html).not.toContain("ローカル確認用");
   });
 
+  it("keeps the biography without repeating the policy pillars", () => {
+    document.body.innerHTML = renderToStaticMarkup(
+      <MayorDetailContent
+        mayor={mayor}
+        proposals={[]}
+        conferences={[]}
+        localPreview={false}
+      />
+    );
+
+    const profile = document.querySelector("#profile");
+    expect(profile?.textContent).toContain(mayor.bio);
+    expect(profile?.textContent).not.toContain("まちづくりの5つの柱");
+    for (const pillar of [
+      "ひとを守る",
+      "ひとを育む",
+      "ひとを支える",
+      "ひとを豊かに",
+      "ひとを元気に",
+    ]) {
+      expect(profile?.textContent?.split(pillar)).toHaveLength(2);
+    }
+  });
+
   it("shows clear empty states without inventing profile or archive data", () => {
     const html = renderToStaticMarkup(
       <MayorDetailContent
