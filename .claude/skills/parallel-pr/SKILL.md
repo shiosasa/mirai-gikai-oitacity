@@ -93,7 +93,7 @@ Task(
 1. 指定されたworktreeの状態と既存PRを確認し、`git fetch origin` の後に `git switch -c {branch} origin/{統合ブランチ}` で担当PR用のブランチを作成
 2. 対象ファイルを読んで理解
 3. 実装・修正
-4. push前のローカル検証（CIと同じコマンドを全て実行し、全て通過すること）:
+4. push前のローカル検証（全て実行し、全て通過すること）:
    - 必要なフォーマット修正は変更対象のファイルに限定
    - `pnpm lint` でlintチェック通過を確認
    - `pnpm typecheck` で型チェック通過を確認
@@ -128,8 +128,10 @@ done
 
 CI失敗時の対応:
 - **TypeScript型エラー**: worktreeで直接修正してpush
-- **Biomeエラー**: worktreeで `pnpm lint:fix` して再push
+- **Biomeエラー**: worktreeの変更対象ファイルに限定してフォーマットし再push
 - **テスト失敗**: worktreeで修正して再push
+
+`gh` がない場合はGitHub APIまたは画面で確認する。大分市版PRでCIが実行されないことがあるため、`AGENTS.md` と最新のワークフロー設定を確認し、未実行を成功と扱わず報告する。
 
 PRコメント対応:
 - **CodeRabbitの指摘**: 重要な指摘はworktreeで修正してpush

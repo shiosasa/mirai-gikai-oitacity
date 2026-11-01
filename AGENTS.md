@@ -122,12 +122,13 @@ Repository レイヤーの詳細は [docs/repository-layer.md](docs/repository-l
 - テストの書き方・構造化・コード例などの詳細は [docs/テストガイドライン.md](docs/20260219_1000_テストガイドライン.md) を参照。
 
 ## Commit & Pull Request Guidelines
-- **push前のローカル検証（必須）**: `git push` の前に、CIと同じ検証コマンドをローカルで実行して通過を確認すること。CIで落ちてから直すのではなく、手元で事前に検知する。
+- **push前のローカル検証（必須）**: `git push` の前に、次の基本検証をローカルで実行して通過を確認すること。CIが起動しない場合も省略しない。
   ```bash
   pnpm lint        # Biome format + lint チェック
   pnpm typecheck   # TypeScript 型チェック
   pnpm test        # 全ワークスペースのテスト実行
   ```
+- **CIの対象を確認**: 2026年11月1日時点では `.github/workflows/code_check.yml` は `kawasaki/develop`、`integration_test.yml` は `main` / `develop` のみを対象としており、大分市版のPRでは自動実行されない。`pinact_check.yml` はワークフローファイル変更時のみ実行される。作業時は最新の設定を確認し、チェックが未実行ならそのまま報告する。実行なしを成功と扱わない。
 - **push / PR作成前のGitHub状態確認（必須）**: `git push` やPR作成を行う前に、必ず `gh pr list` や `gh pr view <番号>` でGitHub上のPR状態（open/merged/closed）を確認すること。マージ済みブランチへの追加pushや、既にクローズされたPRとの重複を防ぐ。
 - コミットメッセージは既存履歴同様、短い命令形主体（日本語可）とし、課題連携は `(#id)` を付与します。
 - PR ではスコープ概要、実行テスト記録（例: `pnpm dev`, `pnpm --filter web test`）、UI 変更時のスクリーンショットや GIF を添付します。
@@ -135,8 +136,8 @@ Repository レイヤーの詳細は [docs/repository-layer.md](docs/repository-l
 - **イシュー連携**: 特定のイシューに対応する PR を作成する場合、PR 本文に `Resolves #123` の形式で記載してください。これにより PR マージ時にイシューが自動クローズされます。複数のイシューを閉じる場合は `Resolves #123, Resolves #456` のように列挙します。
 - **PR作成後の状態確認（必須）**: PR作成後、以下の4点を確認すること：
   1. **Conflict確認**: `gh pr view <番号> --json mergeable,mergeStateStatus` でマージ可能か確認。conflictがあれば解消してpushする。
-  2. **CI確認**: `gh pr checks <番号>` でCIの状態を確認。失敗があれば原因を調査し修正してpushする。CIが実行中の場合は完了まで待つ。
-  3. **CodeRabbitレビュー確認**: CodeRabbitのレビューが届くまで待ってからコメントを確認する。レビューは通常2〜3分で届く。`gh api repos/{owner}/{repo}/pulls/{number}/comments` でコメントを取得し、空なら少し待って再取得する。重要な指摘（Major/Critical）があれば修正してpushすること。軽微な指摘（Minor）や既存コードとの一貫性を優先すべきものはスキップ可。
+  2. **CI確認**: `gh pr checks <番号>` またはGitHub API・画面でCIの状態を確認。失敗があれば原因を調査し修正してpushする。CIが実行中の場合は完了まで待ち、未実行の場合は報告する。
+  3. **CodeRabbitレビュー確認**: CodeRabbitのレビューが届くまで待ってからコメントを確認する。レビューは通常2〜3分で届く。`gh api repos/{owner}/{repo}/pulls/{number}/comments` またはGitHub API・画面でコメントを取得し、空なら少し待って再取得する。届かない場合は未到着と報告する。重要な指摘（Major/Critical）があれば修正してpushすること。軽微な指摘（Minor）や既存コードとの一貫性を優先すべきものはスキップ可。
   4. **対応済みコメントのresolve（必須）**: 修正をpushした後、対応済みのレビューコメントをGraphQL APIでresolveする。まず `gh api graphql` でスレッド一覧を取得し、`resolveReviewThread` mutationで対応済みスレッドをresolveする。
      ```bash
      # スレッド一覧取得（isResolved=falseのものが未resolve）
