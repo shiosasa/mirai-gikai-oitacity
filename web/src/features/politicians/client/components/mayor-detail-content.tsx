@@ -10,7 +10,6 @@ import type {
 } from "../../shared/types/mayor";
 import { calculateAge } from "../../shared/utils/calculate-age";
 import { MayorConferenceArchive } from "./mayor-conference-archive";
-import { MayorPolicyPillars } from "./mayor-policy-pillars";
 
 type Props = {
   mayor: MayorProfile | null;
@@ -142,8 +141,6 @@ export function MayorDetailContent({
                 {mayor.bio}
               </p>
             )}
-
-            <MayorPolicyPillars bio={mayor?.bio ?? null} />
 
             {officialUrl ? (
               <a
