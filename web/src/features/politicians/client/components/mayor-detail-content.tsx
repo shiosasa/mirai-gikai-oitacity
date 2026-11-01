@@ -1,4 +1,4 @@
-import { ArrowLeft, ExternalLink } from "lucide-react";
+import { ArrowLeft, ChevronDown, ExternalLink } from "lucide-react";
 import Link from "next/link";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { formatDateJST } from "@/lib/utils/date";
@@ -8,8 +8,9 @@ import type {
   MayorProfile,
   MayorProposal,
 } from "../../shared/types/mayor";
-import { extractMayorPolicy } from "../../shared/utils/extract-mayor-policy";
+import { calculateAge } from "../../shared/utils/calculate-age";
 import { MayorConferenceArchive } from "./mayor-conference-archive";
+import { MayorPolicyPillars } from "./mayor-policy-pillars";
 
 type Props = {
   mayor: MayorProfile | null;
@@ -24,10 +25,10 @@ export function MayorDetailContent({
   conferences,
   localPreview,
 }: Props) {
-  const policy = extractMayorPolicy(mayor?.bio ?? null);
   const officialUrl = getHttpUrl(mayor?.official_url);
   const imageUrl = getHttpUrl(mayor?.image_url);
   const mayorName = mayor?.name?.trim();
+  const age = calculateAge(mayor?.birth_date ?? null, new Date());
 
   return (
     <div className="mx-auto max-w-3xl px-5 py-10 sm:px-8">
@@ -85,8 +86,8 @@ export function MayorDetailContent({
             市長プロフィール
           </h2>
           <div className="mt-4 rounded-lg border border-mirai-border bg-card p-5 sm:p-6">
-            <div className="flex items-center gap-5">
-              <Avatar className="size-24 shrink-0">
+            <div className="flex flex-col items-center gap-5 text-center sm:flex-row sm:text-left">
+              <Avatar className="size-36 shrink-0 sm:size-48">
                 <AvatarImage src={imageUrl ?? undefined} alt="" />
                 <AvatarFallback className="bg-oita-pink-light text-2xl text-mirai-text">
                   {mayorName?.slice(0, 1) ?? "市"}
@@ -108,10 +109,18 @@ export function MayorDetailContent({
             {mayor && (
               <dl className="mt-5 grid gap-2 text-sm text-mirai-text-secondary">
                 {mayor.birth_date && (
-                  <div className="flex flex-wrap gap-x-3">
-                    <dt className="font-semibold text-mirai-text">生年月日</dt>
-                    <dd>{mayor.birth_date}</dd>
-                  </div>
+                  <>
+                    <div className="flex flex-wrap gap-x-3">
+                      <dt className="font-semibold text-mirai-text">
+                        生年月日
+                      </dt>
+                      <dd>{mayor.birth_date}</dd>
+                    </div>
+                    <div className="flex flex-wrap gap-x-3">
+                      <dt className="font-semibold text-mirai-text">年齢</dt>
+                      <dd>{age === null ? "確認できません" : `${age}歳`}</dd>
+                    </div>
+                  </>
                 )}
                 {mayor.start_date && (
                   <div className="flex flex-wrap gap-x-3">
@@ -134,28 +143,7 @@ export function MayorDetailContent({
               </p>
             )}
 
-            {policy.pillars.length > 0 && (
-              <div className="mt-6 border-t border-mirai-border pt-5">
-                <h3 className="text-base font-bold text-mirai-text">
-                  まちづくりの5つの柱
-                </h3>
-                {policy.motto && (
-                  <p className="mt-2 text-sm font-semibold text-mirai-text-secondary">
-                    基本方針「{policy.motto}」
-                  </p>
-                )}
-                <ul className="mt-3 grid gap-2 sm:grid-cols-2">
-                  {policy.pillars.map((pillar) => (
-                    <li
-                      key={pillar}
-                      className="rounded-md bg-oita-pink-light px-4 py-3 text-sm font-semibold text-mirai-text"
-                    >
-                      {pillar}
-                    </li>
-                  ))}
-                </ul>
-              </div>
-            )}
+            <MayorPolicyPillars bio={mayor?.bio ?? null} />
 
             {officialUrl ? (
               <a
@@ -201,39 +189,49 @@ export function MayorDetailContent({
                 );
                 return (
                   <li key={proposal.id}>
-                    <article className="rounded-lg border border-mirai-border bg-card p-5">
-                      {proposal.date && (
-                        <p className="text-xs text-mirai-text-secondary">
-                          {formatDateJST(proposal.date)}
+                    <details className="group rounded-lg border border-mirai-border bg-card">
+                      <summary className="flex cursor-pointer list-none items-center justify-between gap-4 p-5 outline-offset-4 focus-visible:outline focus-visible:outline-2 focus-visible:outline-primary">
+                        <h3 className="min-w-0 font-bold text-mirai-text">
+                          {proposal.date && (
+                            <span className="block text-xs font-normal text-mirai-text-secondary">
+                              {formatDateJST(proposal.date)}
+                            </span>
+                          )}
+                          <span className="mt-1 block">
+                            {proposal.title || "会議名は準備中です"}
+                          </span>
+                        </h3>
+                        <ChevronDown
+                          aria-hidden="true"
+                          className="size-5 shrink-0 text-mirai-text-secondary transition-transform group-open:rotate-180"
+                        />
+                      </summary>
+                      <div className="border-t border-mirai-border px-5 py-5">
+                        <p className="whitespace-pre-line break-words text-sm leading-7 text-mirai-text">
+                          {proposal.mayor_proposal_summary ||
+                            "要約は準備中です。"}
                         </p>
-                      )}
-                      <h3 className="mt-1 font-bold text-mirai-text">
-                        {proposal.title || "会議名は準備中です"}
-                      </h3>
-                      <p className="mt-3 whitespace-pre-line break-words text-sm leading-7 text-mirai-text">
-                        {proposal.mayor_proposal_summary ||
-                          "要約は準備中です。"}
-                      </p>
-                      {proposal.mayor_proposal_source_url && !sourceUrl && (
-                        <p className="mt-3 text-sm text-mirai-text-secondary">
-                          原文のURLを確認できません。
-                        </p>
-                      )}
-                      <a
-                        href={
-                          sourceUrl ??
-                          "https://www.city.oita.oita.jp/shisejoho/kekakuzaise/shinozaise/teanriyu/index.html"
-                        }
-                        target="_blank"
-                        rel="noopener noreferrer"
-                        className="mt-3 inline-flex items-center gap-1 text-sm font-semibold text-primary-accent hover:underline"
-                      >
-                        {sourceUrl
-                          ? "公式サイトで原文を見る"
-                          : "公式サイトで提案理由を探す"}
-                        <ExternalLink aria-hidden="true" className="size-4" />
-                      </a>
-                    </article>
+                        {proposal.mayor_proposal_source_url && !sourceUrl && (
+                          <p className="mt-3 text-sm text-mirai-text-secondary">
+                            原文のURLを確認できません。
+                          </p>
+                        )}
+                        <a
+                          href={
+                            sourceUrl ??
+                            "https://www.city.oita.oita.jp/shisejoho/kekakuzaise/shinozaise/teanriyu/index.html"
+                          }
+                          target="_blank"
+                          rel="noopener noreferrer"
+                          className="mt-3 inline-flex items-center gap-1 text-sm font-semibold text-primary-accent hover:underline"
+                        >
+                          {sourceUrl
+                            ? "公式サイトで原文を見る"
+                            : "公式サイトで提案理由を探す"}
+                          <ExternalLink aria-hidden="true" className="size-4" />
+                        </a>
+                      </div>
+                    </details>
                   </li>
                 );
               })}

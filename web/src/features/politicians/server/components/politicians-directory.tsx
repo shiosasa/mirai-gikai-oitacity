@@ -1,9 +1,8 @@
-import { ArrowRight } from "lucide-react";
 import Link from "next/link";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Card } from "@/components/ui/card";
 import { siteConfig } from "@/config/site.config";
-import { getHttpUrl } from "@/lib/utils/external-url";
+import { MayorDirectoryCard } from "../../client/components/mayor-directory-card";
 import { groupPoliticiansByFaction } from "../../shared/utils/group-politicians-by-faction";
 import { getPublishedPoliticians } from "../loaders/get-published-politicians";
 import { findCurrentMayor } from "../repositories/mayor-repository";
@@ -13,7 +12,6 @@ export async function PoliticiansDirectory() {
     getPublishedPoliticians(),
     findCurrentMayor(),
   ]);
-  const mayorName = mayor?.name?.trim();
   // 欠番（name="欠番"）や無効レコードはリポジトリで除外済み
   // 会派別にグルーピングし、会派内で議席番号順に整列
   const factionGroups = groupPoliticiansByFaction(politicians);
@@ -39,41 +37,7 @@ export async function PoliticiansDirectory() {
         >
           市長
         </h2>
-        <div className="grid sm:grid-cols-2 lg:grid-cols-3">
-          <Card className="h-full rounded-md border-mirai-border bg-card shadow-none">
-            <Link
-              href="/politicians/mayor"
-              className="flex h-full items-center gap-4 p-4 outline-offset-4 focus-visible:outline focus-visible:outline-2 focus-visible:outline-primary"
-            >
-              <Avatar className="size-16 shrink-0">
-                <AvatarImage
-                  src={getHttpUrl(mayor?.image_url) ?? undefined}
-                  alt=""
-                />
-                <AvatarFallback className="bg-oita-pink-light text-mirai-text">
-                  {mayorName?.slice(0, 1) ?? "市"}
-                </AvatarFallback>
-              </Avatar>
-              <div className="min-w-0 flex-1">
-                {mayor?.name_kana && (
-                  <p className="text-xs text-mirai-text-secondary">
-                    {mayor.name_kana}
-                  </p>
-                )}
-                <h3 className="mt-1 break-words font-bold text-mirai-text">
-                  {mayorName || "市長プロフィール"}
-                </h3>
-                <p className="mt-2 text-sm text-mirai-text-secondary">
-                  プロフィールを見る
-                </p>
-              </div>
-              <ArrowRight
-                aria-hidden="true"
-                className="size-4 shrink-0 text-mirai-text-secondary"
-              />
-            </Link>
-          </Card>
-        </div>
+        <MayorDirectoryCard mayor={mayor} />
       </section>
 
       <section aria-labelledby="councillors-directory-heading">
