@@ -228,10 +228,14 @@ NEXT_PUBLIC_* はVercelのSecret型ではなくConfigで登録する。
 
 【9．次の担当にそのまま渡す文章】
 
+以下は2026年10月10日時点の引き継ぎ文。以後の更新は現行ブランチと
+.claude\skills\deploy\SKILL.md の手順を確認し、当時のコミットやPRを
+現在の公開状態と決めつけない。
+
 大分市版の公開済み完成版を更新してください。
 まずC:\Users\詩織\mirai-gikai-oita-approved-preview\README.mdと
 docs\20261010_1455_大分市版公開と引き継ぎ.txtを読んでください。
-公開URLはhttps://mirai-gikai-oitacity-wxga.vercel.app/です。
+公開URLはhttps://mirai-gikai-oitacity-web.vercel.app/です。
 途中保存版からやり直さず、公開コミットdda1110とPR #4を基準に、
 新しいworktreeで作業してください。PR #4の統合状態と
 Vercel Production Branchの未整理状態を最初に確認してください。

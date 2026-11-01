@@ -6,33 +6,39 @@
 変更作業は、**必ず git worktree を作成してから開始すること**。メインのリポジトリディレクトリでは直接変更を行わない。
 
 ```bash
-# 1. worktreeを作成
-git worktree add ../mirai-gikai-<branch-name> -b <branch-name>
+# 1. 最新の大分市版ブランチからworktreeを作成
+git fetch origin
+git -c core.autocrlf=false worktree add ../mirai-gikai-<branch-name> -b <branch-name> origin/fix/oita-approved-preview
 
-# 2. settings.local.jsonをコピー（権限設定のため必須）
-mkdir -p ../mirai-gikai-<branch-name>/.claude
-cp .claude/settings.local.json ../mirai-gikai-<branch-name>/.claude/
+# 2. settings.local.jsonが存在する場合は権限設定をコピー
+if [ -f .claude/settings.local.json ]; then
+  mkdir -p ../mirai-gikai-<branch-name>/.claude
+  cp .claude/settings.local.json ../mirai-gikai-<branch-name>/.claude/
+fi
 
 # 3. .envをコピー（環境変数の引き継ぎ）
 cp .env ../mirai-gikai-<branch-name>/
 
-# 4. 依存パッケージをインストール
+# 4. 必要な検証で依存パッケージが不足した場合にインストール
 cd ../mirai-gikai-<branch-name> && pnpm install --frozen-lockfile
 ```
 
 - **目的**: 開発ブランチを常にクリーンに保ち、作業の分離と並列作業を容易にする
+- `settings.local.json` がない場合は権限設定を推測して作成せず、その旨を報告する。
 
 ### 大分市版「みらいぎかいっち」専用リポジトリ
 本リポジトリは大分市議会向けの市民情報サイト「みらいぎかいっち＠大分市」専用リポジトリです。
-福岡版等の他地域向けコードは含まれず、全ての機能・コンテンツは大分市仕様で実装します。
+機能・コンテンツは大分市仕様で実装します。旧地域向けのコードや指示が残る場合があるため、URL・コマンド・接続先が大分市版に適合するか確認し、未確認の手順は実行しません。
 
 ### 実装完了後は即PR作成
 実装完了後は「コミットしますか？」等の確認を挟まず、コミット → push → PR作成まで一気に進めること。ユーザーへの確認は不要。
 
-**ベースブランチは大分版のブランチ（`oita-city/develop` 等）**。`fukuoka-pref/develop` や `kawasaki/develop` へのPRは出さないこと。
+**ベースブランチは大分市版の `fix/oita-approved-preview`**（2026年11月1日時点）。作業前にリモートの状態を再確認する。`fukuoka-pref/develop` や `kawasaki/develop` へのPRは出さないこと。
 ```bash
-gh pr create --base oita-city/develop ...
+gh pr create --base fix/oita-approved-preview ...
 ```
+
+`gh` がない環境では、認証済みのGitHub APIまたは画面を使用し、認証情報を表示・保存しない。
 
 ### レビューはCodeRabbit
 コードレビューはPR作成後の**CodeRabbit自動レビュー**で行う（Codex CLIはこの環境に
@@ -148,6 +154,8 @@ Repository レイヤーの詳細は [docs/repository-layer.md](docs/repository-l
 ## AI生成コンテンツのDB更新ルール
 
 AIが生成したテキスト（サマリー・要約・関連情報など）をDBに反映する前に、**必ず生成内容をユーザーに提示して確認を取ること**。確認前にPATCHやINSERTを実行してはならない。
+
+市長の提案理由・記者会見は [更新手順書](docs/20261101_2212_市長提案理由と記者会見の更新手順.md) を参照する。内容、DB書き込み、会見の公開はそれぞれ承認を得る。
 
 ### 提示時の必須チェック項目
 
