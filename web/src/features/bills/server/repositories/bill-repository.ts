@@ -245,6 +245,7 @@ export async function findPublishedBillsByDietSession(
     `
     )
     .eq("council_session_id", councilSessionId)
+    .eq("source", "meeting")
     .eq("publish_status", "published")
     .eq("bill_contents.difficulty_level", difficultyLevel)
     .order("status_order", { ascending: true })
@@ -277,6 +278,7 @@ export async function findPreviousSessionBills(
     `
     )
     .eq("council_session_id", councilSessionId)
+    .eq("source", "meeting")
     .eq("publish_status", "published")
     .eq("bill_contents.difficulty_level", difficultyLevel)
     .order("status_order", { ascending: true })
@@ -306,6 +308,7 @@ export async function countPublishedBillsByDietSession(
       head: true,
     })
     .eq("council_session_id", councilSessionId)
+    .eq("source", "meeting")
     .eq("publish_status", "published")
     .eq("bill_contents.difficulty_level", difficultyLevel);
 
@@ -367,6 +370,7 @@ export async function findPublishedBillsByTag(
     `
     )
     .eq("tag_id", tagId)
+    .eq("bills.source", "meeting")
     .eq("bills.publish_status", "published")
     .eq("bills.bill_contents.difficulty_level", difficultyLevel);
 
@@ -408,6 +412,7 @@ export async function findFeaturedBillsWithContents(
     `
     )
     .eq("is_featured", true)
+    .eq("source", "meeting")
     .eq("bill_contents.difficulty_level", difficultyLevel)
     .order("published_at", { ascending: false });
 
@@ -450,6 +455,7 @@ export async function findComingSoonBills(councilSessionId: string | null) {
     `
     )
     .eq("publish_status", "coming_soon")
+    .eq("source", "meeting")
     .order("created_at", { ascending: false });
 
   if (councilSessionId) {

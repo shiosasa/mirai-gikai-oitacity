@@ -6,6 +6,7 @@ import type { BillArticle } from "../../shared/types";
 import { categoryEnumFromBadge } from "../../shared/utils/article-category";
 import { buildPublishedBillIdByName } from "../../shared/utils/build-published-bill-id-by-name";
 import { resolveTopicBillDetailId } from "../../shared/utils/resolve-topic-bill-detail-id";
+import { resolveTopicInterviewBillId } from "../../shared/utils/resolve-topic-interview-bill-id";
 import { sortTopicsByPublicationDate } from "../../shared/utils/sort-topics-by-publication-date";
 
 /**
@@ -73,7 +74,7 @@ async function loadArticles(
 
   const fetchArticles = (withReferences: boolean) => {
     let query = articlesTable().select(
-      `${ARTICLE_COLUMNS}${withReferences ? ", source_refs" : ""}${publicationEnabled ? ", publish_status, first_published_at" : ""}`
+      `${ARTICLE_COLUMNS}${withReferences ? ", source_refs, interview_bill_id" : ""}${publicationEnabled ? ", publish_status, first_published_at" : ""}`
     );
     if (publicationEnabled) query = query.eq("publish_status", "published");
     return query.order("created_at", { ascending: false });
@@ -81,7 +82,7 @@ async function loadArticles(
   let { data, error } = await fetchArticles(true);
 
   if (error) {
-    // source_refs 列が未適用の環境向けフォールバック
+    // source_refs / interview_bill_id 列が未適用の環境向けフォールバック
     console.warn("Falling back without source_refs:", error.message);
     ({ data, error } = await fetchArticles(false));
   }
@@ -91,12 +92,12 @@ async function loadArticles(
     throw new Error(`Failed to fetch articles: ${error.message}`);
   }
 
-  // 記事タイトルと同名の議案（bills）に公開中のAIインタビューがあれば紐付ける
+  // トピックのAIインタビュー受け皿（bills.source = 'topic'）に公開中のインタビューがあれば紐付ける
   const [
     { data: bills, error: billsError },
     { data: configs, error: configsError },
   ] = await Promise.all([
-    supabase.from("bills").select("id, name, bill_number, publish_status"),
+    supabase.from("bills").select("id, name, publish_status, source"),
     supabase.from("interview_configs").select("bill_id").eq("status", "public"),
   ]);
   if (billsError) {
@@ -109,12 +110,6 @@ async function loadArticles(
       `Failed to fetch public interview configs: ${configsError.message}`
     );
   }
-  const billByName = new Map(
-    (bills ?? []).map((bill) => [
-      bill.name,
-      { id: bill.id, number: bill.bill_number },
-    ])
-  );
   const publishedBillIdByName = buildPublishedBillIdByName(bills ?? []);
   const billsWithInterview = new Set(
     (configs ?? []).map((config) => config.bill_id)
@@ -127,8 +122,11 @@ async function loadArticles(
 
   // proposals のカラムを bill_articles のカラムにマッピング
   const articles = (data ?? []).map((article: any) => {
-    const linkedBill = billByName.get(article.title);
-    const linkedBillId = linkedBill?.id;
+    const linkedBillId = resolveTopicInterviewBillId(
+      article.interview_bill_id,
+      article.title,
+      bills ?? []
+    );
     const sourceRefs = Array.isArray(article.source_refs)
       ? article.source_refs.map(
           (reference: {
@@ -195,7 +193,7 @@ async function loadArticles(
 
 const _getCachedArticles = unstable_cache(
   loadArticles,
-  ["published-articles-by-proposal-published-date-v5"],
+  ["published-articles-by-proposal-published-date-v6"],
   {
     revalidate: 600, // 10分
     tags: [CACHE_TAGS.BILLS],

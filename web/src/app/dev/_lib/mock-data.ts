@@ -23,6 +23,7 @@ const baseBill: BillWithContent = {
   is_featured: false,
   thumbnail_url: null,
   share_thumbnail_url: null,
+  source: "meeting",
   source_url: null,
   published_at: "2026-02-15",
   publish_status: "published",

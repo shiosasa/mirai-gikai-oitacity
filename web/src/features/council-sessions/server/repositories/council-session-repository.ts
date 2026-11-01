@@ -82,6 +82,7 @@ export async function findAllPastCouncilSessions(): Promise<CouncilSession[]> {
   const { data: billData, error: billError } = await supabase
     .from("bills")
     .select("council_session_id")
+    .eq("source", "meeting")
     .eq("publish_status", "published");
 
   if (billError) {

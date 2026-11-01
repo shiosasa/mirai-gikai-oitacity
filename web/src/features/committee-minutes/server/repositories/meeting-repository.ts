@@ -123,6 +123,7 @@ export async function findAllMeetings(): Promise<MeetingSummary[]> {
     .select(
       "id, name, bill_number, council_sessions(name, start_date, end_date)"
     )
+    .eq("source", "meeting")
     .eq("publish_status", "published");
 
   if (billsError) {
