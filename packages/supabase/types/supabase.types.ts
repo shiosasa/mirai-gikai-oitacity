@@ -34,6 +34,87 @@ export type Database = {
   }
   public: {
     Tables: {
+      mayor_profile: {
+        Row: {
+          bio: string | null
+          birth_date: string | null
+          created_at: string
+          end_date: string | null
+          id: number
+          image_url: string | null
+          is_current: boolean | null
+          name: string | null
+          name_kana: string | null
+          official_url: string | null
+          start_date: string | null
+          term_number: number | null
+        }
+        Insert: {
+          bio?: string | null
+          birth_date?: string | null
+          created_at?: string
+          end_date?: string | null
+          id?: number
+          image_url?: string | null
+          is_current?: boolean | null
+          name?: string | null
+          name_kana?: string | null
+          official_url?: string | null
+          start_date?: string | null
+          term_number?: number | null
+        }
+        Update: {
+          bio?: string | null
+          birth_date?: string | null
+          created_at?: string
+          end_date?: string | null
+          id?: number
+          image_url?: string | null
+          is_current?: boolean | null
+          name?: string | null
+          name_kana?: string | null
+          official_url?: string | null
+          start_date?: string | null
+          term_number?: number | null
+        }
+        Relationships: []
+      }
+      meetings: {
+        Row: {
+          created_at: string
+          date: string | null
+          id: number
+          mayor_proposal_source_url: string | null
+          mayor_proposal_summary: string | null
+          mayor_proposal_text: string | null
+          meeting_type: string | null
+          term: string | null
+          title: string | null
+        }
+        Insert: {
+          created_at?: string
+          date?: string | null
+          id?: number
+          mayor_proposal_source_url?: string | null
+          mayor_proposal_summary?: string | null
+          mayor_proposal_text?: string | null
+          meeting_type?: string | null
+          term?: string | null
+          title?: string | null
+        }
+        Update: {
+          created_at?: string
+          date?: string | null
+          id?: number
+          mayor_proposal_source_url?: string | null
+          mayor_proposal_summary?: string | null
+          mayor_proposal_text?: string | null
+          meeting_type?: string | null
+          term?: string | null
+          title?: string | null
+        }
+        Relationships: []
+      }
       meeting_sessions: {
         Row: {
           attendees: Json | null

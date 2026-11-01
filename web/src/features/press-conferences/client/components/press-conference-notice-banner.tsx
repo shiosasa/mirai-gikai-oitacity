@@ -25,7 +25,7 @@ export function PressConferenceNoticeBanner({ pressConference }: Props) {
       <div className="bg-gradient-to-r from-mirai-gradient-start to-mirai-gradient-end px-5 py-3 flex items-center justify-between">
         <div className="flex items-center gap-2 text-primary-accent font-bold text-sm">
           <Megaphone className="w-4 h-4" />
-          知事記者会見 最新情報
+          市長記者会見 最新情報
         </div>
         <div className="flex items-center gap-1.5 text-xs text-primary-accent">
           <CalendarDays className="w-3.5 h-3.5" />

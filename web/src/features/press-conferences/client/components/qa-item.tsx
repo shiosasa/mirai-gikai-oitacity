@@ -2,6 +2,7 @@
 
 import { ChevronDown } from "lucide-react";
 import { useState } from "react";
+import { Button } from "@/components/ui/button";
 import type { PressConferenceItem } from "../../shared/types";
 import { TurnBubble } from "./turn-bubble";
 
@@ -21,10 +22,13 @@ export function QaItem({ item, defaultOpen = false }: Props) {
           : "border border-mirai-border bg-white hover:border-primary/40 hover:shadow-sm"
       }`}
     >
-      <button
+      <Button
         type="button"
+        variant="ghost"
+        aria-expanded={isOpen}
+        aria-controls={`qa-content-${item.id}`}
         onClick={() => setIsOpen((v) => !v)}
-        className={`w-full flex items-center gap-3 px-4 py-3.5 text-left transition-colors ${
+        className={`h-auto w-full justify-start rounded-none flex items-center gap-3 px-4 py-3.5 text-left transition-colors ${
           isOpen ? "bg-mirai-gradient-end" : "bg-white hover:bg-mirai-surface"
         }`}
       >
@@ -39,10 +43,23 @@ export function QaItem({ item, defaultOpen = false }: Props) {
             isOpen ? "rotate-180" : ""
           }`}
         />
-      </button>
+      </Button>
       {isOpen && (
-        <div className="px-4 pb-5 bg-white border-t border-primary/20">
+        <div
+          id={`qa-content-${item.id}`}
+          className="px-4 pb-5 bg-white border-t border-primary/20"
+        >
           <div className="pt-4 flex flex-col gap-4">
+            {item.summary && (
+              <p className="whitespace-pre-line text-sm leading-6 text-mirai-text">
+                {item.summary}
+              </p>
+            )}
+            {!item.summary && item.turns.length === 0 && (
+              <p className="text-sm text-mirai-text-secondary">
+                質疑の内容は準備中です。
+              </p>
+            )}
             {item.turns.map((turn) => (
               <TurnBubble key={turn.id} turn={turn} />
             ))}
