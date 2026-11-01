@@ -1,5 +1,7 @@
+// @vitest-environment jsdom
+
 import { renderToStaticMarkup } from "react-dom/server";
-import { describe, expect, it } from "vitest";
+import { afterEach, describe, expect, it, vi } from "vitest";
 import type {
   MayorConference,
   MayorProfile,
@@ -58,6 +60,11 @@ const conferences: MayorConference[] = [
 ];
 
 describe("MayorDetailContent", () => {
+  afterEach(() => {
+    vi.useRealTimers();
+    document.body.innerHTML = "";
+  });
+
   it("renders the profile, proposal, video and PDF in the requested order", () => {
     const html = renderToStaticMarkup(
       <MayorDetailContent
@@ -101,6 +108,104 @@ describe("MayorDetailContent", () => {
     expect(html).toContain("プロフィールを準備中です");
     expect(html).toContain("提案理由は準備中です");
     expect(html).toContain("公開できる記者会見は準備中です");
+  });
+
+  it("shows a larger portrait and the age derived from the birth date", () => {
+    vi.useFakeTimers();
+    vi.setSystemTime(new Date("2026-06-04T15:00:00Z"));
+    document.body.innerHTML = renderToStaticMarkup(
+      <MayorDetailContent
+        mayor={{ ...mayor, birth_date: "1957年（昭和32年）6月5日" }}
+        proposals={[]}
+        conferences={[]}
+        localPreview={false}
+      />
+    );
+
+    const avatar = document.querySelector('[data-slot="avatar"]');
+    expect(avatar?.className).toContain("size-36");
+    expect(avatar?.className).toContain("sm:size-48");
+    expect(document.querySelector("#profile dl")?.textContent).toContain(
+      "年齢69歳"
+    );
+  });
+
+  it("opens and closes each proposal while preserving its summary and source", () => {
+    document.body.innerHTML = renderToStaticMarkup(
+      <MayorDetailContent
+        mayor={mayor}
+        proposals={[
+          ...proposals,
+          { ...proposals[0], id: 2, title: "別の定例会" },
+        ]}
+        conferences={[]}
+        localPreview={false}
+      />
+    );
+
+    const details = Array.from(
+      document.querySelectorAll<HTMLDetailsElement>("#proposals details")
+    );
+    const [first, second] = details;
+    const summary = first.querySelector("summary");
+    const secondSummary = second.querySelector("summary");
+    expect(details).toHaveLength(2);
+    expect(first.open).toBe(false);
+    expect(second.open).toBe(false);
+    expect(summary?.textContent).toContain("定例会");
+    expect(summary?.querySelector("h3")?.textContent).toContain("定例会");
+    expect(first.textContent).toContain("提案理由の要約");
+    expect(first.querySelector("a")?.getAttribute("href")).toBe(
+      "https://example.com/official-proposal"
+    );
+
+    summary?.click();
+    expect(first.open).toBe(true);
+    expect(second.open).toBe(false);
+    secondSummary?.click();
+    expect(second.open).toBe(true);
+    summary?.click();
+    expect(first.open).toBe(false);
+    expect(second.open).toBe(true);
+  });
+
+  it("keeps the pending and invalid-source states inside a proposal", () => {
+    document.body.innerHTML = renderToStaticMarkup(
+      <MayorDetailContent
+        mayor={mayor}
+        proposals={[
+          {
+            ...proposals[0],
+            mayor_proposal_summary: null,
+            mayor_proposal_source_url: "javascript:alert(1)",
+          },
+        ]}
+        conferences={[]}
+        localPreview={false}
+      />
+    );
+
+    const details =
+      document.querySelector<HTMLDetailsElement>("#proposals details");
+    expect(details?.open).toBe(false);
+    expect(details?.textContent).toContain("要約は準備中です。");
+    expect(details?.textContent).toContain("原文のURLを確認できません。");
+    expect(details?.querySelector("a")?.getAttribute("href")).toBe(
+      "https://www.city.oita.oita.jp/shisejoho/kekakuzaise/shinozaise/teanriyu/index.html"
+    );
+  });
+
+  it("shows an explicit message when a birth date cannot be calculated", () => {
+    const html = renderToStaticMarkup(
+      <MayorDetailContent
+        mayor={{ ...mayor, birth_date: "不明" }}
+        proposals={[]}
+        conferences={[]}
+        localPreview={false}
+      />
+    );
+
+    expect(html).toContain("確認できません");
   });
 
   it("marks local drafts and does not link them to the published detail route", () => {
