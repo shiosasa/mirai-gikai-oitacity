@@ -1,13 +1,13 @@
+import { ArrowLeft, ExternalLink } from "lucide-react";
 import Link from "next/link";
 import { notFound } from "next/navigation";
-import { ArrowLeft, ExternalLink } from "lucide-react";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { findCommitteeList } from "@/features/committee-minutes/server/repositories/meeting-repository";
+import { parseCommitteeAssignments } from "../../shared/utils/parse-committee-assignments";
 import {
   getPoliticianDiscussions,
   getPublishedPolitician,
 } from "../loaders/get-published-politician";
-import { parseCommitteeAssignments } from "../../shared/utils/parse-committee-assignments";
 
 type PoliticianProfileProps = {
   id: string;
@@ -63,7 +63,7 @@ export async function PoliticianProfile({ id }: PoliticianProfileProps) {
         className="inline-flex items-center gap-2 text-sm font-semibold text-mirai-text-secondary hover:text-mirai-text"
       >
         <ArrowLeft aria-hidden="true" className="size-4" />
-        議員紹介へ戻る
+        市長・議員紹介へ戻る
       </Link>
 
       <section className="mt-6 border-b border-oita-pink-accent pb-7">
