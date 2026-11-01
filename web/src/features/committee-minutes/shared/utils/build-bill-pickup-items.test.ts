@@ -1,6 +1,7 @@
 import { describe, expect, it } from "vitest";
 import {
   addBillPickupCategories,
+  addBillPickupTagCategories,
   addBillPickupUpdatedAt,
   buildBillPickupItems,
   filterBillPickupItems,
@@ -187,6 +188,104 @@ describe("buildBillPickupItems", () => {
     });
   });
 
+  it("attaches categories from bill tags when no article matches", () => {
+    const items = buildBillPickupItems([
+      {
+        id: 1,
+        title: "本会議",
+        meetingType: "本会議",
+        sessions: [
+          {
+            id: 10,
+            bills: [
+              {
+                number: "議第73号",
+                name: "市有財産の処分について",
+                billId: "bill-73",
+              },
+            ],
+          },
+        ],
+      },
+    ]);
+
+    const result = addBillPickupTagCategories(
+      addBillPickupCategories(items, []),
+      new Map([["bill-73", ["子育て・教育", "対象外タグ"]]])
+    )[0];
+
+    expect(result.categories).toEqual(["子育て・教育"]);
+  });
+
+  it("merges tag categories with article categories without duplicates", () => {
+    const items = buildBillPickupItems([
+      {
+        id: 1,
+        title: "本会議",
+        meetingType: "本会議",
+        sessions: [
+          {
+            id: 10,
+            bills: [
+              {
+                number: "議第35号",
+                name: "学校給食費条例改正",
+                billId: "bill-35",
+              },
+            ],
+          },
+        ],
+      },
+    ]);
+
+    const withArticleCategories = addBillPickupCategories(items, [
+      {
+        title: "学校給食費無償化",
+        category: "childcare_education",
+        source_refs: [
+          {
+            session_id: 10,
+            bill_number: "議第35号",
+            bill_name: "学校給食費条例改正",
+          },
+        ],
+      },
+    ]);
+
+    const result = addBillPickupTagCategories(
+      withArticleCategories,
+      new Map([["bill-35", ["子育て・教育", "安心・安全・防災"]]])
+    )[0];
+
+    expect(result.categories).toEqual(["子育て・教育", "安心・安全・防災"]);
+  });
+
+  it("keeps items unchanged when they have no tags", () => {
+    const items = buildBillPickupItems([
+      {
+        id: 1,
+        title: "本会議",
+        meetingType: "本会議",
+        sessions: [
+          {
+            id: 10,
+            bills: [
+              {
+                number: "議第1号",
+                name: "一般会計予算",
+                billId: "bill-1",
+              },
+            ],
+          },
+        ],
+      },
+    ]);
+
+    const result = addBillPickupTagCategories(items, new Map())[0];
+
+    expect(result.categories).toEqual([]);
+  });
+
   it("filters by category", () => {
     const items = [
       {
@@ -194,6 +293,7 @@ describe("buildBillPickupItems", () => {
         description: null,
         kind: "法案" as const,
         updatedAt: null,
+        status: null,
         categories: ["安心・安全・防災"],
         relatedTopicTitles: [],
         references: [
@@ -214,6 +314,7 @@ describe("buildBillPickupItems", () => {
         description: null,
         kind: "法案" as const,
         updatedAt: null,
+        status: null,
         categories: ["子育て・教育"],
         relatedTopicTitles: [],
         references: [

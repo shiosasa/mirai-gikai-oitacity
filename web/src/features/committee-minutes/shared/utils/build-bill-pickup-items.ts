@@ -175,6 +175,26 @@ export function addBillPickupCategories(
   });
 }
 
+/**
+ * 議案に紐づくタグ（bills_tags）のラベルをカテゴリとして追加する。
+ * トピックス記事が無い議案でもカテゴリバッジを表示できるようにするための補完経路。
+ */
+export function addBillPickupTagCategories(
+  items: BillPickupItem[],
+  tagLabelsByBillId: Map<string, string[]>
+): BillPickupItem[] {
+  return items.map((item) => {
+    const tagCategories = (tagLabelsByBillId.get(item.billId) ?? []).filter(
+      (label) => BILL_PICKUP_CATEGORIES.has(label)
+    );
+    if (tagCategories.length === 0) return item;
+    return {
+      ...item,
+      categories: [...new Set([...item.categories, ...tagCategories])],
+    };
+  });
+}
+
 export function getBillPickupKind(
   billNumber: string | null,
   billName: string
