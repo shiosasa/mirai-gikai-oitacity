@@ -1,29 +1,76 @@
 ---
 name: db-access
-description: 大分市版のローカル・本番DB接続、安全な接続先確認、ユーザー承認と書き込み後の検証。DBデータを参照・更新する際に確認する。
+description: 本番DB・ローカルDB接続の規約。DBデータを参照・更新する際に必ず確認すること。
 ---
 
-# 大分市版 DB接続規約
+# DB接続規約
 
-## 接続先を決める
+## 重要：ローカルAdminは本番DBに接続済み
 
-- テストは原則ローカルのSupabaseを使用する。`.env` や起動コマンドが実際にどこを指すかを確認し、接続失敗時に本番へ切り替えない。
-- 大分市版の本番接続は、担当者が確認した当該リポジトリの `.env.production` から読み込む。URL・プロジェクト参照・キーを指示書やスクリプトへ固定しない。ファイルがなければ担当者に確認する。
-- `pnpm dev:admin:prod-db` は `.env.production` を使うため、ローカルで動く管理画面でも本番DBを変更し得る。通常の `pnpm dev` も `.env` の内容次第である。ローカル画面だから安全とは判断しない。
-- Vercelプレビューと本番が本番DBを共有することがある。接続先と公開状態を確認せず、プレビューへの変更は本番に出ないと考えない。
+ローカルの Admin アプリは `.env.production` を使って**本番 Supabase DB** に接続している。
 
-## 本番へ接続する前の確認
+## 接続先はハードコードせず、必ず `.env.production` から読む
 
-1. 使用するenvファイルと、実際に起動するプロセス内の `SUPABASE_URL`・`SUPABASE_SERVICE_ROLE_KEY` を確認する。既存の環境変数がファイルの値より優先される場合がある。Webでは `NEXT_PUBLIC_SUPABASE_URL` などの設定も接続先と整合させる。
-2. プロジェクト名だけで決めつけず、読み取りで大分市の公式URLや対象会議なども照合する。別地域のデータ、未確認の接続先、期待と異なるレコードがあれば停止する。
-3. 接続情報・キー・認証ヘッダーは表示、コミット、PRへの記載をしない。キーをコマンド引数に展開せず、環境変数をプロセス内で読み取る。やむを得ず一時ファイルを使う場合はアクセス制限し、作業後にそのファイルだけを削除する。
+**このリポジトリの本番は `.env.production` の `SUPABASE_URL` が正**。
 
-## 操作のルール
+以前このスキルには本番URLが直接書かれていたが、**実在するどのプロジェクトとも一致しない古い値**
+だった。ドキュメントにURLを書くと実態とズレたときに気づけず、**別のDBを操作する事故**につながる。
 
-- 本番への INSERT・UPDATE・DELETE・マイグレーションなどは、対象・差分・件数・影響を提示して**ユーザーの明示承認を得てから**実行する。AI生成文の承認とDB書き込みの承認は別。
-- 会見などの公開・非公開変更も影響範囲を示して別途承認を得る。下書き登録でも本番DBの書き込みに変わりはない。
-- 対象のIDと現在値を確認し、必要な列だけを変更する。実行件数と変更後の値を読み直し、想定外なら停止する。通信失敗時は保存状態を確認してから再試行を判断する。
-- 既存データの一括削除・再投入や、`pnpm db:reset` 等の破壊的な操作を確認なしに実行しない。ローカルであっても対象データを消す前に確認する。
-- スキーマ変更やマイグレーションの適用・履歴修復は [deploy](../deploy/SKILL.md) の手順に従う。既存の手動変更を見ずに全未適用マイグレーションを流さない。
+```bash
+# 値を画面に出さずに読み込む
+set -a; . ./.env.production; set +a
+```
 
-市長プロフィール・提案理由・会見に固有のテーブル・公開手順は [更新手順書](../../../docs/20261101_2212_市長提案理由と記者会見の更新手順.md) を参照する。
+**mirai-gikai は地域ごとに別プロジェクトが並存している**（福岡県版／福岡市版／安芸高田市版…）。
+それぞれ別のクローンに別の `.env.production` があり、**リポジトリを間違えると平然と別地域の本番に繋がる**。
+書き込み前には必ず接続先を確認すること。
+
+### 接続先の確認方法（書き込み前に必須）
+
+```bash
+# 1. プロジェクト名で確認（最も確実。地域名が入っている）
+curl -s "https://api.supabase.com/v1/projects/$SUPABASE_PROJECT_REF" \
+  -H "Authorization: Bearer $SUPABASE_ACCESS_TOKEN" | jq -r '.name'
+
+# 2. データで確認（上が使えないとき）
+curl -s "$SUPABASE_URL/rest/v1/bills?select=name&limit=2" \
+  -H "apikey: $SUPABASE_SERVICE_ROLE_KEY" -H "Authorization: Bearer $SUPABASE_SERVICE_ROLE_KEY"
+# → 県版なら議案名が「福岡県○○条例」等になっている
+```
+
+## DBを操作する際のルール
+
+- DB の確認・更新は**本番 URL に対して行う**（ローカルの `127.0.0.1` は使わない）
+- REST API でアクセスする場合は `.env.production` の `SUPABASE_URL` と `SUPABASE_SERVICE_ROLE_KEY` を使用
+- `npx supabase db query` ではなく `curl` + REST API で本番 DB に直接クエリする
+- **本番への書き込み（INSERT/UPDATE/DELETE・migration適用）は、必ずユーザーの確認を経てから実行する**
+
+## 接続例
+
+```bash
+# council_sessions 一覧取得
+curl -s "$SUPABASE_URL/rest/v1/council_sessions?select=*" \
+  -H "apikey: $SUPABASE_SERVICE_ROLE_KEY" \
+  -H "Authorization: Bearer $SUPABASE_SERVICE_ROLE_KEY"
+```
+
+環境変数は `.env.production` から読み込むこと。
+
+## PostgRESTから見えないものを読みたいとき
+
+`supabase_migrations` スキーマなどは REST API に露出していないため、Management API を使う。
+
+```bash
+curl -s -X POST "https://api.supabase.com/v1/projects/$SUPABASE_PROJECT_REF/database/query" \
+  -H "Authorization: Bearer $SUPABASE_ACCESS_TOKEN" -H "Content-Type: application/json" \
+  -d '{"query":"select version, name from supabase_migrations.schema_migrations order by version desc limit 5;"}'
+```
+
+## トラブルシュート
+
+- **`No API key found in request` が返る / 変数が空になる**: `.env.production` の**変数名**を疑う。
+  過去に `SUPABASE_SERVICｓE_ROLE_KEY`（全角の「ｓ」が混入）で読み込めていなかった実績がある。
+  非ASCIIの混入行はこれで検出できる:
+  ```bash
+  grep -nP '^[^=]*[^\x00-\x7F][^=]*=' .env.production
+  ```

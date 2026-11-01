@@ -34,16 +34,12 @@ PRの数に応じてエージェント数を決める（目安: 4-5が上限）�
 ```bash
 # {team} はチーム名の略称（例: test4, refactor2）
 # {x} はエージェント識別子（a, b, c, d...）
-git fetch origin
-git -c core.autocrlf=false worktree add ../mirai-gikai-{team}-{x} -b {team}-{x}-base origin/{統合ブランチ}
-if [ -f .claude/settings.local.json ]; then
-  mkdir -p ../mirai-gikai-{team}-{x}/.claude
-  cp .claude/settings.local.json ../mirai-gikai-{team}-{x}/.claude/
-fi
-cp .env ../mirai-gikai-{team}-{x}/
+git worktree add ../mirai-gikai-{team}-{x} -b {team}-{x}-base
+mkdir -p ../mirai-gikai-{team}-{x}/.claude
+cp .claude/settings.local.json ../mirai-gikai-{team}-{x}/.claude/
 ```
 
-必要な検証で依存パッケージが不足した場合、対象worktreeでインストール:
+依存パッケージのインストール（全worktreeをバックグラウンドで並列実行）:
 
 ```bash
 cd ../mirai-gikai-{team}-{x} && pnpm install --frozen-lockfile
@@ -86,23 +82,25 @@ Task(
 
 ## 作業手順
 
-{統合ブランチ} = このリポジトリのAGENTS.mdに記載の大分市版ベースブランチ。
-2026年11月1日時点は `fix/oita-approved-preview`。実行前にリモートの状態とあわせて再確認する。
-`origin/HEAD` や他地域のブランチから自動推測しない。
+{統合ブランチ} = このリポジトリのCLAUDE.md「ベースブランチは必ず◯◯」に記載のブランチ
+（福岡県版なら fukuoka-pref/develop、福岡市版なら fukuoka-city/develop）。
+このスキルは地域リポジトリ間で同期されるため、**ブランチ名をここに直書きしない**。
+`origin/HEAD` からの自動解決も使わない（多地域同居リポジトリでは別地域の既定ブランチが
+返ることがある）。実行前にCLAUDE.mdで必ず確認すること。
 
-1. 指定されたworktreeの状態と既存PRを確認し、`git fetch origin` の後に `git switch -c {branch} origin/{統合ブランチ}` で担当PR用のブランチを作成
+1. `git checkout -b {branch} {統合ブランチ}` でブランチ作成
 2. 対象ファイルを読んで理解
 3. 実装・修正
-4. push前のローカル検証（全て実行し、全て通過すること）:
-   - 必要なフォーマット修正は変更対象のファイルに限定
+4. push前のローカル検証（CIと同じコマンドを全て実行し、全て通過すること）:
+   - `pnpm lint:fix` でフォーマット修正
    - `pnpm lint` でlintチェック通過を確認
    - `pnpm typecheck` で型チェック通過を確認
    - `pnpm test` でテスト通過を確認
 5. エラーがあれば修正して再度ステップ4を実行
-6. 実行環境の規約に従ってCo-authored-byトレーラーを付けてコミット
+6. コミット（Co-Authored-By: 使用中のClaudeモデル名 <noreply@anthropic.com>）
 7. `git push -u origin {branch}`
 8. `gh pr create --base {統合ブランチ} --title "{title}" --body "..."`
-9. 次のPRがあればworktreeがクリーンであることと既存PRの状態を確認し、`git fetch origin` の後に `git switch -c {next-branch} origin/{統合ブランチ}` で次へ
+9. 次のPRがあれば `git checkout -b {next-branch} {統合ブランチ}` で次へ
 10. 全完了後、リーダーにメッセージで報告（PR番号・URL）
 ```
 
@@ -128,10 +126,8 @@ done
 
 CI失敗時の対応:
 - **TypeScript型エラー**: worktreeで直接修正してpush
-- **Biomeエラー**: worktreeの変更対象ファイルに限定してフォーマットし再push
+- **Biomeエラー**: worktreeで `pnpm lint:fix` して再push
 - **テスト失敗**: worktreeで修正して再push
-
-`gh` がない場合はGitHub APIまたは画面で確認する。大分市版PRでCIが実行されないことがあるため、`AGENTS.md` と最新のワークフロー設定を確認し、未実行を成功と扱わず報告する。
 
 PRコメント対応:
 - **CodeRabbitの指摘**: 重要な指摘はworktreeで修正してpush

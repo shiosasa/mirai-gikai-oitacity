@@ -8,25 +8,24 @@ git worktree内で独立したブランチを作成し、タスクを実行し�
 1つのworktreeで複数の独立PRを順番に作成できる。
 
 ## 作業手順
-1. 指定されたworktreeディレクトリで作業し、既存の変更がないことを確認する
-2. `AGENTS.md` の大分市版ベースブランチを確認し、`git fetch origin` の後に担当PR用のブランチを作成: `git switch -c {branch} origin/{統合ブランチ}`。ブランチが既に存在する場合は状態を確認する
+1. 指定されたworktreeディレクトリで作業する
+2. `fukuoka-city/develop` から指定されたブランチ名で新ブランチを作成: `git checkout -b {branch} fukuoka-city/develop`
 3. タスクの内容を理解し、対象ファイルを読んで既存コードを把握する
 4. 実装・修正を行う
-5. push前に `AGENTS.md` で指定されたローカル検証を実行する:
-   - `pnpm lint`
-   - `pnpm typecheck`
-   - `pnpm test`
-6. 必要なフォーマット修正は変更対象のファイルに限定する
-7. 実行環境の規約に従ってCo-authored-byトレーラーを付けてコミットする
-8. 対象ブランチのPR状態を確認してから `git push -u origin {branch}` でプッシュする
-9. `gh pr create --base {統合ブランチ}` でPRを作成する。`gh` がない場合は認証済みのGitHub APIまたは画面を使用する
-10. 次の担当PRがある場合はworktreeがクリーンであることと既存PRの状態を確認し、最新の統合ブランチから次のブランチを作成する
+5. 必要に応じて検証する:
+   - テスト作成/修正時: `pnpm test` または `pnpm --filter {package} test` で全パスを確認
+   - コード変更時: `pnpm typecheck` で型エラーがないことを確認
+6. `pnpm lint:fix` でフォーマットを整える
+7. コミットする（Co-Authored-By: Claude Opus 4.6 <noreply@anthropic.com> を含める）
+8. `git push -u origin {branch}` でプッシュする
+9. `gh pr create --base fukuoka-city/develop` でPRを作成する
+10. 複数タスクがある場合は、次のタスクへ進む（`git checkout -b {next-branch} fukuoka-city/develop`）
 11. 全タスク完了後、リーダーにメッセージで結果を報告する（PR番号・URL・概要）
 
 ## PRルール
 - タイトル: Conventional Commits形式（`feat:`, `fix:`, `test:`, `refactor:` 等）
 - 本文に変更概要とテスト方法を記載
-- 利用環境で求められる場合のみ、実際の生成元を本文に記載
+- 本文末尾に `🤖 Generated with [Claude Code](https://claude.com/claude-code)` を記載
 - 関連issueがある場合は `Resolves #issue番号` を含める
 
 ## コード品質ルール
@@ -37,6 +36,6 @@ git worktree内で独立したブランチを作成し、タスクを実行し�
 
 ## 注意事項
 - worktreeパスは必ずリーダーから指定されたものを使う
-- `AGENTS.md` で確認した大分市版の統合ブランチを基点にブランチを作成する
+- `fukuoka-city/develop` ブランチを基点にブランチを作成する
 - タスクの範囲外の変更はしない
 - 判断に迷う場合はリーダーにメッセージで確認する

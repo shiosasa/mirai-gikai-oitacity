@@ -6,39 +6,33 @@
 変更作業は、**必ず git worktree を作成してから開始すること**。メインのリポジトリディレクトリでは直接変更を行わない。
 
 ```bash
-# 1. 最新の大分市版ブランチからworktreeを作成
-git fetch origin
-git -c core.autocrlf=false worktree add ../mirai-gikai-<branch-name> -b <branch-name> origin/fix/oita-approved-preview
+# 1. worktreeを作成
+git worktree add ../mirai-gikai-<branch-name> -b <branch-name>
 
-# 2. settings.local.jsonが存在する場合は権限設定をコピー
-if [ -f .claude/settings.local.json ]; then
-  mkdir -p ../mirai-gikai-<branch-name>/.claude
-  cp .claude/settings.local.json ../mirai-gikai-<branch-name>/.claude/
-fi
+# 2. settings.local.jsonをコピー（権限設定のため必須）
+mkdir -p ../mirai-gikai-<branch-name>/.claude
+cp .claude/settings.local.json ../mirai-gikai-<branch-name>/.claude/
 
 # 3. .envをコピー（環境変数の引き継ぎ）
 cp .env ../mirai-gikai-<branch-name>/
 
-# 4. 必要な検証で依存パッケージが不足した場合にインストール
+# 4. 依存パッケージをインストール
 cd ../mirai-gikai-<branch-name> && pnpm install --frozen-lockfile
 ```
 
 - **目的**: 開発ブランチを常にクリーンに保ち、作業の分離と並列作業を容易にする
-- `settings.local.json` がない場合は権限設定を推測して作成せず、その旨を報告する。
 
 ### 大分市版「みらいぎかいっち」専用リポジトリ
 本リポジトリは大分市議会向けの市民情報サイト「みらいぎかいっち＠大分市」専用リポジトリです。
-機能・コンテンツは大分市仕様で実装します。旧地域向けのコードや指示が残る場合があるため、URL・コマンド・接続先が大分市版に適合するか確認し、未確認の手順は実行しません。
+福岡版等の他地域向けコードは含まれず、全ての機能・コンテンツは大分市仕様で実装します。
 
 ### 実装完了後は即PR作成
 実装完了後は「コミットしますか？」等の確認を挟まず、コミット → push → PR作成まで一気に進めること。ユーザーへの確認は不要。
 
-**ベースブランチは大分市版の `fix/oita-approved-preview`**（2026年11月1日時点）。作業前にリモートの状態を再確認する。`fukuoka-pref/develop` や `kawasaki/develop` へのPRは出さないこと。
+**ベースブランチは大分版のブランチ（`oita-city/develop` 等）**。`fukuoka-pref/develop` や `kawasaki/develop` へのPRは出さないこと。
 ```bash
-gh pr create --base fix/oita-approved-preview ...
+gh pr create --base oita-city/develop ...
 ```
-
-`gh` がない環境では、認証済みのGitHub APIまたは画面を使用し、認証情報を表示・保存しない。
 
 ### レビューはCodeRabbit
 コードレビューはPR作成後の**CodeRabbit自動レビュー**で行う（Codex CLIはこの環境に
@@ -122,13 +116,12 @@ Repository レイヤーの詳細は [docs/repository-layer.md](docs/repository-l
 - テストの書き方・構造化・コード例などの詳細は [docs/テストガイドライン.md](docs/20260219_1000_テストガイドライン.md) を参照。
 
 ## Commit & Pull Request Guidelines
-- **push前のローカル検証（必須）**: `git push` の前に、次の基本検証をローカルで実行して通過を確認すること。CIが起動しない場合も省略しない。
+- **push前のローカル検証（必須）**: `git push` の前に、CIと同じ検証コマンドをローカルで実行して通過を確認すること。CIで落ちてから直すのではなく、手元で事前に検知する。
   ```bash
   pnpm lint        # Biome format + lint チェック
   pnpm typecheck   # TypeScript 型チェック
   pnpm test        # 全ワークスペースのテスト実行
   ```
-- **CIの対象を確認**: 2026年11月1日時点では `.github/workflows/code_check.yml` は `kawasaki/develop`、`integration_test.yml` は `main` / `develop` のみを対象としており、大分市版のPRでは自動実行されない。`pinact_check.yml` はワークフローファイル変更時のみ実行される。作業時は最新の設定を確認し、チェックが未実行ならそのまま報告する。実行なしを成功と扱わない。
 - **push / PR作成前のGitHub状態確認（必須）**: `git push` やPR作成を行う前に、必ず `gh pr list` や `gh pr view <番号>` でGitHub上のPR状態（open/merged/closed）を確認すること。マージ済みブランチへの追加pushや、既にクローズされたPRとの重複を防ぐ。
 - コミットメッセージは既存履歴同様、短い命令形主体（日本語可）とし、課題連携は `(#id)` を付与します。
 - PR ではスコープ概要、実行テスト記録（例: `pnpm dev`, `pnpm --filter web test`）、UI 変更時のスクリーンショットや GIF を添付します。
@@ -136,8 +129,8 @@ Repository レイヤーの詳細は [docs/repository-layer.md](docs/repository-l
 - **イシュー連携**: 特定のイシューに対応する PR を作成する場合、PR 本文に `Resolves #123` の形式で記載してください。これにより PR マージ時にイシューが自動クローズされます。複数のイシューを閉じる場合は `Resolves #123, Resolves #456` のように列挙します。
 - **PR作成後の状態確認（必須）**: PR作成後、以下の4点を確認すること：
   1. **Conflict確認**: `gh pr view <番号> --json mergeable,mergeStateStatus` でマージ可能か確認。conflictがあれば解消してpushする。
-  2. **CI確認**: `gh pr checks <番号>` またはGitHub API・画面でCIの状態を確認。失敗があれば原因を調査し修正してpushする。CIが実行中の場合は完了まで待ち、未実行の場合は報告する。
-  3. **CodeRabbitレビュー確認**: CodeRabbitのレビューが届くまで待ってからコメントを確認する。レビューは通常2〜3分で届く。`gh api repos/{owner}/{repo}/pulls/{number}/comments` またはGitHub API・画面でコメントを取得し、空なら少し待って再取得する。届かない場合は未到着と報告する。重要な指摘（Major/Critical）があれば修正してpushすること。軽微な指摘（Minor）や既存コードとの一貫性を優先すべきものはスキップ可。
+  2. **CI確認**: `gh pr checks <番号>` でCIの状態を確認。失敗があれば原因を調査し修正してpushする。CIが実行中の場合は完了まで待つ。
+  3. **CodeRabbitレビュー確認**: CodeRabbitのレビューが届くまで待ってからコメントを確認する。レビューは通常2〜3分で届く。`gh api repos/{owner}/{repo}/pulls/{number}/comments` でコメントを取得し、空なら少し待って再取得する。重要な指摘（Major/Critical）があれば修正してpushすること。軽微な指摘（Minor）や既存コードとの一貫性を優先すべきものはスキップ可。
   4. **対応済みコメントのresolve（必須）**: 修正をpushした後、対応済みのレビューコメントをGraphQL APIでresolveする。まず `gh api graphql` でスレッド一覧を取得し、`resolveReviewThread` mutationで対応済みスレッドをresolveする。
      ```bash
      # スレッド一覧取得（isResolved=falseのものが未resolve）
@@ -155,8 +148,6 @@ Repository レイヤーの詳細は [docs/repository-layer.md](docs/repository-l
 ## AI生成コンテンツのDB更新ルール
 
 AIが生成したテキスト（サマリー・要約・関連情報など）をDBに反映する前に、**必ず生成内容をユーザーに提示して確認を取ること**。確認前にPATCHやINSERTを実行してはならない。
-
-市長プロフィール・提案理由・記者会見は [更新手順書](docs/20261101_2212_市長提案理由と記者会見の更新手順.md) を参照する。内容、DB書き込み、会見の公開はそれぞれ承認を得る。
 
 ### 提示時の必須チェック項目
 

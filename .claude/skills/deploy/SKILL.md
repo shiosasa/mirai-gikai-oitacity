@@ -1,26 +1,92 @@
 ---
 name: deploy
-description: 大分市版のプレビュー確認、マイグレーション確認、Vercel本番反映の手順。「本番に反映して」「デプロイして」の際に確認する。
+description: 本番反映手順（migration→Vercel）。「本番に反映して」「デプロイして」の際に必ず参照。グローバルのdeployスキル（develop→main前提）はこのリポジトリには適用しない。
 ---
 
-# 大分市版 本番反映
+# 本番反映
 
-## 現在の運用
+## このリポジトリの値（地域固有・ここだけ差し替え可能）
 
-- 公開サイトは https://mirai-gikai-oitacity-web.vercel.app/ 。2026年11月1日時点の統合先は `fix/oita-approved-preview`。作業開始時にリモートとPRの状態を再確認する。
-- `web/vercel.json` は `git.deploymentEnabled=false`。pushやPRのマージだけでVercelに自動公開されると考えない。プレビュー確認後、正しいコミットを指定してVercelダッシュボードから手動で反映する。
-- `.github/workflows/deploy_web.yml` は福岡県版のブランチ・設定が残る旧ワークフローで、大分市版の通常の自動デプロイ経路ではない。手動実行やDeploy Hookの直接呼び出しで代用しない。
-- VercelのProduction Branch設定やデプロイ対象のコミットが古い可能性がある。ダッシュボードで現在の設定・対象SHAを確認し、過去の引き継ぎ記録だけを根拠に選択しない。
+このスキルの仕組みの説明は全地域リポジトリ共通。地域固有の値は**この節にのみ**書く。
+別地域リポジトリへコピーする場合はこの節と `deploy_web.yml` の整合を必ず確認すること。
 
-## 反映手順
+| 項目 | 値 |
+|---|---|
+| 統合ブランチ（デプロイ元） | `fukuoka-pref/develop`（CLAUDE.mdの「ベースブランチ」と同一） |
+| Supabaseプロジェクト名 | `mirai-gikai-fukuoka-pref Project` |
+| mainブランチ | **存在しない**（develop→mainのフローは無い） |
 
-1. 最新の大分市版ブランチからworktreeを作り、変更を検証・セルフレビューしてPRを作成する。マージ・プレビュー・本番反映の各段階は、それぞれ実際の状態を確認する。
-2. DBスキーマの変更がある場合は、[db-access](../db-access/SKILL.md) に従って接続先と現在のスキーマ・マイグレーション履歴を確認する。手動でSQLを適用した変更が履歴に記録されていない場合もある。
-3. 適用するSQL、対象DB、データへの影響を示してユーザーの明示承認を得る。`supabase db push --include-all` は他の未適用マイグレーションも対象になり得るため、一覧・差分を確認せず実行しない。履歴の `repair` や削除を自動判断で行わない。
-4. 正しいコミット・環境変数・DB接続先のプレビューを確認し、ユーザーに画面を確認してもらう。プレビューと本番がDBを共有していれば、データ書き込みや公開状態の変更は本番にも影響し得る。
-5. 本番反映の許可後、Vercelダッシュボードで対象コミットを明示してデプロイし、完了と実際の本番URLを確認する。以前のデプロイの再実行は、最新コミットのデプロイと同じとは限らない。
-6. 対象ページと関連画面を開き、データ・リンク・動画・公開状態を検証する。未確認事項やエラーは成功扱いにせず報告する。
+## 自動経路（通常はこれだけ）
 
-データのみの更新は、表示ページの動的／キャッシュ設定によって再デプロイなしでも反映される。市長詳細は動的表示だが、関連画面の実表示を必ず確認する。コード・環境変数の変更は対象コミットでのビルド・反映が必要。
+```text
+PRを統合ブランチにマージ
+  → GitHub Actions「Migrate DB then Deploy Web」が起動
+     1. supabase db push --include-all   … 未適用migrationを本番DBへ
+     2. 成功したら Vercel Deploy Hook    … webを再ビルド・公開
+```
 
-`supabase config push` はローカル用の認証設定を本番へ上書きし得るため、通常のデプロイでは実行しない。
+- Secretは **Production Environment** に4つ（`SUPABASE_ACCESS_TOKEN` /
+  `SUPABASE_DB_PASSWORD` / `SUPABASE_PROJECT_REF` / `WEB_VERCEL_DEPLOY_HOOK_URL`）。
+  Repository secrets ではないので注意
+- 手動で走らせたいときは `gh workflow run deploy_web.yml`（workflow_dispatch）
+- 実行確認: `gh run list --workflow=deploy_web.yml --limit 3`
+
+## やってはいけないこと
+
+- **Vercel Hook を直接叩かない**。migrationを飛ばしてビルドだけ走り、
+  スキーマ不整合のビルド失敗や「seed前の古いビルドが公開されたまま」の状態を作る
+- **`supabase config push` を復活させない**。`config.toml` はローカル用の値
+  （`site_url = http://127.0.0.1:3000` 等）を持ち、本番に流すと認証リダイレクトが
+  localhostに書き換わって壊れる（ワークフローから削除済み。経緯は PR #21）
+- migrationのSQLに `drop` / `truncate` / 既存データへの `delete` を含めない
+  （必要な場合は必ずユーザー確認を経る）
+
+## seedは自動で走らない
+
+ワークフローが流すのは**migrationだけ**。データ投入（seed）は手動で行う:
+
+```bash
+# 実行前に必ず投入内容・件数をユーザーに提示して承認を得る（本番書き込みのため）
+cd packages/seed
+node --import=tsx/esm --env-file=<本番用env> fukuoka/<seedスクリプト>.ts
+```
+
+- 本番用envは `SUPABASE_URL` と `SUPABASE_SERVICE_ROLE_KEY` のみの一時ファイルを作り、
+  **使用後に必ず削除**する
+- seed後にそのデータを読むページ（`generateStaticParams` / sitemap 等）がある場合は
+  **Vercelの再デプロイが必要**（seed→ビルドの順序が重要。「seed前のビルドを踏んで
+  詳細ページが500」という事故が実際に起きた）
+
+## migration履歴がズレたとき
+
+`supabase db push --dry-run` で
+`Remote migration versions not found in local migrations directory` が出たら、
+本番に手動適用された記録がリポジトリに無い状態。
+
+1. 中身を確認: Management API で `supabase_migrations.schema_migrations` の
+   `statements` を読む（PostgRESTからは見えないスキーマのため）:
+
+   ```bash
+   set -a; . ./.env.production; set +a
+   curl -s -X POST "https://api.supabase.com/v1/projects/$SUPABASE_PROJECT_REF/database/query" \
+     -H "Authorization: Bearer $SUPABASE_ACCESS_TOKEN" -H "Content-Type: application/json" \
+     -d '{"query":"select version, name, statements from supabase_migrations.schema_migrations order by version desc limit 5;"}'
+   ```
+2. 同じ変更がリポジトリ側に別タイムスタンプで存在し、かつ冪等なら
+   `supabase migration repair --status reverted <version>` で帳簿だけ修正する
+   （SQLは実行されない。データ・スキーマは変わらない）
+3. 判断に迷う内容なら**必ずユーザーに提示してから**進める
+
+実例: `20260531000000`（answer_raw_text追加の手動適用記録）を repair で解消（2026-07-15）。
+
+## 本番の状態確認（読み取り）
+
+接続情報は `.env.production` から読み込む（値をハードコードしない）。
+**書き込み前に、Supabaseプロジェクト名が冒頭の「このリポジトリの値」と一致することを
+確認する**（地域リポジトリの取り違えで別地域の本番に書く事故を防ぐ）:
+
+```bash
+set -a; . ./.env.production; set +a
+curl -s "https://api.supabase.com/v1/projects/$SUPABASE_PROJECT_REF" \
+  -H "Authorization: Bearer $SUPABASE_ACCESS_TOKEN" | jq -r '.name'
+```
