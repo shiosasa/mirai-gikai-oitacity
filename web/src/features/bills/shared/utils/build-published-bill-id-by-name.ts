@@ -2,6 +2,7 @@ type PublishedBillCandidate = {
   id: string;
   name: string;
   publish_status: string;
+  source?: string | null;
 };
 
 export function buildPublishedBillIdByName(
@@ -10,7 +11,8 @@ export function buildPublishedBillIdByName(
   const billIdsByName = new Map<string, string | null>();
 
   for (const bill of bills) {
-    if (bill.publish_status !== "published") {
+    // 議案詳細へのリンク用なので、トピックスのAIインタビュー受け皿は除外する
+    if (bill.publish_status !== "published" || bill.source === "topic") {
       continue;
     }
 

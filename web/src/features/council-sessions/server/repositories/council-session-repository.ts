@@ -1,6 +1,8 @@
 import "server-only";
 
 import { createAdminClient } from "@mirai-gikai/supabase";
+import { getMeetingBillFilter } from "@/features/bills/server/repositories/meeting-bill-filter";
+import { applyMeetingBillFilter } from "@/features/bills/shared/utils/meeting-bill-filter";
 import type { CouncilSession } from "../../shared/types";
 
 /**
@@ -79,10 +81,11 @@ export async function findAllPastCouncilSessions(): Promise<CouncilSession[]> {
   const supabase = createAdminClient();
 
   // bills テーブルから published な議案がある会期IDを取得
-  const { data: billData, error: billError } = await supabase
-    .from("bills")
-    .select("council_session_id")
-    .eq("publish_status", "published");
+  const meetingFilter = await getMeetingBillFilter();
+  const { data: billData, error: billError } = await applyMeetingBillFilter(
+    supabase.from("bills").select("council_session_id"),
+    meetingFilter
+  ).eq("publish_status", "published");
 
   if (billError) {
     console.error("Failed to fetch published bills:", billError);

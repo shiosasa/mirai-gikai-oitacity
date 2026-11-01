@@ -24,11 +24,17 @@ const baseBill: Bill = {
   status_order: BILL_STATUS_ORDER.preparing,
   publish_status_order: 2,
   thumbnail_url: null,
+  source: "topic",
   source_url: null,
   discussion_overview_points: [],
 };
 
 describe("prepareBillForDuplication", () => {
+  it("由来（source）を引き継ぐ", () => {
+    const result = prepareBillForDuplication(baseBill);
+    expect(result.source).toBe("topic");
+  });
+
   it("id, created_at, updated_atを除去する", () => {
     const result = prepareBillForDuplication(baseBill);
     expect(result).not.toHaveProperty("id");

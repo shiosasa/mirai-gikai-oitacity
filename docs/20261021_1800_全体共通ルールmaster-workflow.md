@@ -30,6 +30,18 @@
 
 > **※注意:** 個別議案のAIインタビューページ（`/bills/[id]`）や、トップページのインフォメーション（`site_information`）はこれらとは別の独立した機能・テーブルです。混同しないこと。
 
+### 【重要】`bills` テーブルの住み分け（`bills.source`）
+AIインタビュー関連テーブル（`interview_configs` / `interview_sessions` / `interview_report` 等）はすべて `bills.id` を参照するため、トピックスのAIインタビュー用の「受け皿」も `bills` に入っている。テーブルは分けず、`source` カラムで区別する。
+
+| `bills.source` | 中身 | 元データ | 表示先 | DBビュー |
+|---|---|---|---|---|
+| `meeting` | 議案（②） | 議事録 `meetings` | `/committees/bill-pickups`、議案一覧、`/bills/[id]`（議案のAIインタビュー） | `meeting_bills` |
+| `topic` | トピックス（③）のAIインタビュー受け皿。**議案ではない** | `proposals` / `bill_articles` | `/bills/[id]`（トピックのAIインタビュー）のみ | `topic_interview_bills` |
+
+- 議案を新規登録するときは `source = 'meeting'`（既定値）のままにする。
+- トピックにAIインタビューを付けるため `bills` に行を作るときは **必ず `source = 'topic'`** にし、`bill_articles.interview_bill_id` にその `bills.id` を設定する（タイトル一致による推測は後方互換のためのフォールバックにすぎない）。
+- 議案を一覧・集計するクエリでは必ず `source = 'meeting'` で絞り込む（またはビュー `meeting_bills` を使う）。
+
 ---
 
 ## 3. 全体の基本ワークフローと鉄則

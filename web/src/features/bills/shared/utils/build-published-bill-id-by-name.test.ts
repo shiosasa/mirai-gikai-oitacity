@@ -36,4 +36,24 @@ describe("buildPublishedBillIdByName", () => {
 
     expect(result.get("同名議案")).toBeNull();
   });
+
+  it("excludes topic interview anchors (source = topic)", () => {
+    const result = buildPublishedBillIdByName([
+      {
+        id: "topic-anchor",
+        name: "トピックの受け皿",
+        publish_status: "published",
+        source: "topic",
+      },
+      {
+        id: "meeting-bill",
+        name: "議事録由来の議案",
+        publish_status: "published",
+        source: "meeting",
+      },
+    ]);
+
+    expect(result.has("トピックの受け皿")).toBe(false);
+    expect(result.get("議事録由来の議案")).toBe("meeting-bill");
+  });
 });

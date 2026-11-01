@@ -5,8 +5,11 @@ import { CACHE_TAGS } from "@/lib/cache-tags";
 import type { BillArticle } from "../../shared/types";
 import { categoryEnumFromBadge } from "../../shared/utils/article-category";
 import { buildPublishedBillIdByName } from "../../shared/utils/build-published-bill-id-by-name";
+import { deriveBillSource } from "../../shared/utils/meeting-bill-filter";
 import { resolveTopicBillDetailId } from "../../shared/utils/resolve-topic-bill-detail-id";
+import { resolveTopicInterviewBillId } from "../../shared/utils/resolve-topic-interview-bill-id";
 import { sortTopicsByPublicationDate } from "../../shared/utils/sort-topics-by-publication-date";
+import { findProposalTitles } from "../repositories/meeting-bill-filter";
 
 /**
  * 公開済みの記事（bill_articles）を最新順に取得
@@ -71,19 +74,27 @@ async function loadArticles(
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const articlesTable = () => (supabase as any).from("bill_articles");
 
-  const fetchArticles = (withReferences: boolean) => {
+  const referenceColumnTiers = [
+    ", source_refs, interview_bill_id",
+    ", source_refs",
+    "",
+  ];
+  const fetchArticles = (referenceColumns: string) => {
     let query = articlesTable().select(
-      `${ARTICLE_COLUMNS}${withReferences ? ", source_refs" : ""}${publicationEnabled ? ", publish_status, first_published_at" : ""}`
+      `${ARTICLE_COLUMNS}${referenceColumns}${publicationEnabled ? ", publish_status, first_published_at" : ""}`
     );
     if (publicationEnabled) query = query.eq("publish_status", "published");
     return query.order("created_at", { ascending: false });
   };
-  let { data, error } = await fetchArticles(true);
-
-  if (error) {
-    // source_refs 列が未適用の環境向けフォールバック
-    console.warn("Falling back without source_refs:", error.message);
-    ({ data, error } = await fetchArticles(false));
+  let { data, error } = await fetchArticles(referenceColumnTiers[0]);
+  for (const referenceColumns of referenceColumnTiers.slice(1)) {
+    if (!error) break;
+    // interview_bill_id / source_refs 列が未適用の環境向けフォールバック
+    console.warn(
+      `Falling back to article columns "${referenceColumns}":`,
+      error.message
+    );
+    ({ data, error } = await fetchArticles(referenceColumns));
   }
 
   if (error) {
@@ -91,31 +102,17 @@ async function loadArticles(
     throw new Error(`Failed to fetch articles: ${error.message}`);
   }
 
-  // 記事タイトルと同名の議案（bills）に公開中のAIインタビューがあれば紐付ける
-  const [
-    { data: bills, error: billsError },
-    { data: configs, error: configsError },
-  ] = await Promise.all([
-    supabase.from("bills").select("id, name, bill_number, publish_status"),
+  // トピックのAIインタビュー受け皿（bills.source = 'topic'）に公開中のインタビューがあれば紐付ける
+  const [bills, { data: configs, error: configsError }] = await Promise.all([
+    fetchBillsWithSource(supabase),
     supabase.from("interview_configs").select("bill_id").eq("status", "public"),
   ]);
-  if (billsError) {
-    throw new Error(
-      `Failed to fetch published bills for articles: ${billsError.message}`
-    );
-  }
   if (configsError) {
     throw new Error(
       `Failed to fetch public interview configs: ${configsError.message}`
     );
   }
-  const billByName = new Map(
-    (bills ?? []).map((bill) => [
-      bill.name,
-      { id: bill.id, number: bill.bill_number },
-    ])
-  );
-  const publishedBillIdByName = buildPublishedBillIdByName(bills ?? []);
+  const publishedBillIdByName = buildPublishedBillIdByName(bills);
   const billsWithInterview = new Set(
     (configs ?? []).map((config) => config.bill_id)
   );
@@ -127,8 +124,11 @@ async function loadArticles(
 
   // proposals のカラムを bill_articles のカラムにマッピング
   const articles = (data ?? []).map((article: any) => {
-    const linkedBill = billByName.get(article.title);
-    const linkedBillId = linkedBill?.id;
+    const linkedBillId = resolveTopicInterviewBillId(
+      article.interview_bill_id,
+      article.title,
+      bills
+    );
     const sourceRefs = Array.isArray(article.source_refs)
       ? article.source_refs.map(
           (reference: {
@@ -193,9 +193,46 @@ async function loadArticles(
   return sortTopicsByPublicationDate(articles) as BillArticle[];
 }
 
+type BillWithSource = {
+  id: string;
+  name: string;
+  publish_status: string;
+  source: string;
+};
+
+/**
+ * bills を由来（source）付きで取得する。
+ * bills.source 列が未適用の環境では、マイグレーションと同じルール
+ * （proposals と同名ならトピック受け皿）で補う。
+ */
+async function fetchBillsWithSource(
+  supabase: ReturnType<typeof createAdminClient>
+): Promise<BillWithSource[]> {
+  const withSource = await supabase
+    .from("bills")
+    .select("id, name, publish_status, source");
+  if (!withSource.error) return withSource.data ?? [];
+
+  console.warn("Falling back without bills.source:", withSource.error.message);
+  const [{ data, error }, proposalTitles] = await Promise.all([
+    supabase.from("bills").select("id, name, publish_status"),
+    findProposalTitles(),
+  ]);
+  if (error) {
+    throw new Error(
+      `Failed to fetch published bills for articles: ${error.message}`
+    );
+  }
+  const topicTitles = new Set(proposalTitles);
+  return (data ?? []).map((bill) => ({
+    ...bill,
+    source: deriveBillSource(bill.name, topicTitles),
+  }));
+}
+
 const _getCachedArticles = unstable_cache(
   loadArticles,
-  ["published-articles-by-proposal-published-date-v5"],
+  ["published-articles-by-proposal-published-date-v6"],
   {
     revalidate: 600, // 10分
     tags: [CACHE_TAGS.BILLS],

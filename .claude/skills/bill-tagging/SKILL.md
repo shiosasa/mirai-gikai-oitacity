@@ -123,8 +123,10 @@ curl -s --config "$CURL_AUTH" "$SUPABASE_URL/rest/v1/tags?select=id,label,featur
 ### Step 2: 対象議案を内容ごと取得
 
 ```bash
-curl -s --config "$CURL_AUTH" "$SUPABASE_URL/rest/v1/bills?select=id,name,is_featured,bill_contents(title,summary)&council_session_id=eq.<SESSION_ID>&publish_status=eq.published&order=created_at.asc"
+curl -s --config "$CURL_AUTH" "$SUPABASE_URL/rest/v1/bills?select=id,name,is_featured,bill_contents(title,summary)&council_session_id=eq.<SESSION_ID>&publish_status=eq.published&source=eq.meeting&order=created_at.asc"
 ```
+
+> `source=eq.meeting` で議案だけに絞る。`source = 'topic'` の行はトピックスのAIインタビュー受け皿で議案ではない（docs/20261021_1800_全体共通ルールmaster-workflow.md）。
 
 ### Step 3: 分類してユーザーにレビュー提示（必須）
 

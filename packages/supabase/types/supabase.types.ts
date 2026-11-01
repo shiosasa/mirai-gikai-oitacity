@@ -493,6 +493,7 @@ export type Database = {
           publish_status_order: number | null
           published_at: string | null
           share_thumbnail_url: string | null
+          source: string
           source_url: string | null
           status: Database["public"]["Enums"]["bill_status_enum"]
           status_note: string | null
@@ -514,6 +515,7 @@ export type Database = {
           publish_status_order?: number | null
           published_at?: string | null
           share_thumbnail_url?: string | null
+          source?: string
           source_url?: string | null
           status: Database["public"]["Enums"]["bill_status_enum"]
           status_note?: string | null
@@ -535,6 +537,7 @@ export type Database = {
           publish_status_order?: number | null
           published_at?: string | null
           share_thumbnail_url?: string | null
+          source?: string
           source_url?: string | null
           status?: Database["public"]["Enums"]["bill_status_enum"]
           status_note?: string | null
