@@ -288,6 +288,57 @@ export type Database = {
           },
         ]
       }
+      politician_speech_highlights: {
+        Row: {
+          context: string | null
+          created_at: string
+          id: string
+          is_published: boolean
+          meeting_session_id: number
+          politician_id: string
+          quote: string
+          title: string
+          updated_at: string
+        }
+        Insert: {
+          context?: string | null
+          created_at?: string
+          id?: string
+          is_published?: boolean
+          meeting_session_id: number
+          politician_id: string
+          quote: string
+          title: string
+          updated_at?: string
+        }
+        Update: {
+          context?: string | null
+          created_at?: string
+          id?: string
+          is_published?: boolean
+          meeting_session_id?: number
+          politician_id?: string
+          quote?: string
+          title?: string
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "politician_speech_highlights_meeting_session_id_fkey"
+            columns: ["meeting_session_id"]
+            isOneToOne: false
+            referencedRelation: "meeting_sessions"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "politician_speech_highlights_politician_id_fkey"
+            columns: ["politician_id"]
+            isOneToOne: false
+            referencedRelation: "politicians"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       politicians: {
         Row: {
           id: string

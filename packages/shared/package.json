@@ -11,6 +11,22 @@
       "types": "./src/ai/models.ts",
       "default": "./src/ai/models.ts"
     },
+    "./meetings/session-path": {
+      "types": "./src/meetings/session-path.ts",
+      "default": "./src/meetings/session-path.ts"
+    },
+    "./politicians/speech-mode": {
+      "types": "./src/politicians/speech-mode.ts",
+      "default": "./src/politicians/speech-mode.ts"
+    },
+    "./politicians/speech-quote": {
+      "types": "./src/politicians/speech-quote.ts",
+      "default": "./src/politicians/speech-quote.ts"
+    },
+    "./politicians/speech-speaker": {
+      "types": "./src/politicians/speech-speaker.ts",
+      "default": "./src/politicians/speech-speaker.ts"
+    },
     "./stream/inject-json-fields": {
       "types": "./src/stream/inject-json-fields.ts",
       "default": "./src/stream/inject-json-fields.ts"
