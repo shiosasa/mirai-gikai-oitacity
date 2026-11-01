@@ -2,6 +2,8 @@ import "server-only";
 import { createAdminClient } from "@mirai-gikai/supabase";
 import type { DifficultyLevelEnum } from "@/features/bill-difficulty/shared/types";
 import type { MiraiStance } from "../../shared/types";
+import { applyMeetingBillFilter } from "../../shared/utils/meeting-bill-filter";
+import { getMeetingBillFilter } from "./meeting-bill-filter";
 
 // ============================================================
 // Bills
@@ -236,16 +238,19 @@ export async function findPublishedBillsByDietSession(
   difficultyLevel: DifficultyLevelEnum
 ) {
   const supabase = createAdminClient();
-  const { data, error } = await supabase
-    .from("bills")
-    .select(
-      `
+  const meetingFilter = await getMeetingBillFilter();
+  const { data, error } = await applyMeetingBillFilter(
+    supabase
+      .from("bills")
+      .select(
+        `
       *,
       bill_contents!inner (*)
     `
-    )
-    .eq("council_session_id", councilSessionId)
-    .eq("source", "meeting")
+      )
+      .eq("council_session_id", councilSessionId),
+    meetingFilter
+  )
     .eq("publish_status", "published")
     .eq("bill_contents.difficulty_level", difficultyLevel)
     .order("status_order", { ascending: true })
@@ -269,16 +274,19 @@ export async function findPreviousSessionBills(
   limit: number
 ) {
   const supabase = createAdminClient();
-  const { data, error } = await supabase
-    .from("bills")
-    .select(
-      `
+  const meetingFilter = await getMeetingBillFilter();
+  const { data, error } = await applyMeetingBillFilter(
+    supabase
+      .from("bills")
+      .select(
+        `
       *,
       bill_contents!inner (*)
     `
-    )
-    .eq("council_session_id", councilSessionId)
-    .eq("source", "meeting")
+      )
+      .eq("council_session_id", councilSessionId),
+    meetingFilter
+  )
     .eq("publish_status", "published")
     .eq("bill_contents.difficulty_level", difficultyLevel)
     .order("status_order", { ascending: true })
@@ -301,14 +309,17 @@ export async function countPublishedBillsByDietSession(
   difficultyLevel: DifficultyLevelEnum
 ): Promise<number> {
   const supabase = createAdminClient();
-  const { count, error } = await supabase
-    .from("bills")
-    .select("*, bill_contents!inner(difficulty_level)", {
-      count: "exact",
-      head: true,
-    })
-    .eq("council_session_id", councilSessionId)
-    .eq("source", "meeting")
+  const meetingFilter = await getMeetingBillFilter();
+  const { count, error } = await applyMeetingBillFilter(
+    supabase
+      .from("bills")
+      .select("*, bill_contents!inner(difficulty_level)", {
+        count: "exact",
+        head: true,
+      })
+      .eq("council_session_id", councilSessionId),
+    meetingFilter
+  )
     .eq("publish_status", "published")
     .eq("bill_contents.difficulty_level", difficultyLevel);
 
@@ -352,10 +363,12 @@ export async function findPublishedBillsByTag(
   councilSessionId: string | null
 ) {
   const supabase = createAdminClient();
-  let query = supabase
-    .from("bills_tags")
-    .select(
-      `
+  const meetingFilter = await getMeetingBillFilter();
+  let query = applyMeetingBillFilter(
+    supabase
+      .from("bills_tags")
+      .select(
+        `
       bill_id,
       bills!inner (
         *,
@@ -368,9 +381,11 @@ export async function findPublishedBillsByTag(
         )
       )
     `
-    )
-    .eq("tag_id", tagId)
-    .eq("bills.source", "meeting")
+      )
+      .eq("tag_id", tagId),
+    meetingFilter,
+    "bills."
+  )
     .eq("bills.publish_status", "published")
     .eq("bills.bill_contents.difficulty_level", difficultyLevel);
 
@@ -396,10 +411,12 @@ export async function findFeaturedBillsWithContents(
   councilSessionId: string | null
 ) {
   const supabase = createAdminClient();
-  let query = supabase
-    .from("bills")
-    .select(
-      `
+  const meetingFilter = await getMeetingBillFilter();
+  let query = applyMeetingBillFilter(
+    supabase
+      .from("bills")
+      .select(
+        `
       *,
       bill_contents!inner (*),
       bill_articles (*),
@@ -410,9 +427,10 @@ export async function findFeaturedBillsWithContents(
         )
       )
     `
-    )
-    .eq("is_featured", true)
-    .eq("source", "meeting")
+      )
+      .eq("is_featured", true),
+    meetingFilter
+  )
     .eq("bill_contents.difficulty_level", difficultyLevel)
     .order("published_at", { ascending: false });
 
@@ -439,10 +457,12 @@ export async function findFeaturedBillsWithContents(
  */
 export async function findComingSoonBills(councilSessionId: string | null) {
   const supabase = createAdminClient();
-  let query = supabase
-    .from("bills")
-    .select(
-      `
+  const meetingFilter = await getMeetingBillFilter();
+  let query = applyMeetingBillFilter(
+    supabase
+      .from("bills")
+      .select(
+        `
       id,
       name,
       bill_contents (
@@ -453,10 +473,10 @@ export async function findComingSoonBills(councilSessionId: string | null) {
         council_url
       )
     `
-    )
-    .eq("publish_status", "coming_soon")
-    .eq("source", "meeting")
-    .order("created_at", { ascending: false });
+      )
+      .eq("publish_status", "coming_soon"),
+    meetingFilter
+  ).order("created_at", { ascending: false });
 
   if (councilSessionId) {
     query = query.eq("council_session_id", councilSessionId);

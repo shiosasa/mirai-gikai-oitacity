@@ -1,5 +1,7 @@
 import "server-only";
 import { createAdminClient } from "@mirai-gikai/supabase";
+import { getMeetingBillFilter } from "@/features/bills/server/repositories/meeting-bill-filter";
+import { applyMeetingBillFilter } from "@/features/bills/shared/utils/meeting-bill-filter";
 import type { SessionBill } from "../../shared/types";
 import {
   linkSessionBills,
@@ -118,13 +120,16 @@ export async function findAllMeetings(): Promise<MeetingSummary[]> {
     throw new Error(`Failed to fetch meetings: ${error.message}`);
   }
 
-  const { data: publishedBills, error: billsError } = await supabase
-    .from("bills")
-    .select(
-      "id, name, bill_number, council_sessions(name, start_date, end_date)"
-    )
-    .eq("source", "meeting")
-    .eq("publish_status", "published");
+  const meetingFilter = await getMeetingBillFilter();
+  const { data: publishedBills, error: billsError } =
+    await applyMeetingBillFilter(
+      supabase
+        .from("bills")
+        .select(
+          "id, name, bill_number, council_sessions(name, start_date, end_date)"
+        ),
+      meetingFilter
+    ).eq("publish_status", "published");
 
   if (billsError) {
     throw new Error(`Failed to fetch published bills: ${billsError.message}`);
