@@ -127,6 +127,19 @@ export function addBillPickupUpdatedAt(
   }));
 }
 
+/**
+ * 更新日の新しい順に並べる（更新日が無いものは末尾、同日時は元の順を維持）
+ */
+export function sortBillPickupItemsByUpdatedAt(
+  items: BillPickupItem[]
+): BillPickupItem[] {
+  const toTime = (value: string | null) => {
+    const time = value ? Date.parse(value) : Number.NaN;
+    return Number.isNaN(time) ? Number.NEGATIVE_INFINITY : time;
+  };
+  return [...items].sort((a, b) => toTime(b.updatedAt) - toTime(a.updatedAt));
+}
+
 export function addBillPickupStatuses(
   items: BillPickupItem[],
   statusByBillId: Map<string, string | null>

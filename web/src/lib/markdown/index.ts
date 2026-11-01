@@ -29,13 +29,24 @@ const sanitizeSchema = {
   ],
 };
 
+export interface ParseMarkdownOptions {
+  /** 最後のH2の前に「説明の詳しさ」切り替えカードを挿入する（デフォルト: true） */
+  injectDifficultyCard?: boolean;
+  /** 「長押しでAIに質問」カードを挿入するH2の位置（1-indexed、デフォルト: 3） */
+  longPressTargetH2Index?: number;
+}
+
 /**
  * MarkdownテキストをReact Elementに変換
  * @param markdown - Markdown形式のテキスト
- * @param options - オプション（currentLevel等）
+ * @param options - 挿入するカスタム要素の設定
  * @returns React Element（部分水和対応）
  */
-export async function parseMarkdown(markdown: string): Promise<ReactElement> {
+export async function parseMarkdown(
+  markdown: string,
+  options: ParseMarkdownOptions = {}
+): Promise<ReactElement> {
+  const { injectDifficultyCard = true, longPressTargetH2Index = 3 } = options;
   // Markdown → mdast（remarkBreaksでソフト改行をbreak nodeに変換）
   const remarkProcessor = unified().use(remarkParse).use(remarkBreaks);
   const parsed = remarkProcessor.parse(markdown);
@@ -48,13 +59,12 @@ export async function parseMarkdown(markdown: string): Promise<ReactElement> {
     .use(rehypeInjectElement, {
       injections: [
         {
-          targetH2Index: 3,
+          targetH2Index: longPressTargetH2Index,
           tagName: "LongPressSection",
         },
-        {
-          targetH2Index: -1,
-          tagName: "DifficultyInfoCard",
-        },
+        ...(injectDifficultyCard
+          ? [{ targetH2Index: -1, tagName: "DifficultyInfoCard" }]
+          : []),
       ],
     })
     .use(rehypeSanitize, sanitizeSchema)

@@ -11,6 +11,7 @@ import {
   addBillPickupTagCategories,
   addBillPickupUpdatedAt,
   buildBillPickupItems,
+  sortBillPickupItemsByUpdatedAt,
 } from "../../shared/utils/build-bill-pickup-items";
 import { getAllMeetingsAndCommittees } from "./get-all-meetings";
 
@@ -35,14 +36,16 @@ export async function getBillPickups() {
       tags.map((tag) => tag.label)
     );
   }
-  return addBillPickupStatuses(
-    addBillPickupUpdatedAt(
-      addBillPickupTagCategories(
-        addBillPickupCategories(items, articles),
-        tagLabelsByBillId
+  return sortBillPickupItemsByUpdatedAt(
+    addBillPickupStatuses(
+      addBillPickupUpdatedAt(
+        addBillPickupTagCategories(
+          addBillPickupCategories(items, articles),
+          tagLabelsByBillId
+        ),
+        dates
       ),
-      dates
-    ),
-    statuses
+      statuses
+    )
   );
 }
