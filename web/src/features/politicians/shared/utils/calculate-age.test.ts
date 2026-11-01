@@ -14,6 +14,21 @@ describe("calculateAge", () => {
     ).toBe(69);
   });
 
+  it("calculates age from direct Japanese era dates", () => {
+    const now = new Date("2026-11-01T00:00:00Z");
+    expect(calculateAge("昭和30年6月5日", now)).toBe(71);
+    expect(calculateAge("平成元年11月2日", now)).toBe(36);
+    expect(calculateAge("令和元年5月1日", now)).toBe(7);
+    expect(calculateAge("令和元年５月１日", now)).toBe(7);
+  });
+
+  it("rejects dates outside their Japanese era boundaries", () => {
+    const now = new Date("2026-11-01T00:00:00Z");
+    expect(calculateAge("昭和元年12月24日", now)).toBeNull();
+    expect(calculateAge("平成31年5月1日", now)).toBeNull();
+    expect(calculateAge("令和元年4月30日", now)).toBeNull();
+  });
+
   it("updates at midnight in Japan on the birthday", () => {
     expect(calculateAge("1957-06-05", new Date("2026-06-04T14:59:59Z"))).toBe(
       68
