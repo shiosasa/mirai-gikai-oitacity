@@ -4,6 +4,7 @@ import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Card } from "@/components/ui/card";
 import { getHttpUrl } from "@/lib/utils/external-url";
 import type { MayorProfile } from "../../shared/types/mayor";
+import { calculateAge } from "../../shared/utils/calculate-age";
 import { MayorPolicyPillars } from "./mayor-policy-pillars";
 
 type Props = {
@@ -12,6 +13,7 @@ type Props = {
 
 export function MayorDirectoryCard({ mayor }: Props) {
   const mayorName = mayor?.name?.trim();
+  const age = calculateAge(mayor?.birth_date ?? null, new Date());
 
   return (
     <Card className="rounded-md border-mirai-border bg-card shadow-none">
@@ -43,6 +45,11 @@ export function MayorDirectoryCard({ mayor }: Props) {
             <h3 className="mt-1 break-words text-xl font-bold text-mirai-text">
               {mayorName || "市長プロフィール"}
             </h3>
+            {age !== null && (
+              <p className="mt-2 text-sm text-mirai-text-secondary">
+                年齢：{age}歳
+              </p>
+            )}
             <p className="mt-2 inline-flex items-center gap-1 text-sm font-semibold text-primary-accent">
               プロフィールを見る
               <ArrowRight aria-hidden="true" className="size-4" />

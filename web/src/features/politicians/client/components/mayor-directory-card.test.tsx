@@ -1,7 +1,7 @@
 // @vitest-environment jsdom
 
 import { renderToStaticMarkup } from "react-dom/server";
-import { afterEach, describe, expect, it } from "vitest";
+import { afterEach, describe, expect, it, vi } from "vitest";
 import type { MayorProfile } from "../../shared/types/mayor";
 import { MayorDirectoryCard } from "./mayor-directory-card";
 
@@ -44,6 +44,16 @@ describe("MayorDirectoryCard", () => {
       "ひとを豊かに",
       "ひとを元気に",
     ]);
+  });
+
+  it("shows the mayor's age in the directory card", () => {
+    vi.useFakeTimers();
+    vi.setSystemTime(new Date("2026-11-01T00:00:00Z"));
+    const html = renderToStaticMarkup(
+      <MayorDirectoryCard mayor={{ ...mayor, birth_date: "1957年6月5日" }} />
+    );
+
+    expect(html).toContain("年齢：69歳");
   });
 
   it("does not invent policy pillars when the profile is unavailable", () => {
