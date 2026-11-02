@@ -1,5 +1,6 @@
 import { ExternalLink } from "lucide-react";
 import Link from "next/link";
+import { getFactionDirectoryLink } from "@/features/politicians/shared/utils/faction-directory-links";
 import type {
   BillVoteResult,
   BillVoteSnapshot,
@@ -49,11 +50,13 @@ function VoteList({
   count,
   entries,
   profiles,
+  currentFactions,
 }: {
   title: string;
   count: number;
   entries: readonly DisplayVote[];
   profiles: ReadonlyMap<string, string>;
+  currentFactions: ReadonlySet<string>;
 }) {
   return (
     <div className="rounded-lg bg-mirai-surface p-4">
@@ -73,18 +76,11 @@ function VoteList({
               }
             >
               {entry.kind === "faction" ? (
-                <>
-                  <Link
-                    className="text-mirai-text underline decoration-primary-accent underline-offset-2"
-                    href="/politicians#councillors-directory-heading"
-                    aria-label={`${entry.faction}を含む現在の議員一覧`}
-                  >
-                    {entry.faction}
-                  </Link>
-                  <span className="text-mirai-text-secondary">
-                    （投票者{entry.count}人）
-                  </span>
-                </>
+                <FactionName
+                  faction={entry.faction}
+                  count={entry.count}
+                  currentFactions={currentFactions}
+                />
               ) : (
                 <PersonName vote={entry.vote} profiles={profiles} />
               )}
@@ -96,12 +92,48 @@ function VoteList({
   );
 }
 
+function FactionName({
+  faction,
+  count,
+  currentFactions,
+}: {
+  faction: string;
+  count: number;
+  currentFactions: ReadonlySet<string>;
+}) {
+  const { href, isCurrent } = getFactionDirectoryLink(faction, currentFactions);
+
+  return (
+    <>
+      <Link
+        className="text-mirai-text underline decoration-primary-accent underline-offset-2"
+        href={href}
+        aria-label={
+          isCurrent
+            ? `${faction}の現在の議員一覧`
+            : `${faction}について現在の議員一覧を表示`
+        }
+      >
+        {faction}
+      </Link>
+      <span className="text-mirai-text-secondary">（投票者{count}人）</span>
+      {!isCurrent && (
+        <span className="block text-xs text-mirai-text-secondary">
+          現在の議員一覧に同名の会派はありません。
+        </span>
+      )}
+    </>
+  );
+}
+
 export function BillVoteSection({
   snapshot,
   profiles,
+  currentFactions,
 }: {
   snapshot: BillVoteSnapshot;
   profiles: ReadonlyMap<string, string>;
+  currentFactions: ReadonlySet<string>;
 }) {
   const summary = groupBillVotes(snapshot.votes);
 
@@ -133,12 +165,14 @@ export function BillVoteSection({
           count={summary.forCount}
           entries={summary.entries.for}
           profiles={profiles}
+          currentFactions={currentFactions}
         />
         <VoteList
           title="反対"
           count={summary.againstCount}
           entries={summary.entries.against}
           profiles={profiles}
+          currentFactions={currentFactions}
         />
       </div>
       {summary.unvoted.length > 0 && (
