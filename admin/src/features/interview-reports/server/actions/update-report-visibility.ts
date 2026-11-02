@@ -2,6 +2,10 @@
 
 import { revalidatePath, revalidateTag } from "next/cache";
 import { requireAdmin } from "@/features/auth/server/lib/auth-server";
+import {
+  invalidateWebCache,
+  WEB_CACHE_TAGS,
+} from "@/lib/utils/cache-invalidation";
 import { updateReportVisibility } from "../repositories/interview-report-repository";
 
 interface UpdateReportVisibilityParams {
@@ -37,6 +41,9 @@ export async function updateReportVisibilityAction(
     revalidatePath(`/bills/${billId}/reports/${sessionId}`);
     revalidatePath(`/bills/${billId}/reports`);
     revalidateTag("public-interview-reports");
+    revalidatePath("/topic-voices");
+    // トピックス記事の「生の声」も管理者公開に連動するため、Web側の記事キャッシュを破棄する
+    await invalidateWebCache([WEB_CACHE_TAGS.BILLS]);
 
     return { success: true };
   } catch (error) {

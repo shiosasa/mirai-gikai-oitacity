@@ -8,6 +8,7 @@ import type { BillArticle, TopicSourceRef } from "../../../shared/types";
 import { getCategoryLabel } from "../../../shared/utils/article-category";
 import { buildSessionPath } from "../../../shared/utils/build-session-path";
 import { getStatusBadgeClass } from "../../../shared/utils/get-status-badge-class";
+import { TopicVoicesSection } from "./topic-voices-section";
 
 interface ArticleAccordionCardProps {
   article: BillArticle;
@@ -273,6 +274,9 @@ export function ArticleAccordionCard({ article }: ArticleAccordionCardProps) {
           </div>
         </div>
       )}
+
+      {/* 管理者が採用したAIインタビューの「生の声」 */}
+      <TopicVoicesSection voices={article.voices ?? []} />
 
       {/* AI インタビューボタン（公開中のインタビューがある場合のみ表示） */}
       {article.interview_bill_id && (
