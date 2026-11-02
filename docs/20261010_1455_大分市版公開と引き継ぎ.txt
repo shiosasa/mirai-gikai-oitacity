@@ -37,8 +37,9 @@ https://github.com/shiosasa/mirai-gikai-oitacity/pull/4
 公開はPRのマージではなく、このコミットを明示してVercelから実行した。
 PR #4はPR #3のビルド修正を含む。#3だけを後から重複マージしない。
 
-Vercel：
-https://vercel.com/shiopan1/mirai-gikai-oitacity-web
+Vercel管理画面（プロジェクト名：mirai-gikai-oitacity-wxga）：
+https://vercel.com/shiopan1/mirai-gikai-oitacity-wxga
+公開ドメイン：https://mirai-gikai-oitacity-web.vercel.app/
 Project ID：prj_8VjVsVhXPi4V6QmOCsEDssQsjlP1
 今回の本番Deployment ID：dpl_6CnJsWjywDJg2qS41LMKXEnBTYvh
 Root Directory：web
