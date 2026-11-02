@@ -1,8 +1,7 @@
 import "server-only";
 
-import type { InterviewReportData } from "../../shared/schemas";
 import type { InterviewReport } from "../../shared/types";
-import { extractReportFromMessage } from "../../shared/utils/report-extraction";
+import { extractCurrentReport } from "../../shared/utils/report-extraction";
 import {
   findInterviewMessagesBySessionIdDesc,
   updateInterviewSessionCompleted,
@@ -22,19 +21,11 @@ export async function completeInterviewSession({
   // メッセージ履歴を取得（新しい順）
   const messages = await findInterviewMessagesBySessionIdDesc(sessionId);
 
-  // 最新のアシスタントメッセージからレポートを抽出
-  let reportData: InterviewReportData | null = null;
-  for (const message of messages) {
-    if (message.role === "assistant") {
-      reportData = extractReportFromMessage(message.content);
-      if (reportData) {
-        break;
-      }
-    }
-  }
-
+  const reportData = extractCurrentReport(messages);
   if (!reportData) {
-    throw new Error("No report found in conversation messages");
+    throw new Error(
+      "最新のレポートを確認できませんでした。しばらく待ってからもう一度お試しください。"
+    );
   }
 
   // opinions にソースメッセージの内容を付与

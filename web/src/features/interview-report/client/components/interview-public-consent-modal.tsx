@@ -18,6 +18,7 @@ interface InterviewPublicConsentModalProps {
   onOpenChange: (open: boolean) => void;
   onSubmit: (isPublic: boolean) => void;
   isSubmitting: boolean;
+  submitError?: string | null;
 }
 
 export function InterviewPublicConsentModal({
@@ -25,6 +26,7 @@ export function InterviewPublicConsentModal({
   onOpenChange,
   onSubmit,
   isSubmitting,
+  submitError,
 }: InterviewPublicConsentModalProps) {
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
@@ -58,6 +60,11 @@ export function InterviewPublicConsentModal({
         </DialogDescription>
 
         <div className="space-y-3 mt-6">
+          {submitError && (
+            <p role="alert" className="text-sm text-destructive">
+              {submitError}
+            </p>
+          )}
           <Button
             onClick={() => onSubmit(true)}
             disabled={isSubmitting}

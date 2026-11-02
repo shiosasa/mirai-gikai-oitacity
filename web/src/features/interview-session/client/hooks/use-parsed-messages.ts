@@ -23,8 +23,14 @@ export function useParsedMessages(initialMessages: InitialMessage[]) {
     (): ConversationMessage[] =>
       initialMessages.map((msg) => {
         if (msg.role === "assistant") {
-          const { text, report, quickReplies, questionId, topicTitle } =
-            parseMessageContent(msg.content);
+          const {
+            text,
+            report,
+            quickReplies,
+            questionId,
+            topicTitle,
+            nextStage,
+          } = parseMessageContent(msg.content);
           return {
             id: msg.id,
             role: msg.role,
@@ -33,6 +39,7 @@ export function useParsedMessages(initialMessages: InitialMessage[]) {
             quickReplies,
             questionId,
             topicTitle,
+            nextStage,
           };
         }
         return {

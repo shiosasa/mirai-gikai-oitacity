@@ -61,11 +61,13 @@ describe("completeInterviewSession 統合テスト", () => {
         interview_session_id: sessionId,
         role: "user",
         content: "この法案に賛成です",
+        created_at: "2026-01-01T00:00:00Z",
       },
       {
         interview_session_id: sessionId,
         role: "assistant",
         content: validReportMessage,
+        created_at: "2026-01-01T00:00:01Z",
       },
     ]);
 
@@ -107,16 +109,18 @@ describe("completeInterviewSession 統合テスト", () => {
         interview_session_id: sessionId,
         role: "user",
         content: "普通のメッセージ",
+        created_at: "2026-01-01T00:00:00Z",
       },
       {
         interview_session_id: sessionId,
         role: "assistant",
         content: "普通の応答メッセージ",
+        created_at: "2026-01-01T00:00:01Z",
       },
     ]);
 
     await expect(completeInterviewSession({ sessionId })).rejects.toThrow(
-      "No report found in conversation messages"
+      "最新のレポートを確認できませんでした"
     );
 
     // DB 状態を検証: セッションが completed になっていないこと
@@ -144,20 +148,63 @@ describe("completeInterviewSession 統合テスト", () => {
         interview_session_id: sessionId,
         role: "assistant",
         content: "最初の質問です",
+        created_at: "2026-01-01T00:00:00Z",
       },
       {
         interview_session_id: sessionId,
         role: "user",
         content: "回答です",
+        created_at: "2026-01-01T00:00:01Z",
       },
       {
         interview_session_id: sessionId,
         role: "assistant",
         content: validReportMessage,
+        created_at: "2026-01-01T00:00:02Z",
       },
     ]);
 
     const report = await completeInterviewSession({ sessionId });
     expect(report.summary).toBe("テスト法案に賛成の立場");
+  });
+
+  it.each([
+    { role: "user" as const, content: "続きを話したいです" },
+    {
+      role: "assistant" as const,
+      content: JSON.stringify({ text: "次の質問です", next_stage: "chat" }),
+    },
+  ])("新しい$roleメッセージがあれば古いレポートを提出しない", async (latest) => {
+    const { error } = await adminClient.from("interview_messages").insert([
+      {
+        interview_session_id: sessionId,
+        role: "assistant",
+        content: validReportMessage,
+        created_at: "2026-01-01T00:00:00Z",
+      },
+      {
+        interview_session_id: sessionId,
+        ...latest,
+        created_at: "2026-01-01T00:00:01Z",
+      },
+    ]);
+    expect(error).toBeNull();
+
+    await expect(completeInterviewSession({ sessionId })).rejects.toThrow(
+      "最新のレポートを確認できませんでした"
+    );
+
+    const { data: reports } = await adminClient
+      .from("interview_report")
+      .select("id")
+      .eq("interview_session_id", sessionId);
+    const { data: dbSession } = await adminClient
+      .from("interview_sessions")
+      .select("completed_at")
+      .eq("id", sessionId)
+      .single();
+
+    expect(reports).toHaveLength(0);
+    expect(dbSession?.completed_at).toBeNull();
   });
 });

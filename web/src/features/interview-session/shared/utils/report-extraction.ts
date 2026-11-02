@@ -1,5 +1,6 @@
 import { MUNICIPALITY_CONNECTIONS } from "@mirai-gikai/shared/interview/municipality-connection";
 import { z } from "zod";
+import { parseMessageContent } from "../message-utils";
 import { type InterviewReportData, interviewReportSchema } from "../schemas";
 
 /**
@@ -37,4 +38,18 @@ export function extractReportFromMessage(
     console.error("Failed to parse report from message content", content, e);
   }
   return null;
+}
+
+/** 新しい順の履歴で、最新メッセージだけを提出対象にする。 */
+export function extractCurrentReport(
+  messagesNewestFirst: ReadonlyArray<{ role: string; content: string }>
+): InterviewReportData | null {
+  const latestMessage = messagesNewestFirst[0];
+  if (
+    latestMessage?.role !== "assistant" ||
+    !parseMessageContent(latestMessage.content).report
+  ) {
+    return null;
+  }
+  return extractReportFromMessage(latestMessage.content);
 }

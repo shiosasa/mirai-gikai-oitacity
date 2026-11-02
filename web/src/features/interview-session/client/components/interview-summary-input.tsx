@@ -55,9 +55,6 @@ export function InterviewSummaryInput({
               </Link>
             </Button>
           )}
-          {completeError && (
-            <p className="text-sm text-red-500">{completeError}</p>
-          )}
         </div>
       )}
       {hasReport && (
@@ -75,6 +72,7 @@ export function InterviewSummaryInput({
         onOpenChange={setIsModalOpen}
         onSubmit={handleSubmit}
         isSubmitting={isCompleting}
+        submitError={completeError}
       />
     </>
   );

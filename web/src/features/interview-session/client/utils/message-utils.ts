@@ -1,6 +1,9 @@
 import type { MunicipalityConnection } from "@mirai-gikai/shared/interview/municipality-connection";
 import { isValidReport, parseMessageContent } from "../../shared/message-utils";
-import type { InterviewReportViewData } from "../../shared/schemas";
+import type {
+  InterviewReportViewData,
+  InterviewStage,
+} from "../../shared/schemas";
 
 // Re-export from shared for backwards compatibility
 export { isValidReport, parseMessageContent };
@@ -17,6 +20,7 @@ export type ConversationMessage = {
   quickReplies?: string[];
   questionId?: string | null;
   topicTitle?: string | null;
+  nextStage?: InterviewStage | null;
 };
 
 /**

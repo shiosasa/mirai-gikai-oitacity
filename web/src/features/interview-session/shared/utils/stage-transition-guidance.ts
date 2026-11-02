@@ -33,7 +33,7 @@ export function buildTimeManagementGuidance({
     return `## タイムマネジメント
 - **目安時間を超過しています**
 - 残り事前質問数: ${remainingQuestions}問
-- ユーザーがレポート作成に進みたいと言った場合は、速やかに next_stage を "summary" にしてください
+- ユーザーがレポート作成を希望した場合は next_stage を "summary" にし、まとめるか確認してください
 - ユーザーがインタビューを続けたい場合は、時間を気にせず通常通り深掘りしてください`;
   }
 
@@ -101,12 +101,11 @@ export function buildBulkModeStageGuidance({
   if (currentStage === "chat") {
     stageGuidance = `- 現在のステージ: **chat**（インタビュー中）
 - インタビューを継続する場合は next_stage を "chat" にしてください
-- 要約フェーズに移行すべきと判断した場合は next_stage を "summary" にしてください
+- まとめを提案する場合やユーザーが終了を希望した場合は next_stage を "summary" にして、まとめるか確認してください。実際のレポート作成はユーザーが選択してから行います
 - **重要（一括回答優先モード専用ルール）**:
-  - 事前定義質問がまだ残っている場合は、必ず next_stage を "chat" にしてください
-  - 事前定義質問をすべて完了した後も、深掘りが十分でない場合は next_stage を "chat" にしてください
-  - 事前定義質問をすべて完了し、十分な深掘りを行った後に初めて "summary" への移行を検討してください
-  - ユーザーが終了を希望した場合も "summary" に移行してください`;
+  - ユーザーが終了を希望しない限り、事前定義質問が残っている間は next_stage を "chat" にしてください
+  - ユーザーが続行を希望した場合は、次の質問を1つ示してください
+  - 事前定義質問をすべて完了し、十分な深掘りを行った後は、まとめを提案しても構いません`;
   } else if (currentStage === "summary") {
     stageGuidance = `- 現在のステージ: **summary**（要約フェーズ）
 - ユーザーがレポート内容に同意し、完了すべきと判断した場合は next_stage を "summary_complete" にしてください
@@ -147,10 +146,8 @@ export function buildLoopModeStageGuidance({
   if (currentStage === "chat") {
     stageGuidance = `- 現在のステージ: **chat**（インタビュー中）
 - インタビューを継続する場合は next_stage を "chat" にしてください
-- 要約フェーズに移行すべきと判断した場合は next_stage を "summary" にしてください
-- 事前定義質問を概ね完了し、十分な深掘りを行った場合に "summary" への移行を検討してください
-- ユーザーが終了を希望した場合も "summary" に移行してください
-- これ以上の深掘りが難しい場合も "summary" に移行してください
+- まとめを提案する場合やユーザーが終了を希望した場合は next_stage を "summary" にして、まとめるか確認してください。実際のレポート作成はユーザーが選択してから行います
+- ユーザーが続行を希望した場合は next_stage を "chat" にし、次の質問を1つ示してください
 - **重要（都度深掘りモード）**: 事前定義質問の消化を急がないでください。現在のテーマについて十分な深掘り（2〜3回のフォローアップ）が完了するまで、次の事前定義質問に移らないでください。以下の進捗状況は参考情報であり、全問消化よりも各テーマの深掘りを優先してください`;
   } else if (currentStage === "summary") {
     stageGuidance = `- 現在のステージ: **summary**（要約フェーズ）

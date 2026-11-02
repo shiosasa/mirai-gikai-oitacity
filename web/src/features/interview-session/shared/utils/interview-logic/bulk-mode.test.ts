@@ -177,6 +177,9 @@ describe("buildBulkModeSystemPrompt", () => {
         "必ず事前定義質問 **[ID: q2] 業務への影響はありますか？**"
       );
       expect(result).toContain("深掘りや他の話題への逸脱は一切禁止");
+      expect(result).toContain(
+        "ユーザーがまとめを希望した場合は、質問を優先せず"
+      );
       // 特別プロンプトでは法案詳細やテーマは含まれない
       expect(result).not.toContain("<bill_detail>");
     });

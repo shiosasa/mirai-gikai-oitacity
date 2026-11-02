@@ -1,5 +1,8 @@
 import { describe, expect, it } from "vitest";
-import { extractReportFromMessage } from "./report-extraction";
+import {
+  extractCurrentReport,
+  extractReportFromMessage,
+} from "./report-extraction";
 
 describe("extractReportFromMessage", () => {
   const validReport = {
@@ -91,5 +94,80 @@ describe("extractReportFromMessage", () => {
     expect(result).not.toBeNull();
     expect(result?.scores.total).toBe(75);
     expect(result?.scores.clarity).toBe(81);
+  });
+
+  it("最新メッセージの有効なレポートを抽出する", () => {
+    const result = extractCurrentReport([
+      {
+        role: "assistant",
+        content: JSON.stringify({ ...validReport, next_stage: "summary" }),
+      },
+      { role: "user", content: "まとめてください" },
+    ]);
+
+    expect(result?.summary).toBe("テスト要約");
+    expect(result?.municipality_connection).toBe("resident");
+  });
+
+  it("市とのつながりがない旧形式も最新レポートとして抽出できる", () => {
+    const { municipality_connection: _, ...legacyReport } = validReport.report;
+    const result = extractCurrentReport([
+      {
+        role: "assistant",
+        content: JSON.stringify({ ...validReport, report: legacyReport }),
+      },
+    ]);
+
+    expect(result?.summary).toBe("テスト要約");
+    expect(result?.municipality_connection).toBeNull();
+  });
+
+  it("新しい回答や応答があれば、以前のレポートを使わない", () => {
+    const oldReport = {
+      role: "assistant",
+      content: JSON.stringify(validReport),
+    };
+
+    expect(extractCurrentReport([])).toBeNull();
+    expect(
+      extractCurrentReport([
+        { role: "user", content: "続きを話したいです" },
+        oldReport,
+      ])
+    ).toBeNull();
+    expect(
+      extractCurrentReport([
+        {
+          role: "assistant",
+          content: JSON.stringify({ text: "次の質問です", next_stage: "chat" }),
+        },
+        oldReport,
+      ])
+    ).toBeNull();
+  });
+
+  it("会話再開の応答にレポートが含まれていても提出に使わない", () => {
+    expect(
+      extractCurrentReport([
+        {
+          role: "assistant",
+          content: JSON.stringify({ ...validReport, next_stage: "chat" }),
+        },
+      ])
+    ).toBeNull();
+  });
+
+  it("表示用の内容があっても完全なレポートの形式でなければ使わない", () => {
+    expect(
+      extractCurrentReport([
+        {
+          role: "assistant",
+          content: JSON.stringify({
+            text: "まとめです",
+            report: { summary: "テスト要約", opinions: [] },
+          }),
+        },
+      ])
+    ).toBeNull();
   });
 });
