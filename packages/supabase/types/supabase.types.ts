@@ -1459,6 +1459,7 @@ export type Database = {
           interview_session_id: string
           is_public_by_admin: boolean
           is_public_by_user: boolean
+          municipality_connection: "resident" | "connected" | "other" | null
           opinions: Json | null
           role: Database["public"]["Enums"]["interview_report_role_enum"] | null
           role_description: string | null
@@ -1466,6 +1467,7 @@ export type Database = {
           scores: Json | null
           stance: Database["public"]["Enums"]["stance_type_enum"] | null
           summary: string | null
+          topic_voice_featured_at: string | null
           total_score: number | null
           updated_at: string
         }
@@ -1475,6 +1477,7 @@ export type Database = {
           interview_session_id: string
           is_public_by_admin?: boolean
           is_public_by_user?: boolean
+          municipality_connection?: "resident" | "connected" | "other" | null
           opinions?: Json | null
           role?:
             | Database["public"]["Enums"]["interview_report_role_enum"]
@@ -1484,6 +1487,7 @@ export type Database = {
           scores?: Json | null
           stance?: Database["public"]["Enums"]["stance_type_enum"] | null
           summary?: string | null
+          topic_voice_featured_at?: string | null
           total_score?: number | null
           updated_at?: string
         }
@@ -1493,6 +1497,7 @@ export type Database = {
           interview_session_id?: string
           is_public_by_admin?: boolean
           is_public_by_user?: boolean
+          municipality_connection?: "resident" | "connected" | "other" | null
           opinions?: Json | null
           role?:
             | Database["public"]["Enums"]["interview_report_role_enum"]
@@ -1502,6 +1507,7 @@ export type Database = {
           scores?: Json | null
           stance?: Database["public"]["Enums"]["stance_type_enum"] | null
           summary?: string | null
+          topic_voice_featured_at?: string | null
           total_score?: number | null
           updated_at?: string
         }

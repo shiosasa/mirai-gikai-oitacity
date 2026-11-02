@@ -2,8 +2,8 @@ import "server-only";
 
 import { unstable_cache } from "next/cache";
 import { CACHE_TAGS } from "@/lib/cache-tags";
-import type { PublicInterviewReport } from "./get-public-reports-by-bill-id";
 import { findPublicReportsByBillId } from "../repositories/interview-report-repository";
+import type { PublicInterviewReport } from "./get-public-reports-by-bill-id";
 
 const REVALIDATE_SECONDS = 600;
 const MAX_REPORTS = 1000;
@@ -22,6 +22,7 @@ export async function getAllPublicReportsByBillId(
         stance: r.stance,
         role: r.role,
         role_title: r.role_title,
+        municipality_connection: r.municipality_connection,
         summary: r.summary,
         total_score: r.total_score,
         created_at: r.created_at,

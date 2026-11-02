@@ -1,12 +1,12 @@
-import { describe, it, expect, beforeEach, afterEach } from "vitest";
 import {
   adminClient,
-  createTestUser,
+  cleanupTestBill,
   cleanupTestUser,
   createTestInterviewData,
-  cleanupTestBill,
+  createTestUser,
   type TestUser,
 } from "@test-utils/utils";
+import { afterEach, beforeEach, describe, expect, it } from "vitest";
 import { completeInterviewSession } from "./complete-interview-session";
 
 // interviewChatWithReportSchema に準拠したレポートデータ
@@ -18,6 +18,7 @@ const validReportMessage = JSON.stringify({
     role: "general_citizen",
     role_description: "一般市民として法案に関心がある",
     role_title: "会社員",
+    municipality_connection: "resident",
     opinions: [
       {
         title: "賛成の理由",
@@ -75,6 +76,7 @@ describe("completeInterviewSession 統合テスト", () => {
     expect(report.summary).toBe("テスト法案に賛成の立場");
     expect(report.stance).toBe("for");
     expect(report.role).toBe("general_citizen");
+    expect(report.municipality_connection).toBe("resident");
 
     // DB 状態を検証: レポートが保存されていること
     const { data: dbReport } = await adminClient
@@ -86,6 +88,7 @@ describe("completeInterviewSession 統合テスト", () => {
     expect(dbReport).toBeTruthy();
     expect(dbReport?.summary).toBe("テスト法案に賛成の立場");
     expect(dbReport?.stance).toBe("for");
+    expect(dbReport?.municipality_connection).toBe("resident");
 
     // DB 状態を検証: セッションが completed になっていること
     const { data: dbSession } = await adminClient

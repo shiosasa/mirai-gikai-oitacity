@@ -10,6 +10,7 @@ describe("extractReportFromMessage", () => {
       role: "general_citizen",
       role_description: "一般市民です",
       role_title: "市民",
+      municipality_connection: "resident",
       opinions: [{ title: "意見1", content: "内容1", source_message_id: null }],
       scores: {
         total: 75,
@@ -28,6 +29,7 @@ describe("extractReportFromMessage", () => {
     expect(result?.summary).toBe("テスト要約");
     expect(result?.stance).toBe("for");
     expect(result?.role).toBe("general_citizen");
+    expect(result?.municipality_connection).toBe("resident");
     expect(result?.opinions).toHaveLength(1);
     expect(result?.scores.total).toBe(75);
   });
@@ -40,6 +42,14 @@ describe("extractReportFromMessage", () => {
   it("reportフィールドがないJSONはnullを返す", () => {
     const result = extractReportFromMessage(JSON.stringify({ text: "テスト" }));
     expect(result).toBeNull();
+  });
+
+  it("旧形式のレポートは市とのつながりをnullとして抽出する", () => {
+    const { municipality_connection: _, ...legacyReport } = validReport.report;
+    const result = extractReportFromMessage(
+      JSON.stringify({ ...validReport, report: legacyReport })
+    );
+    expect(result?.municipality_connection).toBeNull();
   });
 
   it("reportのバリデーションが失敗したらnullを返す", () => {

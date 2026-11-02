@@ -24,6 +24,7 @@ const validReport = {
   role: "subject_expert" as const,
   role_description: "テストの役割説明",
   role_title: "研究者",
+  municipality_connection: "connected" as const,
   opinions: [
     { title: "テスト意見", content: "テスト内容", source_message_id: null },
   ],
@@ -34,6 +35,30 @@ describe("scoreValueSchema (via interviewReportSchema)", () => {
   it("正常な整数値をそのまま受け入れる", () => {
     const result = interviewReportSchema.parse(validReport);
     expect(result.scores.total).toBe(80);
+  });
+
+  describe("municipality_connection", () => {
+    it.each([
+      "resident",
+      "connected",
+      "other",
+    ] as const)("accepts %s", (municipality_connection) => {
+      expect(
+        interviewReportSchema.safeParse({
+          ...validReport,
+          municipality_connection,
+        }).success
+      ).toBe(true);
+    });
+
+    it("rejects unknown values", () => {
+      expect(
+        interviewReportSchema.safeParse({
+          ...validReport,
+          municipality_connection: "unknown",
+        }).success
+      ).toBe(false);
+    });
   });
 
   it("小数を四捨五入する (50.7 → 51)", () => {

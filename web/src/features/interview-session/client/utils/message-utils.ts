@@ -1,5 +1,6 @@
-import type { InterviewReportViewData } from "../../shared/schemas";
+import type { MunicipalityConnection } from "@mirai-gikai/shared/interview/municipality-connection";
 import { isValidReport, parseMessageContent } from "../../shared/message-utils";
+import type { InterviewReportViewData } from "../../shared/schemas";
 
 // Re-export from shared for backwards compatibility
 export { isValidReport, parseMessageContent };
@@ -34,6 +35,7 @@ export function convertPartialReport(
           | null;
         role_description?: string | null;
         role_title?: string | null;
+        municipality_connection?: MunicipalityConnection | null;
         opinions?: Array<
           | {
               title?: string;
@@ -65,6 +67,7 @@ export function convertPartialReport(
     role: partialReport.role ?? null,
     role_description: partialReport.role_description ?? null,
     role_title: partialReport.role_title ?? null,
+    municipality_connection: partialReport.municipality_connection ?? null,
     opinions,
   };
 

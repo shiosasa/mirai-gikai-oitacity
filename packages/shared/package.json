@@ -15,6 +15,10 @@
       "types": "./src/meetings/session-path.ts",
       "default": "./src/meetings/session-path.ts"
     },
+    "./interview/municipality-connection": {
+      "types": "./src/interview/municipality-connection.ts",
+      "default": "./src/interview/municipality-connection.ts"
+    },
     "./politicians/speech-mode": {
       "types": "./src/politicians/speech-mode.ts",
       "default": "./src/politicians/speech-mode.ts"

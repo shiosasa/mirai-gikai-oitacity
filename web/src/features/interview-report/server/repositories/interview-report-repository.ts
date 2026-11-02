@@ -88,7 +88,7 @@ export async function findPublicReportsByBillId(
   const { data, error } = await supabase
     .from("interview_report")
     .select(
-      "id, stance, role, role_title, summary, total_score, created_at, interview_sessions!inner(interview_configs!inner(bill_id))"
+      "id, stance, role, role_title, municipality_connection, summary, total_score, created_at, interview_sessions!inner(interview_configs!inner(bill_id))"
     )
     .eq("is_public_by_admin", true)
     .eq("is_public_by_user", true)
