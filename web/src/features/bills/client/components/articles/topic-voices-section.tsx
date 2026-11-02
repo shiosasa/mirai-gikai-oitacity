@@ -25,7 +25,7 @@ export function TopicVoicesSection({ voices }: { voices: TopicVoice[] }) {
             {(voice.municipalityConnectionLabel ||
               voice.roleLabel ||
               voice.stance) && (
-              <p className="flex flex-wrap items-center gap-x-2 text-xs text-gray-600">
+              <p className="flex flex-wrap items-center gap-x-2 text-xs text-mirai-text-secondary">
                 {voice.municipalityConnectionLabel && (
                   <span>{voice.municipalityConnectionLabel}</span>
                 )}
@@ -49,7 +49,7 @@ export function TopicVoicesSection({ voices }: { voices: TopicVoice[] }) {
               href={`/report/${voice.reportId}`}
               className="inline-block text-xs font-semibold text-oita-pink hover:underline"
             >
-              インタビュー全文を読む →
+              インタビューレポートを読む →
             </Link>
           </li>
         ))}

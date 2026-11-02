@@ -38,7 +38,7 @@ export function TopicVoiceFeatureButton({
   }
 
   if (!featured && blocker) {
-    return <p className="text-xs text-gray-500">{blocker}</p>;
+    return <p className="text-xs text-muted-foreground">{blocker}</p>;
   }
 
   return (
@@ -51,7 +51,7 @@ export function TopicVoiceFeatureButton({
       {pending
         ? "更新中…"
         : featured
-          ? "掲載をやめる"
+          ? "採用を取り消す"
           : "この要約を生の声に採用"}
     </Button>
   );

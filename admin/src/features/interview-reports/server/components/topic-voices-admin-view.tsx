@@ -7,6 +7,7 @@ import { TopicVoiceFeatureButton } from "../../client/components/topic-voice-fea
 import { formatRoleLabel } from "../../shared/constants";
 import {
   getTopicVoiceFeatureBlocker,
+  getTopicVoiceStatusLabel,
   groupTopicVoicesByTopic,
   normalizeTopicVoiceRow,
   TOPIC_VOICE_MAX_PER_TOPIC,
@@ -26,27 +27,28 @@ export async function TopicVoicesAdminView() {
     <section className="space-y-6">
       <div className="space-y-2">
         <h1 className="text-2xl font-bold">AIインタビューの声</h1>
-        <p className="text-sm text-gray-600">
+        <p className="text-sm text-muted-foreground">
           トピックス記事のAIインタビューの最後に作られた「意見の要約」の一覧です。「この要約を生の声に採用」すると、記事の「話してみらん？」ボタンの直前にある「みんなの生の声」に、市とのつながり・記事テーマとの関わり・賛否と要約が表示され、レポート全文へのリンクが付きます。
           本人が公開に同意した回答のみ採用でき、1記事あたり最大
-          {TOPIC_VOICE_MAX_PER_TOPIC}件です。
+          {TOPIC_VOICE_MAX_PER_TOPIC}
+          件です。採用後に非公開になった回答は記事に表示されませんが、採用を取り消すまで枠に数えられます。
         </p>
       </div>
 
       {groups.length === 0 ? (
-        <p className="text-gray-500">まだ回答はありません。</p>
+        <p className="text-muted-foreground">まだ回答はありません。</p>
       ) : (
         groups.map((group) => (
           <div key={group.billId} className="rounded-lg border p-4 space-y-4">
             <div className="flex flex-wrap items-center justify-between gap-2">
               <h2 className="font-semibold">{group.topicTitle}</h2>
-              <div className="flex items-center gap-3 text-sm text-gray-600">
+              <div className="flex items-center gap-3 text-sm text-muted-foreground">
                 <span>
                   採用 {group.featuredCount}/{TOPIC_VOICE_MAX_PER_TOPIC}
                 </span>
                 <Link
                   href={`/bills/${group.billId}/reports`}
-                  className="text-blue-600 hover:underline"
+                  className="text-primary hover:underline"
                 >
                   回答一覧（チャット含む）
                 </Link>
@@ -56,7 +58,7 @@ export async function TopicVoicesAdminView() {
               {group.reports.map((report) => (
                 <li
                   key={report.reportId}
-                  className="rounded-md bg-gray-50 p-3 space-y-2"
+                  className="rounded-md bg-muted p-3 space-y-2"
                 >
                   <div className="flex flex-wrap items-center gap-2 text-sm">
                     <StanceBadge stance={report.stance} />
@@ -69,18 +71,26 @@ export async function TopicVoicesAdminView() {
                     ) : (
                       <Badge variant="outline">市とのつながり未記録</Badge>
                     )}
-                    <span className="text-gray-700">
+                    <span className="text-foreground">
                       {report.roleTitle ||
                         formatRoleLabel(report.role) ||
                         "立場未設定"}
                     </span>
                     {report.featuredAt ? (
-                      <Badge className="bg-green-600">掲載中</Badge>
+                      <Badge
+                        variant={
+                          report.isPublicByUser && report.isPublicByAdmin
+                            ? "default"
+                            : "outline"
+                        }
+                      >
+                        {getTopicVoiceStatusLabel(report)}
+                      </Badge>
                     ) : null}
                     <Badge variant="outline">
                       {report.isPublicByUser ? "本人同意あり" : "本人同意なし"}
                     </Badge>
-                    <span className="text-xs text-gray-500">
+                    <span className="text-xs text-muted-foreground">
                       {new Date(report.createdAt).toLocaleString("ja-JP", {
                         timeZone: "Asia/Tokyo",
                       })}
@@ -100,7 +110,7 @@ export async function TopicVoicesAdminView() {
                     />
                     <Link
                       href={`/bills/${report.billId}/reports/${report.sessionId}`}
-                      className="text-sm text-blue-600 hover:underline"
+                      className="text-sm text-primary hover:underline"
                     >
                       詳細・チャット履歴
                     </Link>

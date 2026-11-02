@@ -1,38 +1,23 @@
 "use client";
 
 import { ArrowRight, LockOpen } from "lucide-react";
-import Image from "next/image";
-import type { ReactNode } from "react";
-import { siteConfig } from "@/config/site.config";
-import { formatPolicyReviewPhrase } from "@/lib/utils/party-text";
 import { Button } from "@/components/ui/button";
 import {
   Dialog,
   DialogContent,
+  DialogDescription,
   DialogHeader,
   DialogTitle,
 } from "@/components/ui/dialog";
+import { siteConfig } from "@/config/site.config";
+import { formatPolicyReviewPhrase } from "@/lib/utils/party-text";
+import { InterviewPublicationDisclosure } from "./interview-publication-disclosure";
 
 interface MakePublicModalProps {
   open: boolean;
   onOpenChange: (open: boolean) => void;
   onConfirm: () => void;
   isSubmitting: boolean;
-}
-
-function CheckListItem({ children }: { children: ReactNode }) {
-  return (
-    <div className="flex items-start gap-3">
-      <Image
-        src="/icons/check-circle.svg"
-        alt=""
-        width={20}
-        height={20}
-        className="flex-shrink-0 mt-1"
-      />
-      <p className="text-sm font-medium leading-relaxed">{children}</p>
-    </div>
-  );
 }
 
 export function MakePublicModal({
@@ -43,7 +28,7 @@ export function MakePublicModal({
 }: MakePublicModalProps) {
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="max-w-md py-9">
+      <DialogContent className="max-h-[90vh] max-w-md overflow-y-auto py-9">
         <DialogHeader>
           <DialogTitle className="text-lg font-bold text-primary-accent text-center leading-relaxed">
             インタビュー内容を
@@ -52,22 +37,18 @@ export function MakePublicModal({
           </DialogTitle>
         </DialogHeader>
 
-        <div className="space-y-4 mt-6">
-          <CheckListItem>
-            公開を許可した場合、今後{siteConfig.siteName}
-            にあなたのご意見が匿名で掲載されることがあります。
-          </CheckListItem>
-          <CheckListItem>
-            さまざまな当事者の意見が公開されることで、より深い議案議論が実現できます。
-          </CheckListItem>
-          <p className="text-sm text-black">
-            非公開で提出した場合でも、ご意見は
-            {siteConfig.managingParty
-              ? `${formatPolicyReviewPhrase(siteConfig.managingParty, "での")}に`
-              : "市政への提言などに"}
-            活用させていただきます。
-          </p>
-        </div>
+        <DialogDescription asChild>
+          <div className="space-y-4 mt-6">
+            <InterviewPublicationDisclosure />
+            <p className="text-sm text-black">
+              非公開で提出した場合でも、ご意見は
+              {siteConfig.managingParty
+                ? `${formatPolicyReviewPhrase(siteConfig.managingParty, "での")}に`
+                : "市政への提言などに"}
+              活用させていただきます。
+            </p>
+          </div>
+        </DialogDescription>
 
         <div className="space-y-3 mt-6">
           <Button

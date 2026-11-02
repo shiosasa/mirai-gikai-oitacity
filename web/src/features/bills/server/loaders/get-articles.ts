@@ -1,8 +1,8 @@
 import "server-only";
 import { createAdminClient } from "@mirai-gikai/supabase";
 import { unstable_cache, unstable_noStore } from "next/cache";
-import { CACHE_TAGS } from "@/lib/cache-tags";
 import type { BillArticle, TopicVoice } from "../../shared/types";
+import { ARTICLE_CACHE_TAGS } from "../../shared/utils/article-cache-tags";
 import { categoryEnumFromBadge } from "../../shared/utils/article-category";
 import { buildPublishedBillIdByName } from "../../shared/utils/build-published-bill-id-by-name";
 import { groupTopicVoicesByBillId } from "../../shared/utils/group-topic-voices";
@@ -281,6 +281,6 @@ const _getCachedArticles = unstable_cache(
   ["published-articles-by-proposal-published-date-v7"],
   {
     revalidate: 600, // 10分
-    tags: [CACHE_TAGS.BILLS],
+    tags: ARTICLE_CACHE_TAGS,
   }
 );

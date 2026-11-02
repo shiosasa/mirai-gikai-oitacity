@@ -1,6 +1,7 @@
 import { describe, expect, it } from "vitest";
 import {
   getTopicVoiceFeatureBlocker,
+  getTopicVoiceStatusLabel,
   groupTopicVoicesByTopic,
   normalizeTopicVoiceRow,
   type TopicVoiceRow,
@@ -72,6 +73,34 @@ describe("normalizeTopicVoiceRow", () => {
     expect(
       normalizeTopicVoiceRow({ ...raw, interview_sessions: null })
     ).toBeNull();
+  });
+});
+
+describe("getTopicVoiceStatusLabel", () => {
+  it("未採用の場合はラベルを表示しない", () => {
+    expect(getTopicVoiceStatusLabel(row({}))).toBeNull();
+  });
+
+  it("本人と管理者が公開している採用済み回答を表示する", () => {
+    expect(
+      getTopicVoiceStatusLabel(
+        row({
+          featuredAt: "2026-11-02T00:00:00Z",
+          isPublicByAdmin: true,
+        })
+      )
+    ).toBe("採用済み");
+  });
+
+  it.each([
+    { isPublicByUser: false, isPublicByAdmin: true },
+    { isPublicByUser: true, isPublicByAdmin: false },
+  ])("本人または管理者が非公開の場合は明示する", (visibility) => {
+    expect(
+      getTopicVoiceStatusLabel(
+        row({ featuredAt: "2026-11-02T00:00:00Z", ...visibility })
+      )
+    ).toBe("採用済み（非公開）");
   });
 });
 

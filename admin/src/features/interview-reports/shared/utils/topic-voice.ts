@@ -26,6 +26,18 @@ export type TopicVoiceGroup = {
   reports: TopicVoiceRow[];
 };
 
+export function getTopicVoiceStatusLabel(
+  report: Pick<
+    TopicVoiceRow,
+    "featuredAt" | "isPublicByUser" | "isPublicByAdmin"
+  >
+): string | null {
+  if (!report.featuredAt) return null;
+  return report.isPublicByUser && report.isPublicByAdmin
+    ? "採用済み"
+    : "採用済み（非公開）";
+}
+
 type RawTopicVoiceRow = {
   id: string;
   interview_session_id: string;

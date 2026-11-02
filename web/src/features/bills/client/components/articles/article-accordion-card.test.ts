@@ -90,7 +90,7 @@ describe("ArticleAccordionCard", () => {
     expect(screen.getByText("期待している")).toBeDefined();
     expect(
       screen
-        .getByRole("link", { name: "インタビュー全文を読む →" })
+        .getByRole("link", { name: "インタビューレポートを読む →" })
         .getAttribute("href")
     ).toBe("/report/report-1");
   });
