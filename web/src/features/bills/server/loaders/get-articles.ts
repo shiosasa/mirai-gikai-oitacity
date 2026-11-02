@@ -1,11 +1,12 @@
 import "server-only";
 import { createAdminClient } from "@mirai-gikai/supabase";
 import { unstable_cache, unstable_noStore } from "next/cache";
+import { CACHE_TAGS } from "@/lib/cache-tags";
 import type { BillArticle, TopicVoice } from "../../shared/types";
-import { ARTICLE_CACHE_TAGS } from "../../shared/utils/article-cache-tags";
 import { categoryEnumFromBadge } from "../../shared/utils/article-category";
 import { buildPublishedBillIdByName } from "../../shared/utils/build-published-bill-id-by-name";
 import { groupTopicVoicesByBillId } from "../../shared/utils/group-topic-voices";
+import { loadArticlesWithFreshVoices } from "../../shared/utils/load-articles-with-fresh-voices";
 import { deriveBillSource } from "../../shared/utils/meeting-bill-filter";
 import { resolveTopicBillDetailId } from "../../shared/utils/resolve-topic-bill-detail-id";
 import { resolveTopicInterviewBillId } from "../../shared/utils/resolve-topic-interview-bill-id";
@@ -21,6 +22,15 @@ export async function getPublishedArticles(): Promise<BillArticle[]> {
     return loadArticles(true);
   }
   return _getCachedArticles(false);
+}
+
+export async function getPublishedArticlesWithVoices(): Promise<BillArticle[]> {
+  unstable_noStore();
+  // 記事と声の対応を古いキャッシュから復元しないよう、両方を毎回取得する。
+  return loadArticlesWithFreshVoices(
+    () => loadArticles(process.env.TOPIC_PUBLICATION_ENABLED === "true"),
+    () => fetchFeaturedTopicVoices(createAdminClient())
+  );
 }
 
 const ARTICLE_COLUMNS = `
@@ -104,15 +114,10 @@ async function loadArticles(
   }
 
   // トピックのAIインタビュー受け皿（bills.source = 'topic'）に公開中のインタビューがあれば紐付ける
-  const [bills, { data: configs, error: configsError }, voicesByBillId] =
-    await Promise.all([
-      fetchBillsWithSource(supabase),
-      supabase
-        .from("interview_configs")
-        .select("bill_id")
-        .eq("status", "public"),
-      fetchFeaturedTopicVoices(supabase),
-    ]);
+  const [bills, { data: configs, error: configsError }] = await Promise.all([
+    fetchBillsWithSource(supabase),
+    supabase.from("interview_configs").select("bill_id").eq("status", "public"),
+  ]);
   if (configsError) {
     throw new Error(
       `Failed to fetch public interview configs: ${configsError.message}`
@@ -162,7 +167,6 @@ async function loadArticles(
         ? article.first_published_at
         : null,
       related_bill_id: linkedBillId ?? null,
-      voices: linkedBillId ? (voicesByBillId.get(linkedBillId) ?? []) : [],
       source_refs: sourceRefs,
       interview_bill_id:
         linkedBillId && billsWithInterview.has(linkedBillId)
@@ -278,9 +282,9 @@ async function fetchFeaturedTopicVoices(
 
 const _getCachedArticles = unstable_cache(
   loadArticles,
-  ["published-articles-by-proposal-published-date-v7"],
+  ["published-articles-by-proposal-published-date-v8"],
   {
     revalidate: 600, // 10分
-    tags: ARTICLE_CACHE_TAGS,
+    tags: [CACHE_TAGS.BILLS],
   }
 );

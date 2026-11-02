@@ -1,7 +1,7 @@
 import Link from "next/link";
 import { Container } from "@/components/layouts/container";
 import { ArticlesSection } from "@/features/bills/server/components/articles-section";
-import { getPublishedArticles } from "@/features/bills/server/loaders/get-articles";
+import { getPublishedArticlesWithVoices } from "@/features/bills/server/loaders/get-articles";
 import { addTopicSourceBillDetailIds } from "@/features/bills/shared/utils/add-topic-source-bill-detail-ids";
 import { getAllMeetingsAndCommittees } from "@/features/committee-minutes/server/loaders/get-all-meetings";
 import { buildBillPickupItems } from "@/features/committee-minutes/shared/utils/build-bill-pickup-items";
@@ -12,7 +12,7 @@ export const metadata = {
 
 export default async function TopicsPage() {
   const [articles, { plenaryMeetings, committeeMeetings }] = await Promise.all([
-    getPublishedArticles(),
+    getPublishedArticlesWithVoices(),
     getAllMeetingsAndCommittees(),
   ]);
   const billReferences = buildBillPickupItems([
