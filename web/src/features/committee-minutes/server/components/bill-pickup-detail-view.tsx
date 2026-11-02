@@ -58,16 +58,6 @@ export async function BillPickupDetailView({ id }: { id: string }) {
           <BillStatusProgress status={item.status as BillStatusEnum} />
         </section>
       )}
-      {voteSnapshot && (
-        <BillVoteSection
-          snapshot={voteSnapshot}
-          profiles={
-            new Map(
-              politicians.map((politician) => [politician.id, politician.name])
-            )
-          }
-        />
-      )}
       <div className="space-y-4">
         <h2 className="text-[22px] font-bold">{DETAIL_HEADING}</h2>
         <section className="space-y-4 rounded-md bg-white px-4 py-8">
@@ -101,6 +91,16 @@ export async function BillPickupDetailView({ id }: { id: string }) {
           longPressTargetH2Index: hasDetailSection ? 2 : 3,
         }}
       />
+      {voteSnapshot && (
+        <BillVoteSection
+          snapshot={voteSnapshot}
+          profiles={
+            new Map(
+              politicians.map((politician) => [politician.id, politician.name])
+            )
+          }
+        />
+      )}
       {interviews.length > 0 && (
         <section className="space-y-4 rounded-xl border border-mirai-border bg-white p-6">
           <h2 className="text-xl font-bold text-mirai-text">
