@@ -10,6 +10,9 @@ import { BillContent } from "@/features/bills/server/components/bill-detail/bill
 import { getPublishedArticles } from "@/features/bills/server/loaders/get-articles";
 import { getBillContentWithDifficulty } from "@/features/bills/server/loaders/helpers/get-bill-content";
 import type { BillStatusEnum } from "@/features/bills/shared/types";
+import { getPublishedPoliticians } from "@/features/politicians/server/loaders/get-published-politicians";
+import { BillVoteSection } from "../../shared/components/bill-vote-section";
+import { BILL_VOTE_SNAPSHOTS } from "../../shared/data/bill-vote-snapshots";
 import { extractMarkdownSection } from "../../shared/utils/extract-markdown-section";
 import { getBillTopicInterviews } from "../../shared/utils/get-bill-topic-interviews";
 import { getBillPickups } from "../loaders/get-bill-pickups";
@@ -22,12 +25,16 @@ export async function BillPickupDetailView({ id }: { id: string }) {
   const item = items.find((item) => item.billId === id);
   if (!item) notFound();
   const level = await getDifficultyLevel();
-  const [content, hardContent, articles] = await Promise.all([
+  const voteSnapshot = BILL_VOTE_SNAPSHOTS.find(
+    (snapshot) => snapshot.billId === id
+  );
+  const [content, hardContent, articles, politicians] = await Promise.all([
     getBillContentWithDifficulty(id, "normal"),
     level === "hard"
       ? getBillContentWithDifficulty(id, "hard")
       : Promise.resolve(null),
     getPublishedArticles(),
+    voteSnapshot ? getPublishedPoliticians() : Promise.resolve([]),
   ]);
   if (!content?.content) {
     throw new Error(`議案の詳細本文が見つかりません: ${id}`);
@@ -84,6 +91,16 @@ export async function BillPickupDetailView({ id }: { id: string }) {
           longPressTargetH2Index: hasDetailSection ? 2 : 3,
         }}
       />
+      {voteSnapshot && (
+        <BillVoteSection
+          snapshot={voteSnapshot}
+          profiles={
+            new Map(
+              politicians.map((politician) => [politician.id, politician.name])
+            )
+          }
+        />
+      )}
       {interviews.length > 0 && (
         <section className="space-y-4 rounded-xl border border-mirai-border bg-white p-6">
           <h2 className="text-xl font-bold text-mirai-text">
