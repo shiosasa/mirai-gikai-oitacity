@@ -1,4 +1,4 @@
-import type { InterviewReportViewData } from "./schemas";
+import type { InterviewReportViewData, InterviewStage } from "./schemas";
 
 /**
  * レポートが有効かどうかを判定（空オブジェクトや全てnullの場合はfalse）
@@ -27,10 +27,17 @@ export function parseMessageContent(content: string): {
   quickReplies: string[];
   questionId: string | null;
   topicTitle: string | null;
+  nextStage: InterviewStage | null;
 } {
   try {
     const parsed = JSON.parse(content);
     if (typeof parsed === "object" && parsed !== null && "text" in parsed) {
+      const nextStage =
+        parsed.next_stage === "chat" ||
+        parsed.next_stage === "summary" ||
+        parsed.next_stage === "summary_complete"
+          ? parsed.next_stage
+          : null;
       const questionId =
         typeof parsed.question_id === "string" && parsed.question_id
           ? parsed.question_id
@@ -47,7 +54,7 @@ export function parseMessageContent(content: string): {
           ? parsed.topic_title
           : null;
 
-      if (rawReport) {
+      if (rawReport && nextStage !== "chat") {
         // opinionsがnullの場合は空配列に変換（scoresは除外）
         const report: InterviewReportViewData = {
           summary: rawReport.summary ?? null,
@@ -64,6 +71,7 @@ export function parseMessageContent(content: string): {
           quickReplies,
           questionId,
           topicTitle,
+          nextStage,
         };
       }
       return {
@@ -72,6 +80,7 @@ export function parseMessageContent(content: string): {
         quickReplies,
         questionId,
         topicTitle,
+        nextStage,
       };
     }
   } catch {
@@ -83,5 +92,6 @@ export function parseMessageContent(content: string): {
     quickReplies: [],
     questionId: null,
     topicTitle: null,
+    nextStage: null,
   };
 }

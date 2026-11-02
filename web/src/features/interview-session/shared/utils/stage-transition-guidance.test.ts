@@ -214,3 +214,19 @@ describe("buildTimeManagementGuidance", () => {
     expect(result).toContain("3問");
   });
 });
+
+describe("まとめの提案", () => {
+  it.each([
+    ["一括回答優先", buildBulkModeStageGuidance],
+    ["都度深掘り", buildLoopModeStageGuidance],
+  ])("%sモードでは回答者が選択してからレポートを作成する", (_, build) => {
+    const result = build({
+      currentStage: "chat",
+      questions: sampleQuestions,
+      askedQuestionIds: new Set(["q1"]),
+    });
+
+    expect(result).toContain("実際のレポート作成はユーザーが選択してから");
+    expect(result).toContain("ユーザーが続行を希望した場合");
+  });
+});

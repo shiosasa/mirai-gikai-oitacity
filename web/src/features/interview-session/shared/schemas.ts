@@ -118,7 +118,7 @@ export const interviewChatTextSchema = z.object({
   question_id: z.string().nullable(),
   topic_title: z.string().nullable(),
   next_stage: interviewStageSchema.describe(
-    "インタビューのステージ遷移判定。chat=インタビュー継続、summary=要約フェーズへ移行"
+    "インタビューのステージ遷移判定。chat=インタビュー継続、summary=まとめの提案。レポート作成は回答者の選択後に行う"
   ),
 });
 

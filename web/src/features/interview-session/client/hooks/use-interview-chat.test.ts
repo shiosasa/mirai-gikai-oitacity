@@ -34,8 +34,21 @@ vi.mock("@ai-sdk/react", () => ({
 }));
 
 import { useInterviewChat } from "./use-interview-chat";
+import { INTERVIEW_SUMMARY_REQUEST_MESSAGE } from "../utils/interview-wrap-up";
 
 const DEFAULT_BILL_ID = "bill-123";
+const summaryInitialMessages = [
+  {
+    id: "summary-1",
+    role: "assistant" as const,
+    content: JSON.stringify({
+      text: "まとめました",
+      next_stage: "summary",
+      report: { summary: "テスト要約", opinions: [] },
+    }),
+    created_at: "2024-01-01T00:00:00Z",
+  },
+];
 
 describe("useInterviewChat", () => {
   beforeEach(() => {
@@ -269,7 +282,10 @@ describe("useInterviewChat", () => {
       expect(result.current.messages[1].content).toBe("AIの回答です");
     });
 
-    it("next_stageがsummary: stageがsummaryに更新される", () => {
+    it.each([
+      "summary",
+      "summary_complete",
+    ] as const)("chat中にAIが%sを提案しても自動で要約に進まない", (nextStage) => {
       const { result } = renderHook(() =>
         useInterviewChat({ billId: DEFAULT_BILL_ID, initialMessages: [] })
       );
@@ -280,17 +296,22 @@ describe("useInterviewChat", () => {
 
       act(() => {
         mockState.onFinish?.({
-          object: { text: "まとめます", next_stage: "summary" },
+          object: { text: "まとめますか？", next_stage: nextStage },
           error: undefined,
         });
       });
 
-      expect(result.current.stage).toBe("summary");
+      expect(result.current.stage).toBe("chat");
+      expect(result.current.messages[1].nextStage).toBe(nextStage);
+      expect(mockSubmit).toHaveBeenCalledOnce();
     });
 
-    it("next_stageがsummary_complete: stageがsummary_completeに更新される", () => {
+    it("summary中のnext_stageがsummary_complete: stageが更新される", () => {
       const { result } = renderHook(() =>
-        useInterviewChat({ billId: DEFAULT_BILL_ID, initialMessages: [] })
+        useInterviewChat({
+          billId: DEFAULT_BILL_ID,
+          initialMessages: summaryInitialMessages,
+        })
       );
 
       act(() => {
@@ -299,7 +320,11 @@ describe("useInterviewChat", () => {
 
       act(() => {
         mockState.onFinish?.({
-          object: { text: "完了しました", next_stage: "summary_complete" },
+          object: {
+            text: "完了しました",
+            next_stage: "summary_complete",
+            report: { summary: "テスト要約", opinions: [] },
+          },
           error: undefined,
         });
       });
@@ -309,7 +334,10 @@ describe("useInterviewChat", () => {
 
     it("summary_complete後: handleSubmitがno-opになる", () => {
       const { result } = renderHook(() =>
-        useInterviewChat({ billId: DEFAULT_BILL_ID, initialMessages: [] })
+        useInterviewChat({
+          billId: DEFAULT_BILL_ID,
+          initialMessages: summaryInitialMessages,
+        })
       );
 
       act(() => {
@@ -318,7 +346,11 @@ describe("useInterviewChat", () => {
 
       act(() => {
         mockState.onFinish?.({
-          object: { text: "完了", next_stage: "summary_complete" },
+          object: {
+            text: "完了",
+            next_stage: "summary_complete",
+            report: { summary: "テスト要約", opinions: [] },
+          },
           error: undefined,
         });
       });
@@ -381,6 +413,203 @@ describe("useInterviewChat", () => {
 
       expect(result.current.error).toBeTruthy();
       expect(result.current.canRetry).toBe(true);
+    });
+  });
+
+  describe("handleRequestSummary", () => {
+    it("回答者の選択でsummaryを直接要求し、指示を履歴に含める", () => {
+      const { result } = renderHook(() =>
+        useInterviewChat({
+          billId: DEFAULT_BILL_ID,
+          initialMessages: [
+            {
+              id: "question-1",
+              role: "assistant",
+              content: JSON.stringify({ text: "質問です", next_stage: "chat" }),
+              created_at: "2024-01-01T00:00:00Z",
+            },
+            {
+              id: "answer-1",
+              role: "user",
+              content: "大分市に住んでいます",
+              created_at: "2024-01-01T00:00:01Z",
+            },
+          ],
+        })
+      );
+
+      act(() => {
+        result.current.handleRequestSummary();
+      });
+
+      expect(result.current.stage).toBe("summary");
+      expect(result.current.messages.at(-1)?.content).toBe(
+        INTERVIEW_SUMMARY_REQUEST_MESSAGE
+      );
+      expect(mockSubmit).toHaveBeenCalledOnce();
+      expect(mockSubmit).toHaveBeenCalledWith(
+        expect.objectContaining({
+          billId: DEFAULT_BILL_ID,
+          currentStage: "summary",
+          messages: [
+            { role: "assistant", content: "質問です" },
+            { role: "user", content: "大分市に住んでいます" },
+            { role: "user", content: INTERVIEW_SUMMARY_REQUEST_MESSAGE },
+          ],
+        })
+      );
+    });
+
+    it("未送信の入力がある場合は消さず、要約を要求しない", () => {
+      const { result } = renderHook(() =>
+        useInterviewChat({
+          billId: DEFAULT_BILL_ID,
+          initialMessages: [
+            {
+              id: "answer-1",
+              role: "user",
+              content: "回答",
+              created_at: "2024-01-01T00:00:00Z",
+            },
+          ],
+        })
+      );
+
+      act(() => result.current.setInput("まだ送信していない意見"));
+      act(() => result.current.handleRequestSummary());
+
+      expect(mockSubmit).not.toHaveBeenCalled();
+      expect(result.current.stage).toBe("chat");
+      expect(result.current.input).toBe("まだ送信していない意見");
+    });
+
+    it("回答前や読み込み中は要約を要求しない", () => {
+      const { result, rerender } = renderHook(() =>
+        useInterviewChat({ billId: DEFAULT_BILL_ID, initialMessages: [] })
+      );
+
+      act(() => result.current.handleRequestSummary());
+      mockState.isLoading = true;
+      rerender();
+      act(() => result.current.handleRequestSummary());
+
+      expect(mockSubmit).not.toHaveBeenCalled();
+      expect(result.current.stage).toBe("chat");
+    });
+
+    it("中断後もAIのまとめ提案を履歴から復元する", () => {
+      const { result } = renderHook(() =>
+        useInterviewChat({
+          billId: DEFAULT_BILL_ID,
+          initialMessages: [
+            {
+              id: "answer-1",
+              role: "user",
+              content: "回答",
+              created_at: "2024-01-01T00:00:00Z",
+            },
+            {
+              id: "suggestion-1",
+              role: "assistant",
+              content: JSON.stringify({
+                text: "まとめますか？",
+                next_stage: "summary",
+              }),
+              created_at: "2024-01-01T00:00:01Z",
+            },
+          ],
+        })
+      );
+
+      expect(result.current.stage).toBe("chat");
+      expect(result.current.messages.at(-1)?.nextStage).toBe("summary");
+      expect(mockSubmit).not.toHaveBeenCalled();
+    });
+
+    it("要約要求が失敗した場合も同じ要約リクエストを再試行する", () => {
+      const { result } = renderHook(() =>
+        useInterviewChat({
+          billId: DEFAULT_BILL_ID,
+          initialMessages: [
+            {
+              id: "answer-1",
+              role: "user",
+              content: "回答",
+              created_at: "2024-01-01T00:00:00Z",
+            },
+          ],
+        })
+      );
+
+      act(() => result.current.handleRequestSummary());
+      act(() =>
+        mockState.onFinish?.({
+          error: new Error("ネットワークエラー"),
+        })
+      );
+
+      expect(mockSubmit).toHaveBeenCalledTimes(2);
+      expect(mockSubmit).toHaveBeenLastCalledWith(
+        expect.objectContaining({
+          currentStage: "summary",
+          isRetry: true,
+        })
+      );
+    });
+
+    it("要約結果にレポートがなければ再試行し、失敗が続く場合はエラーを表示する", () => {
+      const { result } = renderHook(() =>
+        useInterviewChat({
+          billId: DEFAULT_BILL_ID,
+          initialMessages: [
+            {
+              id: "answer-1",
+              role: "user",
+              content: "回答",
+              created_at: "2024-01-01T00:00:00Z",
+            },
+          ],
+        })
+      );
+
+      act(() => result.current.handleRequestSummary());
+      const invalidResponse = {
+        object: { text: "まとめました", next_stage: "summary", report: null },
+      };
+      act(() => mockState.onFinish?.(invalidResponse));
+
+      expect(mockSubmit).toHaveBeenCalledTimes(2);
+      expect(mockSubmit).toHaveBeenLastCalledWith(
+        expect.objectContaining({ currentStage: "summary", isRetry: true })
+      );
+      expect(result.current.messages.at(-1)?.role).toBe("user");
+
+      act(() => mockState.onFinish?.(invalidResponse));
+      expect(result.current.error).toBeTruthy();
+      expect(result.current.canRetry).toBe(true);
+
+      act(() => result.current.handleRetry());
+      expect(mockSubmit).toHaveBeenCalledTimes(3);
+    });
+
+    it("要約中に会話再開を求めた応答は、レポートがなくても再開できる", () => {
+      const { result } = renderHook(() =>
+        useInterviewChat({
+          billId: DEFAULT_BILL_ID,
+          initialMessages: summaryInitialMessages,
+        })
+      );
+
+      act(() => result.current.handleSubmit({ text: "続きを話したいです" }));
+      act(() =>
+        mockState.onFinish?.({
+          object: { text: "続きを聞かせてください", next_stage: "chat" },
+        })
+      );
+
+      expect(result.current.stage).toBe("chat");
+      expect(result.current.messages.at(-1)?.report).toBeNull();
+      expect(mockSubmit).toHaveBeenCalledOnce();
     });
   });
 

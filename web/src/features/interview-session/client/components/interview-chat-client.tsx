@@ -5,18 +5,25 @@ import {
   Conversation,
   ConversationContent,
 } from "@/components/ai-elements/conversation";
+import { Button } from "@/components/ui/button";
 import { useInterviewChat } from "../hooks/use-interview-chat";
 import { useInterviewRating } from "../hooks/use-interview-rating";
 import { useInterviewTimer } from "../hooks/use-interview-timer";
 import { calcInterviewProgress } from "../utils/calc-interview-progress";
+import {
+  getInterviewWrapUpState,
+  hasCurrentInterviewReport,
+  INTERVIEW_CONTINUE_REQUEST_MESSAGE,
+  INTERVIEW_SKIP_TOPIC_MESSAGE,
+} from "../utils/interview-wrap-up";
 import { InterviewChatInput } from "./interview-chat-input";
 import { InterviewErrorDisplay } from "./interview-error-display";
 import { InterviewMessage } from "./interview-message";
 import { InterviewProgressBar } from "./interview-progress-bar";
 import { InterviewRatingWidget } from "./interview-rating-widget";
 import { InterviewSummaryInput } from "./interview-summary-input";
+import { InterviewWrapUpPrompt } from "./interview-wrap-up-prompt";
 import { QuickReplyButtons } from "./quick-reply-buttons";
-import { TimeUpPrompt } from "./time-up-prompt";
 import { NicknameDialog } from "./nickname-dialog";
 import { submitInterviewNickname } from "../../server/actions/submit-interview-nickname";
 
@@ -65,6 +72,7 @@ export function InterviewChatClient({
     canRetry,
     handleSubmit,
     handleQuickReply,
+    handleRequestSummary,
     handleRetry,
   } = useInterviewChat({
     billId,
@@ -77,7 +85,12 @@ export function InterviewChatClient({
   });
 
   const [timeUpDismissed, setTimeUpDismissed] = useState(false);
+  const [dismissedAfterAnswers, setDismissedAfterAnswers] = useState<
+    number | null
+  >(null);
   const [userNickname, setUserNickname] = useState<string | null>(null);
+
+  const wrapUp = getInterviewWrapUpState(messages, dismissedAfterAnswers);
 
   const progress = useMemo(
     () => calcInterviewProgress(totalQuestions, stage, messages),
@@ -95,47 +108,62 @@ export function InterviewChatClient({
     remainingMinutes !== null && stage === "chat" && !timeUpDismissed
       ? remainingMinutes
       : null;
-  const showTimeUpPrompt =
-    isTimeUp && !timeUpDismissed && stage === "chat" && !isLoading;
+  const isTimeUpPrompt = isTimeUp && !timeUpDismissed;
+  const showWrapUpPrompt =
+    stage === "chat" &&
+    !isLoading &&
+    !error &&
+    (isTimeUpPrompt || wrapUp.shouldSuggest);
+  const hasDraft = input.trim().length > 0;
 
-  // チャット操作時にタイムアップアラートを自動非表示にする
-  const dismissTimeUpIfNeeded = useCallback(() => {
-    if (isTimeUp && !timeUpDismissed) {
-      setTimeUpDismissed(true);
+  const dismissWrapUpIfNeeded = useCallback(() => {
+    if (showWrapUpPrompt) {
+      setDismissedAfterAnswers(wrapUp.answerCount);
+      if (isTimeUpPrompt) {
+        setTimeUpDismissed(true);
+      }
     }
-  }, [isTimeUp, timeUpDismissed]);
+  }, [isTimeUpPrompt, showWrapUpPrompt, wrapUp.answerCount]);
 
   const handleChatSubmit = useCallback(
     (params: { text?: string }) => {
       if (params.text) {
-        dismissTimeUpIfNeeded();
+        dismissWrapUpIfNeeded();
       }
       handleSubmit(params);
     },
-    [dismissTimeUpIfNeeded, handleSubmit]
+    [dismissWrapUpIfNeeded, handleSubmit]
   );
 
   const handleChatQuickReply = useCallback(
     (text: string) => {
-      dismissTimeUpIfNeeded();
+      dismissWrapUpIfNeeded();
       handleQuickReply(text);
     },
-    [dismissTimeUpIfNeeded, handleQuickReply]
+    [dismissWrapUpIfNeeded, handleQuickReply]
   );
 
   const handleSkipTopic = () => {
-    handleSubmit({ text: "次のテーマに進みたいです" });
+    dismissWrapUpIfNeeded();
+    handleSubmit({ text: INTERVIEW_SKIP_TOPIC_MESSAGE });
   };
 
   const handleEndInterview = () => {
-    setTimeUpDismissed(true);
-    handleSubmit({
-      text: "目安時間になりました。レポート作成に進みたいです。",
-    });
+    if (isTimeUpPrompt) {
+      setTimeUpDismissed(true);
+    }
+    setDismissedAfterAnswers(wrapUp.answerCount);
+    handleRequestSummary();
   };
 
   const handleContinueInterview = () => {
-    setTimeUpDismissed(true);
+    if (isTimeUpPrompt) {
+      setTimeUpDismissed(true);
+    }
+    setDismissedAfterAnswers(wrapUp.answerCount);
+    if (wrapUp.suggestedByAi && !hasDraft) {
+      handleSubmit({ text: INTERVIEW_CONTINUE_REQUEST_MESSAGE });
+    }
   };
 
   // ストリーミング中のメッセージがすでに会話履歴に追加されているかどうか
@@ -144,10 +172,9 @@ export function InterviewChatClient({
     messages.some((m) => m.role === "assistant" && m.content === object.text);
 
   // ストリーミング中のメッセージを表示するかどうか
-  const showStreamingMessage = object && !isStreamingMessageCommitted;
+  const showStreamingMessage = object && !isStreamingMessageCommitted && !error;
 
-  // メッセージ内にレポートが存在するかどうか
-  const hasReport = messages.some((m) => m.report != null);
+  const hasReport = hasCurrentInterviewReport(messages);
 
   return (
     <div className="h-[calc(100dvh-96px)] bg-mirai-surface-light">
@@ -159,7 +186,7 @@ export function InterviewChatClient({
               currentTopic={progress.currentTopic}
               showSkip={progress.showSkip}
               onSkip={handleSkipTopic}
-              disabled={isLoading}
+              disabled={isLoading || hasDraft}
               remainingMinutes={timerMinutes}
             />
           </div>
@@ -226,7 +253,9 @@ export function InterviewChatClient({
               (() => {
                 const replies = isLoading
                   ? streamingQuickReplies
-                  : currentQuickReplies;
+                  : wrapUp.suggestedByAi
+                    ? []
+                    : currentQuickReplies;
                 return (
                   replies.length > 0 && (
                     <QuickReplyButtons
@@ -250,12 +279,13 @@ export function InterviewChatClient({
           </div>
         )}
 
-        {/* 時間超過プロンプト */}
-        {showTimeUpPrompt && (
-          <TimeUpPrompt
-            onEndInterview={handleEndInterview}
+        {showWrapUpPrompt && (
+          <InterviewWrapUpPrompt
+            reason={isTimeUpPrompt ? "time" : "conversation"}
+            onSummarize={handleEndInterview}
             onContinue={handleContinueInterview}
-            disabled={isLoading}
+            canSummarize={wrapUp.answerCount > 0}
+            hasDraft={hasDraft}
           />
         )}
 
@@ -276,13 +306,33 @@ export function InterviewChatClient({
           )}
 
           {stage === "chat" && (
-            <InterviewChatInput
-              input={input}
-              onInputChange={setInput}
-              onSubmit={handleChatSubmit}
-              placeholder="AIに質問に回答する"
-              isResponding={isLoading}
-            />
+            <>
+              {!showWrapUpPrompt && wrapUp.answerCount > 0 && (
+                <div className="mb-1 flex flex-wrap items-center justify-end gap-2">
+                  {hasDraft && (
+                    <span className="text-xs text-mirai-text-secondary">
+                      入力中の内容は先に送信してください。
+                    </span>
+                  )}
+                  <Button
+                    variant="link"
+                    size="sm"
+                    onClick={handleEndInterview}
+                    disabled={isLoading || !!error || hasDraft}
+                    className="h-auto p-0 text-primary-accent"
+                  >
+                    これまでのお話をまとめる
+                  </Button>
+                </div>
+              )}
+              <InterviewChatInput
+                input={input}
+                onInputChange={setInput}
+                onSubmit={handleChatSubmit}
+                placeholder="AIに質問に回答する"
+                isResponding={isLoading}
+              />
+            </>
           )}
         </div>
 

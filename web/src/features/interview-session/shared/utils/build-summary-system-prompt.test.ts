@@ -150,4 +150,24 @@ describe("buildSummarySystemPrompt", () => {
 
     expect(result).toContain("source_message_id");
   });
+
+  it("まとめやスキップの操作を回答者の意見に含めないよう指示する", () => {
+    const result = buildSummarySystemPrompt({
+      bill: null,
+      interviewConfig: null,
+      messages: [],
+    });
+
+    expect(result).toContain("画面操作のための発言を意見として扱わない");
+  });
+
+  it("会話再開時のレポートをスキーマどおりnullにするよう指示する", () => {
+    const result = buildSummarySystemPrompt({
+      bill: null,
+      interviewConfig: null,
+      messages: [],
+    });
+
+    expect(result).toContain("reportフィールドはnullにしてください");
+  });
 });

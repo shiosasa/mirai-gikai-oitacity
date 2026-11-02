@@ -48,10 +48,12 @@ const validSummaryResponse = JSON.stringify({
     role: "general_citizen",
     role_description: "一般市民として法案に関心がある",
     role_title: "会社員",
+    municipality_connection: null,
     opinions: [
       {
         title: "賛成の理由",
         content: "社会全体の利益になると考える",
+        source_message_id: null,
       },
     ],
     scores: {
@@ -216,6 +218,60 @@ describe("handleInterviewChatRequest 統合テスト", () => {
       expect(messages[0].content).toBe("まとめてください");
       expect(messages[1].role).toBe("assistant");
       expect(messages[1].content).toBe(validSummaryResponse);
+    });
+
+    it("レポートのない要約応答を会話履歴に保存しない", async () => {
+      const invalidSummaryResponse = JSON.stringify({
+        text: "まとめました",
+        report: null,
+        next_stage: "summary",
+      });
+      const response = await handleInterviewChatRequest({
+        messages: [{ role: "user", content: "まとめてください" }],
+        billId,
+        currentStage: "summary",
+        deps: {
+          summaryModel: createStreamMock([invalidSummaryResponse]),
+          getBill: async () => null,
+          getInterviewConfig: async () => config,
+          getSession: async () => session,
+          getMessages: async () => [],
+        },
+      });
+
+      await consumeResponseStream(response);
+      await new Promise((resolve) => setTimeout(resolve, 300));
+      const messages = await findInterviewMessagesBySessionId(sessionId);
+
+      expect(messages).toHaveLength(1);
+      expect(messages[0].role).toBe("user");
+    });
+
+    it("レポートのない会話再開の応答は会話履歴に保存する", async () => {
+      const resumeResponse = JSON.stringify({
+        text: "続きを聞かせてください",
+        report: null,
+        next_stage: "chat",
+      });
+      const response = await handleInterviewChatRequest({
+        messages: [{ role: "user", content: "続きを話したいです" }],
+        billId,
+        currentStage: "summary",
+        deps: {
+          summaryModel: createStreamMock([resumeResponse]),
+          getBill: async () => null,
+          getInterviewConfig: async () => config,
+          getSession: async () => session,
+          getMessages: async () => [],
+        },
+      });
+
+      await consumeResponseStream(response);
+      await new Promise((resolve) => setTimeout(resolve, 300));
+      const messages = await findInterviewMessagesBySessionId(sessionId);
+
+      expect(messages).toHaveLength(2);
+      expect(messages[1].content).toBe(resumeResponse);
     });
 
     it("summaryフェーズではsummaryModelが使用される（chatModelは無視される）", async () => {

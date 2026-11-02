@@ -1,7 +1,7 @@
 "use client";
 
 import { experimental_useObject as useObject } from "@ai-sdk/react";
-import { useEffect, useMemo, useRef, useState } from "react";
+import { useMemo, useRef, useState } from "react";
 import type { PromptInputMessage } from "@/components/ai-elements/prompt-input";
 import {
   type InterviewStage,
@@ -12,6 +12,10 @@ import {
   type ConversationMessage,
   convertPartialReport,
 } from "../utils/message-utils";
+import {
+  getInterviewWrapUpState,
+  INTERVIEW_SUMMARY_REQUEST_MESSAGE,
+} from "../utils/interview-wrap-up";
 import { useInterviewRetry } from "./use-interview-retry";
 import { type InitialMessage, useParsedMessages } from "./use-parsed-messages";
 import { useQuickReplies } from "./use-quick-replies";
@@ -37,21 +41,11 @@ export function useInterviewChat({
   >([]);
 
   // onFinishコールバック内で最新の値を参照するためのref
-  const conversationMessagesRef = useRef<ConversationMessage[]>([]);
-  conversationMessagesRef.current = conversationMessages;
   const stageRef = useRef<InterviewStage>(initialStage);
   stageRef.current = stage;
 
   // リトライロジック
   const retry = useInterviewRetry();
-
-  // chat→summary自動遷移用の保留リクエスト
-  // onFinish内で直接submit()を呼ぶと再入になるため、useEffectで遅延実行する
-  const [pendingSummaryRequest, setPendingSummaryRequest] = useState<{
-    messages: { role: string; content: string }[];
-    billId: string;
-    currentStage: InterviewStage;
-  } | null>(null);
 
   // useObjectフックを使用（streamObjectの結果を受け取る）
   const { object, submit, isLoading, error } = useObject({
@@ -65,9 +59,6 @@ export function useInterviewChat({
         return; // 手動リトライ待ち
       }
 
-      // 成功時はリトライをリセット
-      retry.resetRetry();
-
       if (finishedObject) {
         const {
           text,
@@ -79,53 +70,53 @@ export function useInterviewChat({
         } = finishedObject;
         const questionId = question_id ?? null;
         const topicTitle = topic_title ?? null;
+        const reportData =
+          next_stage === "chat" ? null : convertPartialReport(report);
 
-        // レスポンスからnext_stageを取得してステージを更新
-        if (next_stage) {
-          setStage(next_stage);
+        if (
+          stageRef.current === "summary" &&
+          next_stage !== "chat" &&
+          !reportData
+        ) {
+          retry.handleError(
+            new Error("レポートを作成できませんでした。"),
+            submit
+          );
+          return;
         }
 
-        // summary→chat遷移時はレポートを含めない（LLMがスキーマ上生成しても無視）
-        const shouldIncludeReport = next_stage !== "chat";
+        retry.resetRetry();
+
+        const isChatSummarySuggestion =
+          stageRef.current === "chat" &&
+          (next_stage === "summary" || next_stage === "summary_complete");
+
+        if (next_stage && !isChatSummarySuggestion) {
+          stageRef.current = next_stage;
+          setStage(next_stage);
+        }
 
         const newAssistantMessage: ConversationMessage = {
           id: `assistant-${Date.now()}`,
           role: "assistant",
           content: text ?? "",
-          report: shouldIncludeReport ? convertPartialReport(report) : null,
+          report: reportData,
           quickReplies:
             questionId && Array.isArray(quick_replies) ? quick_replies : [],
           questionId,
           topicTitle,
+          nextStage: next_stage ?? null,
         };
 
         setConversationMessages((prev) => [...prev, newAssistantMessage]);
-
-        // chat→summaryへの遷移時のみ、自動でサマリーリクエストを予約
-        // （summaryステージ中にnext_stage="summary"が返る場合はループ防止のため送信しない）
-        if (next_stage === "summary" && stageRef.current === "chat") {
-          const allMessages = buildMessagesForApi(parsedInitialMessages, [
-            ...conversationMessagesRef.current,
-            newAssistantMessage,
-          ]);
-          setPendingSummaryRequest({
-            messages: allMessages,
-            billId,
-            currentStage: "summary" as InterviewStage,
-          });
-        }
+      } else {
+        retry.handleError(
+          new Error("AIの応答を読み取れませんでした。"),
+          submit
+        );
       }
     },
   });
-
-  // chat→summary自動遷移: onFinishで予約されたリクエストをuseEffectで送信
-  useEffect(() => {
-    if (pendingSummaryRequest) {
-      retry.saveRequestParams(pendingSummaryRequest);
-      submit(pendingSummaryRequest);
-      setPendingSummaryRequest(null);
-    }
-  }, [pendingSummaryRequest, retry.saveRequestParams, submit]);
 
   // ローディング状態
   const isChatLoading = isLoading;
@@ -201,6 +192,33 @@ export function useInterviewChat({
     handleSubmit({ text: reply });
   };
 
+  const handleRequestSummary = () => {
+    const { answerCount } = getInterviewWrapUpState(messages, null);
+    if (
+      stageRef.current !== "chat" ||
+      isChatLoading ||
+      error ||
+      retry.displayError ||
+      input.trim() ||
+      answerCount === 0
+    ) {
+      return;
+    }
+
+    setConversationMessages((prev) => [
+      ...prev,
+      {
+        id: `user-${Date.now()}`,
+        role: "user",
+        content: INTERVIEW_SUMMARY_REQUEST_MESSAGE,
+      },
+    ]);
+    setInput("");
+    stageRef.current = "summary";
+    setStage("summary");
+    submitChatMessage(INTERVIEW_SUMMARY_REQUEST_MESSAGE, "summary");
+  };
+
   // 手動リトライ関数
   const handleRetry = () => {
     if (!retry.canRetry) return;
@@ -226,6 +244,7 @@ export function useInterviewChat({
     // アクション
     handleSubmit,
     handleQuickReply,
+    handleRequestSummary,
     handleRetry,
   };
 }

@@ -410,6 +410,12 @@ describe("interviewChatTextSchema", () => {
     expect(result.success).toBe(false);
   });
 
+  it("chat中のsummaryはまとめの提案であることを説明する", () => {
+    expect(interviewChatTextSchema.shape.next_stage.description).toContain(
+      "まとめの提案"
+    );
+  });
+
   it("text が欠けている場合を拒否する", () => {
     const result = interviewChatTextSchema.safeParse({
       quick_replies: [],

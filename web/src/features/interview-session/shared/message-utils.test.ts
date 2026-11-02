@@ -126,6 +126,7 @@ describe("parseMessageContent", () => {
       quickReplies: ["はい", "いいえ"],
       questionId: "q1",
       topicTitle: "経済政策",
+      nextStage: null,
     });
   });
 
@@ -137,6 +138,7 @@ describe("parseMessageContent", () => {
       quickReplies: [],
       questionId: null,
       topicTitle: null,
+      nextStage: null,
     });
   });
 
@@ -148,6 +150,7 @@ describe("parseMessageContent", () => {
       quickReplies: [],
       questionId: null,
       topicTitle: null,
+      nextStage: null,
     });
   });
 
@@ -160,7 +163,34 @@ describe("parseMessageContent", () => {
       quickReplies: [],
       questionId: null,
       topicTitle: null,
+      nextStage: null,
     });
+  });
+
+  it("保存済みの有効なnext_stageを復元し、不正な値は無視する", () => {
+    expect(
+      parseMessageContent(
+        JSON.stringify({ text: "まとめますか？", next_stage: "summary" })
+      ).nextStage
+    ).toBe("summary");
+    expect(
+      parseMessageContent(
+        JSON.stringify({ text: "こんにちは", next_stage: "invalid" })
+      ).nextStage
+    ).toBeNull();
+  });
+
+  it("会話を再開する応答に誤って含まれたレポートは復元しない", () => {
+    const result = parseMessageContent(
+      JSON.stringify({
+        text: "続きを聞かせてください",
+        next_stage: "chat",
+        report: { summary: "以前の要約", opinions: [] },
+      })
+    );
+
+    expect(result.nextStage).toBe("chat");
+    expect(result.report).toBeNull();
   });
 
   it("reportがある場合にInterviewReportViewDataとして返す", () => {
