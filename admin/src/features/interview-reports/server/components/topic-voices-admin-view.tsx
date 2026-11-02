@@ -26,7 +26,7 @@ export async function TopicVoicesAdminView() {
       <div className="space-y-2">
         <h1 className="text-2xl font-bold">AIインタビューの声</h1>
         <p className="text-sm text-gray-600">
-          トピックス記事のAIインタビューに届いた回答（AIの要約）です。「生の声に採用」すると、記事の「みんなの生の声」に立場・賛否と要約が表示され、全文レポートへのリンクが付きます。
+          トピックス記事のAIインタビューの最後に作られた「意見の要約」の一覧です。「この要約を生の声に採用」すると、記事の「話してみらん？」ボタンの直前にある「みんなの生の声」に、立場・賛否と要約が表示され、レポート全文へのリンクが付きます。
           本人が公開に同意した回答のみ採用でき、1記事あたり最大
           {TOPIC_VOICE_MAX_PER_TOPIC}件です。
         </p>

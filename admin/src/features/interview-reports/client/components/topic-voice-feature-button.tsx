@@ -20,8 +20,8 @@ export function TopicVoiceFeatureButton({
 
   async function handleClick() {
     const message = featured
-      ? "この回答を記事の「生の声」から外しますか？"
-      : "この回答の要約を記事の「生の声」として公開しますか？（サイト上の公開設定もオンになります）";
+      ? "この要約を記事の「生の声」から外しますか？"
+      : "このインタビューの要約を記事の「生の声」として公開しますか？（サイト上の公開設定もオンになります）";
     if (!window.confirm(message)) return;
     setPending(true);
     try {
@@ -48,7 +48,11 @@ export function TopicVoiceFeatureButton({
       onClick={handleClick}
       disabled={pending}
     >
-      {pending ? "更新中…" : featured ? "掲載をやめる" : "生の声に採用"}
+      {pending
+        ? "更新中…"
+        : featured
+          ? "掲載をやめる"
+          : "この要約を生の声に採用"}
     </Button>
   );
 }
