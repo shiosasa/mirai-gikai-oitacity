@@ -11,6 +11,7 @@ import { getPublishedArticles } from "@/features/bills/server/loaders/get-articl
 import { getBillContentWithDifficulty } from "@/features/bills/server/loaders/helpers/get-bill-content";
 import type { BillStatusEnum } from "@/features/bills/shared/types";
 import { getPublishedPoliticians } from "@/features/politicians/server/loaders/get-published-politicians";
+import { groupPoliticiansByFaction } from "@/features/politicians/shared/utils/group-politicians-by-faction";
 import { BillVoteSection } from "../../shared/components/bill-vote-section";
 import { BILL_VOTE_SNAPSHOTS } from "../../shared/data/bill-vote-snapshots";
 import { extractMarkdownSection } from "../../shared/utils/extract-markdown-section";
@@ -97,6 +98,13 @@ export async function BillPickupDetailView({ id }: { id: string }) {
           profiles={
             new Map(
               politicians.map((politician) => [politician.id, politician.name])
+            )
+          }
+          currentFactions={
+            new Set(
+              groupPoliticiansByFaction(politicians).map(
+                (group) => group.displayName
+              )
             )
           }
         />

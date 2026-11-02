@@ -1,6 +1,7 @@
 import { siteConfig } from "@/config/site.config";
 import { MayorDirectoryCard } from "../../client/components/mayor-directory-card";
-import { PoliticianDirectoryCard } from "../../client/components/politician-directory-card";
+import { PoliticiansFactionSection } from "../../shared/components/politicians-faction-section";
+import { COUNCILLORS_DIRECTORY_HEADING_ID } from "../../shared/utils/faction-directory-links";
 import { groupPoliticiansByFaction } from "../../shared/utils/group-politicians-by-faction";
 import { getPublishedPoliticians } from "../loaders/get-published-politicians";
 import { findCurrentMayor } from "../repositories/mayor-repository";
@@ -38,10 +39,10 @@ export async function PoliticiansDirectory() {
         <MayorDirectoryCard mayor={mayor} />
       </section>
 
-      <section aria-labelledby="councillors-directory-heading">
+      <section aria-labelledby={COUNCILLORS_DIRECTORY_HEADING_ID}>
         <h2
-          id="councillors-directory-heading"
-          className="mb-5 text-lg font-bold text-mirai-text"
+          id={COUNCILLORS_DIRECTORY_HEADING_ID}
+          className="mb-5 scroll-mt-24 text-lg font-bold text-mirai-text"
         >
           市議会議員
         </h2>
@@ -52,23 +53,7 @@ export async function PoliticiansDirectory() {
         ) : (
           <div className="space-y-10">
             {factionGroups.map((group) => (
-              <section key={group.key} aria-label={group.displayName}>
-                <div className="mb-4 flex items-baseline gap-3 border-l-4 border-oita-pink pl-3">
-                  <h3 className="text-lg font-bold text-mirai-text">
-                    {group.displayName}
-                  </h3>
-                  <p className="text-xs text-mirai-text-muted">
-                    {group.politicians.length}名
-                  </p>
-                </div>
-                <ul className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
-                  {group.politicians.map((politician) => (
-                    <li key={politician.id}>
-                      <PoliticianDirectoryCard politician={politician} />
-                    </li>
-                  ))}
-                </ul>
-              </section>
+              <PoliticiansFactionSection key={group.key} group={group} />
             ))}
           </div>
         )}
