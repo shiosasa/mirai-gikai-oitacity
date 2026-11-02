@@ -18,6 +18,7 @@ describe("isValidReport", () => {
         role: null,
         role_description: null,
         role_title: null,
+        municipality_connection: null,
         opinions: [],
       })
     ).toBe(false);
@@ -31,6 +32,7 @@ describe("isValidReport", () => {
         role: null,
         role_description: null,
         role_title: null,
+        municipality_connection: null,
         opinions: [],
       })
     ).toBe(true);
@@ -44,6 +46,7 @@ describe("isValidReport", () => {
         role: null,
         role_description: null,
         role_title: null,
+        municipality_connection: null,
         opinions: [],
       })
     ).toBe(true);
@@ -57,6 +60,7 @@ describe("isValidReport", () => {
         role: "subject_expert",
         role_description: null,
         role_title: null,
+        municipality_connection: null,
         opinions: [],
       })
     ).toBe(true);
@@ -70,6 +74,7 @@ describe("isValidReport", () => {
         role: null,
         role_description: "専門家として",
         role_title: null,
+        municipality_connection: null,
         opinions: [],
       })
     ).toBe(true);
@@ -83,6 +88,7 @@ describe("isValidReport", () => {
         role: null,
         role_description: null,
         role_title: "教師",
+        municipality_connection: null,
         opinions: [],
       })
     ).toBe(true);
@@ -96,6 +102,7 @@ describe("isValidReport", () => {
         role: null,
         role_description: null,
         role_title: null,
+        municipality_connection: null,
         opinions: [
           { title: "意見1", content: "内容1", source_message_id: null },
         ],
@@ -165,6 +172,7 @@ describe("parseMessageContent", () => {
         role: "general_citizen",
         role_description: "一般市民",
         role_title: "市民",
+        municipality_connection: null,
         opinions: [{ title: "意見", content: "内容" }],
       },
     });
@@ -175,6 +183,7 @@ describe("parseMessageContent", () => {
       role: "general_citizen",
       role_description: "一般市民",
       role_title: "市民",
+      municipality_connection: null,
       opinions: [{ title: "意見", content: "内容" }],
     });
     expect(result.text).toBe("レポートです");
@@ -189,6 +198,7 @@ describe("parseMessageContent", () => {
         role: null,
         role_description: null,
         role_title: null,
+        municipality_connection: null,
         opinions: [],
         scores: { total: 80, clarity: 70 },
       },
@@ -207,6 +217,7 @@ describe("parseMessageContent", () => {
         role: null,
         role_description: null,
         role_title: null,
+        municipality_connection: null,
         opinions: [],
       },
     });

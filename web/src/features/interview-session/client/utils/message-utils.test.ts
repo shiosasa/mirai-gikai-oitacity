@@ -17,6 +17,7 @@ describe("convertPartialReport", () => {
       role: "general_citizen",
       role_description: "一般市民",
       role_title: "市民",
+      municipality_connection: "resident",
       opinions: [{ title: "意見1", content: "内容1" }],
     });
     expect(result).toEqual({
@@ -25,6 +26,7 @@ describe("convertPartialReport", () => {
       role: "general_citizen",
       role_description: "一般市民",
       role_title: "市民",
+      municipality_connection: "resident",
       opinions: [{ title: "意見1", content: "内容1", source_message_id: null }],
     });
   });
@@ -36,6 +38,7 @@ describe("convertPartialReport", () => {
       role: null,
       role_description: null,
       role_title: null,
+      municipality_connection: null,
       opinions: [],
     });
     expect(result).toBeNull();
@@ -94,6 +97,7 @@ describe("convertPartialReport", () => {
       role: null,
       role_description: null,
       role_title: null,
+      municipality_connection: null,
       opinions: [],
     });
   });

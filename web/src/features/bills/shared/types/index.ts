@@ -50,6 +50,7 @@ export type BillArticle = Omit<
 // トピックス記事に掲載するAIインタビューの「生の声」
 export type TopicVoice = {
   reportId: string;
+  municipalityConnectionLabel: string | null;
   stance: string | null;
   roleLabel: string | null;
   summary: string;

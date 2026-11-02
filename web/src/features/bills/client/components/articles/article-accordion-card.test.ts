@@ -74,8 +74,9 @@ describe("ArticleAccordionCard", () => {
           voices: [
             {
               reportId: "report-1",
+              municipalityConnectionLabel: "大分市在住",
               stance: "for",
-              roleLabel: "暮らしに影響・保護者",
+              roleLabel: "保護者",
               summary: "送迎の負担が減るので期待しています。",
             },
           ],
@@ -84,7 +85,8 @@ describe("ArticleAccordionCard", () => {
     );
 
     expect(screen.getByText("みんなの生の声")).toBeDefined();
-    expect(screen.getByText("暮らしに影響・保護者")).toBeDefined();
+    expect(screen.getByText("大分市在住")).toBeDefined();
+    expect(screen.getByText("保護者")).toBeDefined();
     expect(screen.getByText("期待している")).toBeDefined();
     expect(
       screen

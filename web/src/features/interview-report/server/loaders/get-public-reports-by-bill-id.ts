@@ -14,6 +14,7 @@ export type PublicInterviewReport = {
   stance: string | null;
   role: string | null;
   role_title: string | null;
+  municipality_connection: "resident" | "connected" | "other" | null;
   summary: string | null;
   total_score: number | null;
   created_at: string;
@@ -42,6 +43,7 @@ export async function getPublicReportsByBillId(
         stance: r.stance,
         role: r.role,
         role_title: r.role_title,
+        municipality_connection: r.municipality_connection,
         summary: r.summary,
         total_score: r.total_score,
         created_at: r.created_at,

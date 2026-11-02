@@ -58,6 +58,7 @@ export async function completeInterviewSession({
     role: reportData.role,
     role_description: reportData.role_description,
     role_title: reportData.role_title,
+    municipality_connection: reportData.municipality_connection,
     opinions: enrichedOpinions,
     scores: reportData.scores,
   });

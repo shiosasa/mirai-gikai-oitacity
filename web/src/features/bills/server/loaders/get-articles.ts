@@ -247,7 +247,7 @@ async function fetchFeaturedTopicVoices(
   const { data, error } = await supabase
     .from("interview_report")
     .select(
-      "id, stance, role, role_title, summary, topic_voice_featured_at, interview_sessions!inner(interview_configs!inner(bill_id))"
+      "id, stance, role, role_title, municipality_connection, summary, topic_voice_featured_at, interview_sessions!inner(interview_configs!inner(bill_id))"
     )
     .not("topic_voice_featured_at", "is", null)
     .eq("is_public_by_admin", true)
@@ -267,6 +267,7 @@ async function fetchFeaturedTopicVoices(
           stance: report.stance,
           role: report.role,
           roleTitle: report.role_title,
+          municipalityConnection: report.municipality_connection,
           summary: report.summary,
           featuredAt: report.topic_voice_featured_at,
         },

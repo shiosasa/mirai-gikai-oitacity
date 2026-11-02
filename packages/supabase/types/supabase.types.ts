@@ -1459,6 +1459,7 @@ export type Database = {
           interview_session_id: string
           is_public_by_admin: boolean
           is_public_by_user: boolean
+          municipality_connection: "resident" | "connected" | "other" | null
           opinions: Json | null
           role: Database["public"]["Enums"]["interview_report_role_enum"] | null
           role_description: string | null
@@ -1476,6 +1477,7 @@ export type Database = {
           interview_session_id: string
           is_public_by_admin?: boolean
           is_public_by_user?: boolean
+          municipality_connection?: "resident" | "connected" | "other" | null
           opinions?: Json | null
           role?:
             | Database["public"]["Enums"]["interview_report_role_enum"]
@@ -1495,6 +1497,7 @@ export type Database = {
           interview_session_id?: string
           is_public_by_admin?: boolean
           is_public_by_user?: boolean
+          municipality_connection?: "resident" | "connected" | "other" | null
           opinions?: Json | null
           role?:
             | Database["public"]["Enums"]["interview_report_role_enum"]

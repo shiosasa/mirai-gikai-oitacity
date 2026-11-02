@@ -125,7 +125,7 @@ export async function findInterviewMessagesBySessionId(sessionId: string) {
 }
 
 const TOPIC_VOICE_COLUMNS =
-  "id, interview_session_id, stance, role, role_title, summary, is_public_by_user, is_public_by_admin, topic_voice_featured_at, created_at, interview_sessions!inner(interview_configs!inner(bill_id, bills!inner(name, source)))";
+  "id, interview_session_id, stance, role, role_title, municipality_connection, summary, is_public_by_user, is_public_by_admin, topic_voice_featured_at, created_at, interview_sessions!inner(interview_configs!inner(bill_id, bills!inner(name, source)))";
 
 /**
  * トピックス（bills.source = 'topic'）向けAIインタビューのレポートを横断取得

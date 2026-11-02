@@ -1,10 +1,11 @@
+import { getMunicipalityConnectionLabel } from "@mirai-gikai/shared/interview/municipality-connection";
 import Image from "next/image";
 import Link from "next/link";
-import { cn } from "@/lib/utils";
 import { getPublicReportLink } from "@/features/interview-config/shared/utils/interview-links";
+import { cn } from "@/lib/utils";
 import {
-  type InterviewReportRole,
   formatRoleLabel,
+  type InterviewReportRole,
   roleIcons,
   stanceLabels,
   stanceTextColors,
@@ -16,6 +17,7 @@ export interface ReportCardData {
   stance: string | null;
   role: string | null;
   role_title: string | null;
+  municipality_connection: "resident" | "connected" | "other" | null;
   summary: string | null;
   created_at: string;
 }
@@ -35,7 +37,10 @@ export function ReportCard({ report, summaryMaxLength = 80 }: ReportCardProps) {
   const RoleIcon = report.role
     ? roleIcons[report.role as InterviewReportRole]
     : null;
-  const roleLabel = formatRoleLabel(report.role, report.role_title);
+  const roleLabel = report.role_title || formatRoleLabel(report.role);
+  const municipalityConnectionLabel = getMunicipalityConnectionLabel(
+    report.municipality_connection
+  );
   const relativeTime = formatRelativeTime(report.created_at);
 
   const summary = report.summary || "";
@@ -66,6 +71,11 @@ export function ReportCard({ report, summaryMaxLength = 80 }: ReportCardProps) {
             </span>
           )}
           <div className="flex items-center gap-2">
+            {municipalityConnectionLabel && (
+              <span className="text-xs text-mirai-text-subtle">
+                {municipalityConnectionLabel}
+              </span>
+            )}
             {roleLabel && (
               <div className="flex items-center gap-0.5 text-mirai-text-subtle">
                 {RoleIcon && <RoleIcon size={16} className="flex-shrink-0" />}

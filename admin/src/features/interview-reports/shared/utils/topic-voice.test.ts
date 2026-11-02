@@ -14,6 +14,7 @@ const row = (overrides: Partial<TopicVoiceRow>): TopicVoiceRow => ({
   stance: "for",
   role: "daily_life_affected",
   roleTitle: "保護者",
+  municipalityConnection: "resident",
   summary: "要約",
   isPublicByUser: true,
   isPublicByAdmin: false,
@@ -29,6 +30,7 @@ describe("normalizeTopicVoiceRow", () => {
     stance: "for",
     role: null,
     role_title: null,
+    municipality_connection: "connected" as const,
     summary: "要約",
     is_public_by_user: true,
     is_public_by_admin: false,
@@ -48,6 +50,7 @@ describe("normalizeTopicVoiceRow", () => {
       sessionId: "s1",
       billId: "b1",
       topicTitle: "トピックA",
+      municipalityConnection: "connected",
     });
   });
 

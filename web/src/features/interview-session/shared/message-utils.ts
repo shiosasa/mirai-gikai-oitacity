@@ -13,6 +13,7 @@ export function isValidReport(
     report.role ||
     report.role_description ||
     report.role_title ||
+    report.municipality_connection ||
     report.opinions.length > 0
   );
 }
@@ -54,6 +55,7 @@ export function parseMessageContent(content: string): {
           role: rawReport.role ?? null,
           role_description: rawReport.role_description ?? null,
           role_title: rawReport.role_title ?? null,
+          municipality_connection: rawReport.municipality_connection ?? null,
           opinions: rawReport.opinions ?? [],
         };
         return {

@@ -22,19 +22,26 @@ export function TopicVoicesSection({ voices }: { voices: TopicVoice[] }) {
             key={voice.reportId}
             className="rounded-lg border border-mirai-border bg-oita-pink-light/40 p-3 space-y-2"
           >
-            <p className="flex flex-wrap items-center gap-x-2 text-xs text-gray-600">
-              <span>{voice.roleLabel ?? "市民"}</span>
-              {voice.stance && stanceLabels[voice.stance] && (
-                <span
-                  className={cn(
-                    "font-semibold",
-                    stanceTextColors[voice.stance]
-                  )}
-                >
-                  {stanceLabels[voice.stance]}
-                </span>
-              )}
-            </p>
+            {(voice.municipalityConnectionLabel ||
+              voice.roleLabel ||
+              voice.stance) && (
+              <p className="flex flex-wrap items-center gap-x-2 text-xs text-gray-600">
+                {voice.municipalityConnectionLabel && (
+                  <span>{voice.municipalityConnectionLabel}</span>
+                )}
+                {voice.roleLabel && <span>{voice.roleLabel}</span>}
+                {voice.stance && stanceLabels[voice.stance] && (
+                  <span
+                    className={cn(
+                      "font-semibold",
+                      stanceTextColors[voice.stance]
+                    )}
+                  >
+                    {stanceLabels[voice.stance]}
+                  </span>
+                )}
+              </p>
+            )}
             <p className="text-sm leading-relaxed text-mirai-text line-clamp-4">
               {voice.summary}
             </p>

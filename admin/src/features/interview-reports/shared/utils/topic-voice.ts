@@ -1,3 +1,5 @@
+import type { MunicipalityConnection } from "@mirai-gikai/shared/interview/municipality-connection";
+
 /** 1つのトピックス記事に「生の声」として掲載できる最大件数 */
 export const TOPIC_VOICE_MAX_PER_TOPIC = 5;
 
@@ -9,6 +11,7 @@ export type TopicVoiceRow = {
   stance: string | null;
   role: string | null;
   roleTitle: string | null;
+  municipalityConnection: MunicipalityConnection | null;
   summary: string | null;
   isPublicByUser: boolean;
   isPublicByAdmin: boolean;
@@ -29,6 +32,7 @@ type RawTopicVoiceRow = {
   stance: string | null;
   role: string | null;
   role_title: string | null;
+  municipality_connection: MunicipalityConnection | null;
   summary: string | null;
   is_public_by_user: boolean;
   is_public_by_admin: boolean;
@@ -74,6 +78,7 @@ export function normalizeTopicVoiceRow(
     stance: raw.stance,
     role: raw.role,
     roleTitle: raw.role_title,
+    municipalityConnection: raw.municipality_connection,
     summary: raw.summary,
     isPublicByUser: raw.is_public_by_user,
     isPublicByAdmin: raw.is_public_by_admin,

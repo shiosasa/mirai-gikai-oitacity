@@ -1,3 +1,5 @@
+import type { MunicipalityConnection } from "@mirai-gikai/shared/interview/municipality-connection";
+import { getMunicipalityConnectionLabel } from "@mirai-gikai/shared/interview/municipality-connection";
 import { formatRoleLabel } from "@/features/interview-report/shared/constants";
 import type { TopicVoice } from "../types";
 
@@ -10,6 +12,7 @@ export type FeaturedVoiceRow = {
   stance: string | null;
   role: string | null;
   roleTitle: string | null;
+  municipalityConnection: MunicipalityConnection | null;
   summary: string | null;
   featuredAt: string;
 };
@@ -33,8 +36,11 @@ export function groupTopicVoicesByBillId(
     if (voices.length >= max) continue;
     voices.push({
       reportId: row.id,
+      municipalityConnectionLabel: getMunicipalityConnectionLabel(
+        row.municipalityConnection
+      ),
       stance: row.stance,
-      roleLabel: formatRoleLabel(row.role, row.roleTitle),
+      roleLabel: row.roleTitle || formatRoleLabel(row.role),
       summary,
     });
     result.set(row.billId, voices);

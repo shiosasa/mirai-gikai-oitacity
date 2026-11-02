@@ -1,5 +1,6 @@
 "use client";
 
+import { getMunicipalityConnectionLabel } from "@mirai-gikai/shared/interview/municipality-connection";
 import { useMemo } from "react";
 import type { InterviewReportViewData } from "@/features/interview-session/shared/schemas";
 import {
@@ -12,6 +13,9 @@ type Props = {
 };
 
 export function InterviewSummary({ report }: Props) {
+  const municipalityConnectionLabel = getMunicipalityConnectionLabel(
+    report.municipality_connection
+  );
   const opinions = useMemo(() => {
     if (!report.opinions || !Array.isArray(report.opinions)) return [];
     return report.opinions as Array<{ title: string; content: string }>;
@@ -26,18 +30,29 @@ export function InterviewSummary({ report }: Props) {
             <p className="whitespace-pre-wrap">{report.summary}</p>
           </div>
         )}
+        {(report.municipality_connection || report.role_title) && (
+          <div className="font-bold space-y-1">
+            <p className="text-primary-accent">
+              大分市とのつながり・記事との関わり
+            </p>
+            {municipalityConnectionLabel && (
+              <p>市とのつながり：{municipalityConnectionLabel}</p>
+            )}
+            {report.role_title && <p>記事との関わり：{report.role_title}</p>}
+          </div>
+        )}
         {report.stance && (
           <div className="font-bold space-y-1">
             <p className="text-primary-accent">🙋基本スタンス</p>
             <p>{stanceLabels[report.stance] || report.stance}</p>
           </div>
         )}
-        {(report.role || report.role_description || report.role_title) && (
+        {(report.role || report.role_description) && (
           <div className="space-y-4 font-bold">
-            {(report.role || report.role_title) && (
+            {report.role && (
               <div className="space-y-1">
                 <p className="text-primary-accent">立場</p>
-                <p>{formatRoleLabel(report.role, report.role_title)}</p>
+                <p>{formatRoleLabel(report.role)}</p>
               </div>
             )}
             {report.role_description && (

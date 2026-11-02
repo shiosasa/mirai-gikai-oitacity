@@ -1,3 +1,4 @@
+import { MUNICIPALITY_CONNECTIONS } from "@mirai-gikai/shared/interview/municipality-connection";
 import { z } from "zod";
 
 // 意見スキーマ
@@ -78,6 +79,12 @@ export const interviewReportSchema = z
       .nullable()
       .describe(
         "ユーザーの役割を10文字以内で端的に表現したタイトル（例: 物流業者、主婦、教師）"
+      ),
+    municipality_connection: z
+      .enum(MUNICIPALITY_CONNECTIONS)
+      .nullable()
+      .describe(
+        "最初の質問への回答に基づく大分市とのつながり。resident=大分市に住んでいる、connected=大分市に通勤・通学または出身などでゆかりがある、other=その他。会話から判断できない場合はnull"
       ),
     opinions: z
       .array(opinionSchema)

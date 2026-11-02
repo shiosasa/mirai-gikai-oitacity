@@ -1,4 +1,5 @@
 import "server-only";
+import { getMunicipalityConnectionLabel } from "@mirai-gikai/shared/interview/municipality-connection";
 import Link from "next/link";
 import { Badge } from "@/components/ui/badge";
 import { requireAdmin } from "@/features/auth/server/lib/auth-server";
@@ -26,7 +27,7 @@ export async function TopicVoicesAdminView() {
       <div className="space-y-2">
         <h1 className="text-2xl font-bold">AIインタビューの声</h1>
         <p className="text-sm text-gray-600">
-          トピックス記事のAIインタビューの最後に作られた「意見の要約」の一覧です。「この要約を生の声に採用」すると、記事の「話してみらん？」ボタンの直前にある「みんなの生の声」に、立場・賛否と要約が表示され、レポート全文へのリンクが付きます。
+          トピックス記事のAIインタビューの最後に作られた「意見の要約」の一覧です。「この要約を生の声に採用」すると、記事の「話してみらん？」ボタンの直前にある「みんなの生の声」に、市とのつながり・記事テーマとの関わり・賛否と要約が表示され、レポート全文へのリンクが付きます。
           本人が公開に同意した回答のみ採用でき、1記事あたり最大
           {TOPIC_VOICE_MAX_PER_TOPIC}件です。
         </p>
@@ -59,8 +60,18 @@ export async function TopicVoicesAdminView() {
                 >
                   <div className="flex flex-wrap items-center gap-2 text-sm">
                     <StanceBadge stance={report.stance} />
+                    {report.municipalityConnection ? (
+                      <Badge variant="outline">
+                        {getMunicipalityConnectionLabel(
+                          report.municipalityConnection
+                        )}
+                      </Badge>
+                    ) : (
+                      <Badge variant="outline">市とのつながり未記録</Badge>
+                    )}
                     <span className="text-gray-700">
-                      {formatRoleLabel(report.role, report.roleTitle) ??
+                      {report.roleTitle ||
+                        formatRoleLabel(report.role) ||
                         "立場未設定"}
                     </span>
                     {report.featuredAt ? (
