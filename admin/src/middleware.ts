@@ -10,7 +10,7 @@ export async function middleware(request: NextRequest) {
   if (request.nextUrl.pathname === "/login") {
     if (user && checkAdminPermission(user)) {
       const url = request.nextUrl.clone();
-      url.pathname = "/bills";
+      url.pathname = "/dashboard";
       return NextResponse.redirect(url);
     }
     // ログインページは常にアクセス可能

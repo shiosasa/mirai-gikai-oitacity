@@ -7,7 +7,7 @@ export default async function HomePage() {
 
   // 管理者としてログイン済みの場合はダッシュボードへ
   if (admin) {
-    redirect("/bills");
+    redirect("/dashboard");
   }
 
   // 未ログインまたは管理者でない場合はログイン画面へ

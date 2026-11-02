@@ -1,3 +1,17 @@
+## 大分市版の管理画面
+
+ログイン後はダッシュボードを表示します。サイドバーの「コンテンツ更新」から、
+議事録要約・議案カード・トピックスカード・記者会見・市長提案理由・議員の発言・
+お知らせの管理画面へ移動できます。「議員紹介」は従来の議員名鑑編集です。
+
+- 議事録要約：会議を選択し、開催日ごとの要約・決定事項・出席者・議案・原文を編集。
+- 記者会見：下書きを作成し、発表・質疑・発言を個別に保存してから公開。
+- 市長提案理由：対象本会議の原文・要約・公式出典URLを編集。
+- 議事録要約と提案理由は下書きがなく、保存で公開サイトに反映され得ます。
+- 本番DBを参照する環境では、確認目的でも保存・削除をしないでください。
+
+詳細は[管理画面再編設計・運用](../docs/20261103_0100_大分市版管理画面再編設計.md)を参照してください。
+
 ## Getting Started
 
 First, run the development server:
@@ -6,4 +20,4 @@ First, run the development server:
 pnpm dev
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+Open [http://localhost:3001](http://localhost:3001) with your browser to see the result.

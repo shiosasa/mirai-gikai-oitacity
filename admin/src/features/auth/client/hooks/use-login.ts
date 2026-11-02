@@ -16,7 +16,7 @@ export function useLogin() {
       setError(null);
 
       await signIn(data.email, data.password);
-      router.push("/bills");
+      router.push("/dashboard");
     } catch (err) {
       setError(getErrorMessage(err, "予期しないエラーが発生しました。"));
     } finally {

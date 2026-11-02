@@ -1,49 +1,64 @@
 "use client";
 
+import { Menu } from "lucide-react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
+import { useRef } from "react";
+import { navigationGroups } from "@/features/dashboard/shared/navigation";
+import { isNavigationActive } from "@/features/dashboard/shared/utils/navigation";
 import { cn } from "@/lib/utils";
-
-const navigationLinks = [
-  { href: "/bills", label: "議案管理" },
-  { href: "/topics", label: "トピックス管理" },
-  { href: "/topic-voices", label: "AIインタビューの声" },
-  { href: "/information", label: "お知らせ管理" },
-  { href: "/council-sessions", label: "定例会管理" },
-  { href: "/tags", label: "タグ管理" },
-  { href: "/factions", label: "会派管理" },
-  { href: "/committees", label: "委員会管理" },
-  { href: "/politicians", label: "議員名鑑" },
-  { href: "/politician-speeches", label: "議員の発言" },
-  { href: "/ai-collection", label: "AI情報収集" },
-  { href: "/admins", label: "管理者" },
-];
 
 export function NavigationLinks() {
   const pathname = usePathname();
+  const mobileMenu = useRef<HTMLDetailsElement>(null);
+
+  const links = (
+    <nav aria-label="管理メニュー" className="space-y-5 p-4">
+      {navigationGroups.map((group) => (
+        <section key={group.label}>
+          <h2 className="mb-1 px-3 text-xs font-semibold text-muted-foreground">
+            {group.label}
+          </h2>
+          <ul className="space-y-1">
+            {group.links.map(({ href, label, icon: Icon }) => {
+              const active = isNavigationActive(pathname, href);
+              return (
+                <li key={href}>
+                  <Link
+                    href={href}
+                    aria-current={active ? "page" : undefined}
+                    onClick={() => mobileMenu.current?.removeAttribute("open")}
+                    className={cn(
+                      "flex items-center gap-3 rounded-md px-3 py-2 text-sm transition-colors focus-visible:outline focus-visible:outline-2 focus-visible:outline-ring",
+                      active
+                        ? "bg-sidebar-primary text-sidebar-primary-foreground font-semibold"
+                        : "text-sidebar-foreground hover:bg-sidebar-accent"
+                    )}
+                  >
+                    <Icon className="size-4 shrink-0" aria-hidden="true" />
+                    {label}
+                  </Link>
+                </li>
+              );
+            })}
+          </ul>
+        </section>
+      ))}
+    </nav>
+  );
 
   return (
-    <nav>
-      <div className="flex space-x-8">
-        {navigationLinks.map((link) => {
-          const isActive = pathname.startsWith(link.href);
-
-          return (
-            <Link
-              key={link.href}
-              href={link.href}
-              className={cn(
-                "inline-flex items-center gap-2 px-1 py-4 text-sm border-b-2 transition-colors",
-                isActive
-                  ? "border-blue-600 text-blue-600 font-semibold"
-                  : "border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300 font-medium"
-              )}
-            >
-              <span>{link.label}</span>
-            </Link>
-          );
-        })}
-      </div>
-    </nav>
+    <>
+      <aside className="hidden lg:block fixed inset-y-16 left-0 w-60 overflow-y-auto border-r bg-sidebar">
+        {links}
+      </aside>
+      <details ref={mobileMenu} className="border-b bg-sidebar lg:hidden">
+        <summary className="flex cursor-pointer items-center gap-2 p-4 text-sm font-medium">
+          <Menu className="size-5" aria-hidden="true" />
+          管理メニュー
+        </summary>
+        {links}
+      </details>
+    </>
   );
 }
