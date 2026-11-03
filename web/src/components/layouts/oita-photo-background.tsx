@@ -19,7 +19,11 @@ export function OitaPhotoBackground({ photo }: { photo: OitaPhoto }) {
           alt=""
           fill
           sizes="(max-width: 640px) 65vw, 450px"
-          className="object-cover object-center opacity-20"
+          className={
+            photo === "sorin-statue" || photo === "station-rooster"
+              ? "object-contain object-right opacity-40"
+              : "object-cover object-center opacity-20"
+          }
         />
         <div className="absolute inset-0 bg-gradient-to-r from-white to-white/10" />
       </div>

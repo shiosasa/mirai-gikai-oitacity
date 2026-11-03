@@ -30,9 +30,10 @@ export async function PoliticiansDirectory() {
         <p className="mt-2 text-sm text-mirai-text-secondary">
           市長と市議会議員を紹介します。議員は会派別、会派内は議席番号順です。
         </p>
+        <p className="mt-3 text-right text-xs text-mirai-text-secondary">
+          大友宗麟像（大分駅前）
+        </p>
       </header>
-
-      <CityHallPhoto />
 
       <section aria-labelledby="mayor-directory-heading" className="mb-10">
         <h2
@@ -63,6 +64,7 @@ export async function PoliticiansDirectory() {
           </div>
         )}
       </section>
+      <CityHallPhoto />
     </div>
   );
 }

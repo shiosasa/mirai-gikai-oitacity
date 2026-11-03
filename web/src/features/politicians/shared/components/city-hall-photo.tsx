@@ -2,13 +2,14 @@ import Image from "next/image";
 
 export function CityHallPhoto() {
   return (
-    <figure className="mx-auto mb-8 w-40 sm:w-48">
+    <figure className="mx-auto mt-12 w-24">
       <Image
         src="/img/oita/city-hall.webp"
         alt="青空の下に立つ大分市役所の庁舎"
         width={600}
         height={800}
-        sizes="(max-width: 640px) 160px, 192px"
+        sizes="96px"
+        loading="lazy"
         className="h-auto w-full rounded-xl"
       />
       <figcaption className="mt-2 text-center text-xs text-mirai-text-secondary">
