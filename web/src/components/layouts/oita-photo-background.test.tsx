@@ -28,11 +28,11 @@ describe("OitaPhotoBackground", () => {
     expect(html).not.toContain("object-cover");
   });
 
-  it("fills exactly the right half of the title frame with Sorin at full height", () => {
+  it("fills the Sorin frame on mobile and its right half on desktop", () => {
     const html = renderToStaticMarkup(
       <OitaPhotoBackground photo="sorin-statue-banner" tone="pink" />
     );
-    expect(html).toContain("absolute inset-y-0 right-0 w-1/2");
+    expect(html).toContain("absolute inset-y-0 right-0 w-full sm:w-1/2");
     expect(html).toContain("object-cover object-right-top opacity-40");
     expect(html).not.toContain("object-contain");
     expect(html).not.toContain("w-2/3");
@@ -61,24 +61,43 @@ describe("OitaPhotoBackground", () => {
     expect(original).not.toContain("oita-pink");
   });
 
-  it("keeps city hall whole and faint inside the mayor title frame", () => {
+  it("fills the mayor frame on mobile and keeps city hall whole on desktop", () => {
     const html = renderToStaticMarkup(
       <OitaPhotoBackground photo="city-hall-wide" tone="pink" />
     );
-    expect(html).toContain("object-contain object-right opacity-20");
+    expect(html).toContain(
+      "object-cover object-center opacity-20 sm:object-contain sm:object-right"
+    );
     expect(html).toContain("from-oita-pink-light to-oita-pink-accent");
   });
 
-  it("keeps the Christmas tree visible without cropping inside the pink archive header", () => {
+  it("centers the Christmas tree on mobile and avoids cropping on desktop", () => {
     const html = renderToStaticMarkup(
       <OitaPhotoBackground photo="shopping-arcade-tree" tone="pink" />
     );
     expect(html).toContain(
       encodeURIComponent("/img/oita/shopping-arcade-tree.webp")
     );
-    expect(html).toContain("object-contain object-right opacity-20");
-    expect(html).not.toContain("object-cover");
+    expect(html).toContain(
+      "object-cover object-center opacity-20 sm:object-contain sm:object-right"
+    );
     expect(html).toContain("from-oita-pink-light to-oita-pink-accent");
+  });
+
+  it.each([
+    "city-hall-wide",
+    "wisteria-bridge",
+    "shopping-arcade-tree",
+    "station-rooster-landscape",
+    "sorin-statue-banner",
+  ] as const)("fills the pink %s title frame on mobile only", (photo) => {
+    const html = renderToStaticMarkup(
+      <OitaPhotoBackground photo={photo} tone="pink" />
+    );
+    expect(html).toContain("absolute inset-y-0 right-0 w-full sm:w-1/2");
+    expect(html).toContain("(max-width: 639px) 100vw");
+    expect(html).toContain("object-cover");
+    expect(html).toContain("from-oita-pink-light");
   });
 
   it.each([
