@@ -9,7 +9,7 @@ describe("OitaPhotoBackground", () => {
     "wisteria-bridge",
     "shopping-arcade",
     "station-rooster-landscape",
-    "sorin-statue-landscape",
+    "sorin-statue-banner",
     "yumeiro-performance",
   ] as const)("renders %s only as a subdued decorative background", (photo) => {
     const html = renderToStaticMarkup(<OitaPhotoBackground photo={photo} />);
@@ -21,7 +21,7 @@ describe("OitaPhotoBackground", () => {
   });
 
   it.each([
-    "sorin-statue-landscape",
+    "sorin-statue-banner",
     "station-rooster-landscape",
   ] as const)("keeps the entire %s photo visible without cropping", (photo) => {
     const html = renderToStaticMarkup(<OitaPhotoBackground photo={photo} />);
