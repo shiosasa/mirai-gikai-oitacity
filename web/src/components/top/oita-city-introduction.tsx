@@ -7,6 +7,7 @@ import {
 } from "lucide-react";
 import Image from "next/image";
 import Link from "next/link";
+import { OitaPhotoBackground } from "@/components/layouts/oita-photo-background";
 
 export function OitaCityIntroduction() {
   return (
@@ -14,7 +15,8 @@ export function OitaCityIntroduction() {
       aria-labelledby="oita-city-heading"
       className="my-10 space-y-6 rounded-2xl border border-oita-pink-accent bg-oita-pink-light p-5 sm:p-8"
     >
-      <div className="space-y-3">
+      <div className="relative isolate overflow-hidden rounded-xl p-4 space-y-3">
+        <OitaPhotoBackground photo="river-koinobori" />
         <p className="text-sm font-bold text-primary-accent">このまちのこと</p>
         <h2
           id="oita-city-heading"
@@ -76,7 +78,8 @@ export function OitaCityIntroduction() {
         </div>
       </div>
 
-      <div className="space-y-4 rounded-xl bg-white p-5">
+      <div className="relative isolate overflow-hidden space-y-4 rounded-xl p-5">
+        <OitaPhotoBackground photo="wisteria-bridge" />
         <h3 className="flex items-center gap-2 text-lg font-bold text-mirai-text">
           <MapPin
             aria-hidden="true"

@@ -1,6 +1,8 @@
 import { siteConfig } from "@/config/site.config";
+import { OitaPhotoBackground } from "@/components/layouts/oita-photo-background";
 import { MayorDirectoryCard } from "../../client/components/mayor-directory-card";
 import { PoliticiansFactionSection } from "../../shared/components/politicians-faction-section";
+import { CityHallPhoto } from "../../shared/components/city-hall-photo";
 import { COUNCILLORS_DIRECTORY_HEADING_ID } from "../../shared/utils/faction-directory-links";
 import { groupPoliticiansByFaction } from "../../shared/utils/group-politicians-by-faction";
 import { getPublishedPoliticians } from "../loaders/get-published-politicians";
@@ -17,7 +19,8 @@ export async function PoliticiansDirectory() {
 
   return (
     <div className="mx-auto max-w-5xl px-5 py-10 sm:px-8">
-      <header className="mb-8 border-b border-oita-pink-accent pb-5">
+      <header className="relative isolate overflow-hidden rounded-2xl mb-6 border border-oita-pink-accent p-5">
+        <OitaPhotoBackground photo="sorin-statue" />
         <p className="text-sm font-semibold text-oita-pink">
           {siteConfig.cityName}
         </p>
@@ -28,6 +31,8 @@ export async function PoliticiansDirectory() {
           市長と市議会議員を紹介します。議員は会派別、会派内は議席番号順です。
         </p>
       </header>
+
+      <CityHallPhoto />
 
       <section aria-labelledby="mayor-directory-heading" className="mb-10">
         <h2
