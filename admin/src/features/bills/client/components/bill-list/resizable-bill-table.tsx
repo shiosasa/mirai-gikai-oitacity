@@ -45,7 +45,7 @@ const COLUMNS: ColumnConfig[] = [
   },
   { key: "status", defaultWidth: 160, minWidth: 100, resizable: true },
   { key: "published_at", defaultWidth: 100, minWidth: 80, resizable: true },
-  { key: "actions", defaultWidth: 50, minWidth: 50, resizable: false },
+  { key: "actions", defaultWidth: 230, minWidth: 230, resizable: false },
 ];
 
 function StatusBadge({ status }: { status: BillStatus }) {
@@ -284,7 +284,7 @@ function BillRow({ bill }: { bill: BillWithCouncilSession }) {
       </td>
       <td className="p-2 align-middle overflow-hidden">
         <Link
-          href={`/bills/${bill.id}/edit`}
+          href={`/bills/${bill.id}/card/edit`}
           className="block truncate font-medium hover:underline"
           title={bill.name}
         >
@@ -322,7 +322,12 @@ function BillRow({ bill }: { bill: BillWithCouncilSession }) {
         </span>
       </td>
       <td className="p-2 align-middle">
-        <BillActionsMenu billId={bill.id} billName={bill.name} />
+        <div className="flex items-center gap-2">
+          <Button asChild size="sm" variant="outline">
+            <Link href={`/bills/${bill.id}/card/edit`}>カード・本文を編集</Link>
+          </Button>
+          <BillActionsMenu billId={bill.id} billName={bill.name} />
+        </div>
       </td>
     </tr>
   );

@@ -2130,6 +2130,14 @@ export type Database = {
       [_ in never]: never
     }
     Functions: {
+      save_admin_topic_content: {
+        Args: {
+          article_id: string
+          expected_updated_at: string
+          content_input: Json
+        }
+        Returns: undefined
+      }
       count_reactions_by_report_ids: {
         Args: { report_ids: string[] }
         Returns: {

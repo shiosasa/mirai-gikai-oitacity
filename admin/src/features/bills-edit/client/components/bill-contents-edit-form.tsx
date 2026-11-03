@@ -6,6 +6,7 @@ import { useRouter } from "next/navigation";
 import { useState } from "react";
 import { useForm } from "react-hook-form";
 import { toast } from "sonner";
+import ReactMarkdown from "react-markdown";
 
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
@@ -29,6 +30,7 @@ import type {
   BillContentsUpdateInput,
   DifficultyLevel,
 } from "../../shared/types/bill-contents";
+import { MarkdownContentEditor } from "./markdown-content-editor";
 import {
   billContentsUpdateSchema,
   DIFFICULTY_LEVELS,
@@ -47,6 +49,7 @@ export function BillContentsEditForm({
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [isEnriching, setIsEnriching] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [showPreview, setShowPreview] = useState(false);
 
   // BillContent配列を難易度別のオブジェクトに変換
   const contentsByDifficulty = billContents.reduce(
@@ -116,6 +119,12 @@ export function BillContentsEditForm({
   }
 
   async function onSubmit(data: BillContentsUpdateInput) {
+    if (
+      !window.confirm(
+        "詳細本文を保存します。公開中の議案は公開サイトにも反映されます。内容・出典を確認しましたか？"
+      )
+    )
+      return;
     setIsSubmitting(true);
     setError(null);
 
@@ -123,6 +132,7 @@ export function BillContentsEditForm({
 
     if (result.success) {
       toast.success("議案コンテンツを更新しました");
+      router.refresh();
     } else {
       setError(result.error);
       toast.error("更新に失敗しました");
@@ -136,7 +146,7 @@ export function BillContentsEditForm({
       <CardHeader>
         <div className="flex items-start justify-between gap-4">
           <div>
-            <CardTitle>議案コンテンツ編集</CardTitle>
+            <CardTitle>詳細本文を編集</CardTitle>
             <p className="text-sm text-gray-600 mt-1">{bill.name}</p>
           </div>
           <Button
@@ -166,6 +176,13 @@ export function BillContentsEditForm({
         )}
       </CardHeader>
       <CardContent>
+        <p className="mb-4 text-sm text-muted-foreground">
+          公開サイトの「取り組みの詳細」や重要ポイントなどは、この本文を表示します。
+          「ふつう」は通常表示、「難しい」は「説明をもっと詳しく」で使われます。
+          見出し「##
+          取り組みの詳細」を維持すると、詳細ページの同名の欄に表示されます。
+          空欄で保存すると、その説明を消します。公開状態・インタビューは変更しません。
+        </p>
         <Form {...form}>
           <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
             <Tabs defaultValue="normal" className="">
@@ -200,6 +217,31 @@ export function BillContentsEditForm({
                       </FormItem>
                     )}
                   />
+                  <Button
+                    type="button"
+                    variant="outline"
+                    onClick={() => setShowPreview((value) => !value)}
+                  >
+                    {showPreview ? "プレビューを閉じる" : "保存前の本文を確認"}
+                  </Button>
+                  {showPreview && (
+                    <section
+                      aria-label={`${level.label}の本文プレビュー`}
+                      className="space-y-3 rounded-lg border p-4"
+                    >
+                      <h3 className="text-lg font-bold">
+                        {form.watch(`${level.value}.title`)}
+                      </h3>
+                      <p className="whitespace-pre-wrap">
+                        {form.watch(`${level.value}.summary`)}
+                      </p>
+                      <div className="prose max-w-none">
+                        <ReactMarkdown>
+                          {form.watch(`${level.value}.content`) ?? ""}
+                        </ReactMarkdown>
+                      </div>
+                    </section>
+                  )}
 
                   <FormField
                     control={form.control}
@@ -225,12 +267,10 @@ export function BillContentsEditForm({
                     render={({ field }) => (
                       <FormItem>
                         <FormLabel>内容</FormLabel>
-                        <FormControl>
-                          <Textarea
-                            {...field}
-                            className="min-h-[400px] font-mono text-sm"
-                          />
-                        </FormControl>
+                        <MarkdownContentEditor
+                          value={field.value ?? ""}
+                          onChange={field.onChange}
+                        />
                         <FormDescription>
                           {level.label}
                           レベル向けの内容をMarkdown形式で入力してください（任意・最大50000文字）

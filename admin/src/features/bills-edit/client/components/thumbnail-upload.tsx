@@ -5,7 +5,7 @@ import Image from "next/image";
 import { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Dropzone } from "@/components/ui/dropzone";
-import { deleteThumbnail, uploadThumbnail } from "../lib/thumbnail-storage";
+import { uploadThumbnail } from "../lib/thumbnail-storage";
 
 interface ThumbnailUploadProps {
   value?: string | null;
@@ -29,11 +29,6 @@ export function ThumbnailUpload({
     setIsUploading(true);
 
     try {
-      // 既存のファイルがある場合は削除
-      if (value) {
-        await deleteThumbnail(value);
-      }
-
       // 新しいファイルをアップロード
       const result = await uploadThumbnail(file, billId, storagePrefix);
 
@@ -53,17 +48,7 @@ export function ThumbnailUpload({
     }
   };
 
-  const handleRemove = async () => {
-    if (value) {
-      try {
-        const result = await deleteThumbnail(value);
-        if (!result.success && result.error) {
-          console.error("Remove error:", result.error);
-        }
-      } catch (error) {
-        console.error("Remove error:", error);
-      }
-    }
+  const handleRemove = () => {
     onChange(null);
   };
 
@@ -95,10 +80,13 @@ export function ThumbnailUpload({
         <div className="flex gap-2">
           <Button type="button" variant="outline" onClick={handleRemove}>
             <X className="h-4 w-4 mr-2" />
-            削除
+            画像の設定を外す
           </Button>
         </div>
       )}
+      <p className="text-sm text-muted-foreground">
+        画像の変更は基本情報の保存後に反映されます。保存前に公開中の画像ファイルは削除しません。
+      </p>
 
       {isUploading && (
         <p className="text-sm text-blue-600">アップロード中...</p>
