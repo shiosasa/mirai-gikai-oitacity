@@ -1,5 +1,10 @@
 import { describe, expect, it } from "vitest";
-import { findCardReferences, updateCardReference } from "./card-reference";
+import { createClient } from "@supabase/supabase-js";
+import {
+  cardReferenceFilter,
+  findCardReferences,
+  updateCardReference,
+} from "./card-reference";
 
 const billId = "00000000-0000-4000-8000-000000000001";
 const input = {
@@ -23,6 +28,32 @@ const original = [
 ];
 
 describe("card references", () => {
+  it("sends JSON containment rather than a PostgreSQL array literal through the actual SDK", async () => {
+    let requestedUrl = "";
+    const db = createClient("https://example.supabase.co", "test-key", {
+      global: {
+        fetch: async (url) => {
+          requestedUrl = String(url);
+          return new Response("[]", {
+            status: 200,
+            headers: { "Content-Type": "application/json" },
+          });
+        },
+      },
+    });
+    const { error } = await db
+      .from("meeting_sessions")
+      .select("id")
+      .contains("bills", cardReferenceFilter(billId));
+    expect(error).toBeNull();
+    const filter = new URL(requestedUrl).searchParams.get("bills");
+    expect(filter).toBe(`cs.[{"billId":"${billId}"}]`);
+    if (!filter) throw new Error("Missing containment filter");
+    expect(JSON.parse(filter.slice(3))).toEqual([{ billId }]);
+  });
+  it("rejects invalid bill identifiers before constructing the filter", () => {
+    expect(() => cardReferenceFilter("invalid")).toThrow();
+  });
   it("lists only the linked bill without losing the original array index", () => {
     expect(findCardReferences(original, billId)).toEqual([
       { index: 0, name: "元の議案", number: "", description: "元の説明" },
