@@ -4,6 +4,10 @@ import { spawn } from "node:child_process";
 import { createAdminClient } from "@mirai-gikai/supabase";
 import { requireAdmin } from "@/features/auth/server/lib/auth-server";
 import {
+  applyMeetingBillFilter,
+  getMeetingBillFilter,
+} from "../repositories/meeting-bill-filter";
+import {
   EVAL_BATCH_SIZE,
   FEATURE_THRESHOLD,
   buildEvalPrompt,
@@ -100,13 +104,21 @@ export async function runAutoFeature(
     const supabase = createAdminClient();
 
     // 対象会期の published 議案を取得
-    const { data: bills } = await supabase
-      .from("bills")
-      .select("id, bill_number, name, bill_contents(title, summary, content)")
+    const { data: bills, error } = await applyMeetingBillFilter(
+      supabase
+        .from("bills")
+        .select(
+          "id, bill_number, name, bill_contents(title, summary, content)"
+        ),
+      await getMeetingBillFilter()
+    )
       .eq("council_session_id", councilSessionId)
       .eq("publish_status", "published")
       .order("bill_number");
 
+    if (error) {
+      throw new Error(`公開済み議案を取得できませんでした: ${error.message}`);
+    }
     if (!bills || bills.length === 0) {
       return {
         success: false,

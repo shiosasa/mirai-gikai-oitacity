@@ -8,9 +8,14 @@
     ".": {
       "types": "./src/index.ts",
       "default": "./src/index.ts"
+    },
+    "./meeting-bill-filter": {
+      "types": "./src/meeting-bill-filter.ts",
+      "default": "./src/meeting-bill-filter.ts"
     }
   },
   "dependencies": {
+    "@mirai-gikai/shared": "workspace:*",
     "@supabase/ssr": "^0.5.2",
     "@supabase/supabase-js": "^2.57.0"
   },

@@ -6,6 +6,10 @@ import type {
   BillPublishStatus,
   BillSortConfig,
 } from "../../shared/types";
+import {
+  applyMeetingBillFilter,
+  getMeetingBillFilter,
+} from "./meeting-bill-filter";
 
 type BillContentInsert =
   Database["public"]["Tables"]["bill_contents"]["Insert"];
@@ -34,7 +38,10 @@ export async function findBillsWithCouncilSessions(
     orderOptions.nullsFirst = false;
   }
 
-  let query = supabase.from("bills").select("*, council_sessions(name)");
+  let query = applyMeetingBillFilter(
+    supabase.from("bills").select("*, council_sessions(name)"),
+    await getMeetingBillFilter()
+  );
 
   if (filters?.sessionId) {
     query = query.eq("council_session_id", filters.sessionId);
