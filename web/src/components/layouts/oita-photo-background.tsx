@@ -29,7 +29,9 @@ export function OitaPhotoBackground({
         className={
           photo === "yumeiro-performance"
             ? "absolute inset-0"
-            : "absolute inset-y-0 right-0 w-2/3 sm:w-1/2"
+            : photo === "sorin-statue-banner"
+              ? "absolute inset-y-0 right-0 w-1/2"
+              : "absolute inset-y-0 right-0 w-2/3 sm:w-1/2"
         }
       >
         <Image
@@ -39,15 +41,18 @@ export function OitaPhotoBackground({
           sizes={
             photo === "yumeiro-performance"
               ? "(max-width: 1024px) 100vw, 1000px"
-              : "(max-width: 640px) 65vw, 450px"
+              : photo === "sorin-statue-banner"
+                ? "(max-width: 1024px) 50vw, 500px"
+                : "(max-width: 640px) 65vw, 450px"
           }
           className={
             photo === "city-hall-wide"
               ? "object-contain object-right opacity-20"
-              : photo === "sorin-statue-banner" ||
-                  photo === "station-rooster-landscape"
-                ? "object-contain object-right opacity-40"
-                : "object-cover object-center opacity-20"
+              : photo === "sorin-statue-banner"
+                ? "object-cover object-right-top opacity-40"
+                : photo === "station-rooster-landscape"
+                  ? "object-contain object-right opacity-40"
+                  : "object-cover object-center opacity-20"
           }
         />
         <div

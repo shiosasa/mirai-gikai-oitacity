@@ -21,12 +21,21 @@ describe("OitaPhotoBackground", () => {
   });
 
   it.each([
-    "sorin-statue-banner",
     "station-rooster-landscape",
   ] as const)("keeps the entire %s photo visible without cropping", (photo) => {
     const html = renderToStaticMarkup(<OitaPhotoBackground photo={photo} />);
     expect(html).toContain("object-contain object-right opacity-40");
     expect(html).not.toContain("object-cover");
+  });
+
+  it("fills exactly the right half of the title frame with Sorin at full height", () => {
+    const html = renderToStaticMarkup(
+      <OitaPhotoBackground photo="sorin-statue-banner" tone="pink" />
+    );
+    expect(html).toContain("absolute inset-y-0 right-0 w-1/2");
+    expect(html).toContain("object-cover object-right-top opacity-40");
+    expect(html).not.toContain("object-contain");
+    expect(html).not.toContain("w-2/3");
   });
 
   it("fills the whole frame with the festival performance rather than a small sign", () => {
