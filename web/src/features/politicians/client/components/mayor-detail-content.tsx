@@ -1,5 +1,6 @@
 import { ArrowLeft, ChevronDown, ExternalLink } from "lucide-react";
 import Link from "next/link";
+import { OitaPhotoBackground } from "@/components/layouts/oita-photo-background";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { formatDateJST } from "@/lib/utils/date";
 import { getHttpUrl } from "@/lib/utils/external-url";
@@ -10,7 +11,6 @@ import type {
 } from "../../shared/types/mayor";
 import { calculateAge } from "../../shared/utils/calculate-age";
 import { MayorConferenceArchive } from "./mayor-conference-archive";
-import { CityHallPhoto } from "../../shared/components/city-hall-photo";
 
 type Props = {
   mayor: MayorProfile | null;
@@ -49,7 +49,8 @@ export function MayorDetailContent({
         </p>
       )}
 
-      <header className="mb-8 mt-6 border-b border-oita-pink-accent pb-6">
+      <header className="relative isolate mb-8 mt-6 overflow-hidden rounded-2xl border border-oita-pink-accent p-5 sm:p-6">
+        <OitaPhotoBackground photo="city-hall-wide" tone="pink" />
         <p className="text-sm font-semibold text-mirai-text-secondary">
           大分市
         </p>
@@ -160,7 +161,6 @@ export function MayorDetailContent({
                 </p>
               )
             )}
-            <CityHallPhoto />
           </div>
         </section>
 

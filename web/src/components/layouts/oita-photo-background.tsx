@@ -1,12 +1,13 @@
 import Image from "next/image";
 
 type OitaPhoto =
+  | "city-hall-wide"
   | "river-koinobori"
   | "wisteria-bridge"
   | "shopping-arcade"
-  | "station-rooster"
-  | "yumeiro-festival"
-  | "sorin-statue";
+  | "station-rooster-landscape"
+  | "yumeiro-performance"
+  | "sorin-statue-wide";
 
 export function OitaPhotoBackground({
   photo,
@@ -24,18 +25,29 @@ export function OitaPhotoBackground({
           : "bg-white"
       }`}
     >
-      <div className="absolute inset-y-0 right-0 w-2/3 sm:w-1/2">
+      <div
+        className={
+          photo === "yumeiro-performance"
+            ? "absolute inset-0"
+            : "absolute inset-y-0 right-0 w-2/3 sm:w-1/2"
+        }
+      >
         <Image
           src={`/img/oita/${photo}.webp`}
           alt=""
           fill
-          sizes="(max-width: 640px) 65vw, 450px"
+          sizes={
+            photo === "yumeiro-performance"
+              ? "(max-width: 1024px) 100vw, 1000px"
+              : "(max-width: 640px) 65vw, 450px"
+          }
           className={
-            photo === "sorin-statue" ||
-            photo === "station-rooster" ||
-            photo === "yumeiro-festival"
-              ? "object-contain object-right opacity-40"
-              : "object-cover object-center opacity-20"
+            photo === "city-hall-wide"
+              ? "object-contain object-right opacity-20"
+              : photo === "sorin-statue-wide" ||
+                  photo === "station-rooster-landscape"
+                ? "object-contain object-right opacity-40"
+                : "object-cover object-center opacity-20"
           }
         />
         <div

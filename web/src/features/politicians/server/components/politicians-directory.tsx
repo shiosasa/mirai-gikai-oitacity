@@ -19,7 +19,7 @@ export async function PoliticiansDirectory() {
   return (
     <div className="mx-auto max-w-5xl px-5 py-10 sm:px-8">
       <header className="relative isolate overflow-hidden rounded-2xl mb-6 border border-oita-pink-accent p-5">
-        <OitaPhotoBackground photo="sorin-statue" tone="pink" />
+        <OitaPhotoBackground photo="sorin-statue-wide" tone="pink" />
         <p className="text-sm font-semibold text-oita-pink">
           {siteConfig.cityName}
         </p>

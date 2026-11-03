@@ -21,7 +21,7 @@ describe("OitaCityIntroduction", () => {
     expect(html).toContain('id="oita-city-heading"');
     expect(html).toContain('src="/illustrations/sazanka.svg"');
     expect(html).toContain(
-      encodeURIComponent("/img/oita/yumeiro-festival.webp")
+      encodeURIComponent("/img/oita/yumeiro-performance.webp")
     );
     expect(html).not.toContain(
       encodeURIComponent("/img/oita/wisteria-bridge.webp")

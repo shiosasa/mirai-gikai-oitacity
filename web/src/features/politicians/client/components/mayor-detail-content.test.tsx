@@ -106,13 +106,7 @@ describe("MayorDetailContent", () => {
     );
 
     const profile = document.querySelector("#profile");
-    const cityHall = profile?.querySelector("figure");
-    expect(cityHall?.textContent).toContain("大分市役所");
-    expect(cityHall?.parentElement?.lastElementChild).toBe(cityHall);
-    expect(cityHall?.querySelector("img")?.getAttribute("sizes")).toBe(
-      "(max-width: 640px) 96px, 112px"
-    );
-    expect(cityHall?.closest("a")).toBeNull();
+    expect(profile?.querySelector("figure")).toBeNull();
     expect(profile?.textContent).toContain(mayor.bio);
     expect(profile?.textContent).not.toContain("まちづくりの5つの柱");
     for (const pillar of [
@@ -124,6 +118,27 @@ describe("MayorDetailContent", () => {
     ]) {
       expect(profile?.textContent?.split(pillar)).toHaveLength(2);
     }
+  });
+
+  it("places city hall only in the pink title frame as a faint decorative background", () => {
+    document.body.innerHTML = renderToStaticMarkup(
+      <MayorDetailContent
+        mayor={mayor}
+        proposals={[]}
+        conferences={[]}
+        localPreview={false}
+      />
+    );
+    const header = document.querySelector("header");
+    const image = header?.querySelector("img");
+    expect(image?.getAttribute("src")).toContain("city-hall-wide.webp");
+    expect(image?.getAttribute("alt")).toBe("");
+    expect(image?.className).toContain("object-contain");
+    expect(image?.className).toContain("opacity-20");
+    expect(image?.closest('[aria-hidden="true"]')).not.toBeNull();
+    expect(header?.innerHTML).toContain("from-oita-pink-light");
+    expect(document.querySelector("#profile img")).toBeNull();
+    expect(header?.querySelector('a[href="#profile"]')).not.toBeNull();
   });
 
   it("shows clear empty states without inventing profile or archive data", () => {

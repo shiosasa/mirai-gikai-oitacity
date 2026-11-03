@@ -1,6 +1,5 @@
 import { ArticleCategoryFilter } from "../../client/components/articles/article-category-filter";
 import type { BillArticle } from "../../shared/types";
-import { OitaPhotoBackground } from "@/components/layouts/oita-photo-background";
 
 interface ArticlesSectionProps {
   articles: BillArticle[];
@@ -13,17 +12,6 @@ export function ArticlesSection({ articles }: ArticlesSectionProps) {
 
   return (
     <section className="flex flex-col gap-6">
-      {/* セクションヘッダー */}
-      <div className="relative isolate overflow-hidden rounded-2xl p-5 flex flex-col gap-1.5">
-        <OitaPhotoBackground photo="station-rooster" tone="pink" />
-        <h2 className="text-[22px] font-bold text-mirai-text leading-[1.48]">
-          トピックス📰
-        </h2>
-        <p className="text-xs font-medium text-mirai-text-secondary leading-[1.67]">
-          大分市議会で話し合われている政策や課題を、わかりやすく翻訳した記事です
-        </p>
-      </div>
-
       <ArticleCategoryFilter articles={articles} />
     </section>
   );
