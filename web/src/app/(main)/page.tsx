@@ -7,6 +7,7 @@ import { About } from "@/components/top/about";
 import { CommitteeBanner } from "@/components/top/committee-banner";
 import { GeneralQuestionsBanner } from "@/components/top/general-questions-banner";
 import { Hero } from "@/components/top/hero";
+import { OitaCityIntroduction } from "@/components/top/oita-city-introduction";
 import { PoliticiansBanner } from "@/components/top/politicians-banner";
 import { TeamMirai } from "@/components/top/team-mirai";
 import { TopicsBanner } from "@/components/top/topics-banner";
@@ -180,6 +181,8 @@ export default async function Home() {
       )}
 
       <Container>
+        <OitaCityIntroduction />
+
         {/* みらい議会とは セクション */}
 
         <About />
