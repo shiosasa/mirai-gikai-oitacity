@@ -7,7 +7,10 @@ import { EditField } from "@/features/content-management/client/components/edit-
 import { SaveForm } from "@/features/content-management/client/components/save-form";
 import { recordId } from "@/features/content-management/shared/utils/content-input";
 import { BillContentsEditForm } from "../../client/components/bill-contents-edit-form";
-import { findCardReferences } from "../../shared/utils/card-reference";
+import {
+  cardReferenceFilter,
+  findCardReferences,
+} from "../../shared/utils/card-reference";
 import { saveCardReference } from "../actions/save-card-reference";
 import { getBillById } from "../loaders/get-bill-by-id";
 import { getBillContents } from "../loaders/get-bill-contents";
@@ -21,7 +24,7 @@ export async function BillCardEditView({ id }: { id: string }) {
     createAdminClient()
       .from("meeting_sessions")
       .select("id,session_title,date,bills")
-      .contains("bills", [{ billId }])
+      .contains("bills", cardReferenceFilter(billId))
       .order("date", { ascending: false }),
   ]);
   if (!bill) throw new Error("議案が見つかりません");

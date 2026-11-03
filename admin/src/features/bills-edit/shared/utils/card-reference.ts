@@ -11,6 +11,10 @@ export const cardReferenceInput = z.object({
   description: z.string().max(50000),
 });
 
+export function cardReferenceFilter(billId: string): string {
+  return JSON.stringify([{ billId: recordId.parse(billId) }]);
+}
+
 function isObject(value: Json): value is { [key: string]: Json | undefined } {
   return value !== null && typeof value === "object" && !Array.isArray(value);
 }
