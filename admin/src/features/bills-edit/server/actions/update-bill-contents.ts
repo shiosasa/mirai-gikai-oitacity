@@ -1,6 +1,9 @@
 "use server";
 
 import { requireAdmin } from "@/features/auth/server/lib/auth-server";
+import { createAdminClient } from "@mirai-gikai/supabase";
+import { revalidatePath } from "next/cache";
+import { recordId } from "@/features/content-management/shared/utils/content-input";
 import {
   invalidateWebCache,
   WEB_CACHE_TAGS,
@@ -11,7 +14,6 @@ import {
   billContentsUpdateSchema,
   type DifficultyLevel,
 } from "../../shared/types/bill-contents";
-import { upsertBillContent } from "../repositories/bill-edit-repository";
 
 export type UpdateBillContentsResult =
   | { success: true }
@@ -24,34 +26,34 @@ export async function updateBillContents(
   try {
     // 管理者権限チェック
     await requireAdmin();
+    recordId.parse(billId);
 
     // バリデーション
     const validatedData = billContentsUpdateSchema.parse(input);
 
-    // 各難易度レベルのupsertを並行実行
-    const upsertPromises = (["normal", "hard"] as DifficultyLevel[]).map(
-      async (difficulty) => {
+    const values = (["normal", "hard"] as DifficultyLevel[]).map(
+      (difficulty) => {
         const data = validatedData[difficulty];
-
-        // 空のコンテンツの場合はスキップ（削除も行わない）
-        if (!data.title && !data.summary && !data.content) {
-          return;
-        }
-
-        await upsertBillContent({
-          billId,
-          difficultyLevel: difficulty,
-          title: data.title || "",
-          summary: data.summary || "",
-          content: data.content || "",
-        });
+        return {
+          bill_id: billId,
+          difficulty_level: difficulty,
+          title: data.title,
+          summary: data.summary,
+          content: data.content,
+          updated_at: new Date().toISOString(),
+        };
       }
     );
-
-    await Promise.all(upsertPromises);
+    const { error } = await createAdminClient()
+      .from("bill_contents")
+      .upsert(values, { onConflict: "bill_id,difficulty_level" });
+    if (error)
+      throw new Error(`詳細本文を保存できませんでした: ${error.message}`);
 
     // web側のキャッシュを無効化
     await invalidateWebCache([WEB_CACHE_TAGS.BILLS]);
+    revalidatePath(`/bills/${billId}/card/edit`);
+    revalidatePath(`/bills/${billId}/contents/edit`);
 
     return { success: true };
   } catch (error) {

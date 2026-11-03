@@ -33,6 +33,12 @@ export function BillActionsMenu({ billId, billName }: BillActionsMenuProps) {
       </PopoverTrigger>
       <PopoverContent className="w-48 p-1" align="end">
         <div className="flex flex-col">
+          <Link href={`/bills/${billId}/card/edit`}>
+            <Button variant="ghost" size="sm" className="w-full justify-start">
+              <FileText className="h-4 w-4 mr-2" />
+              カード・詳細本文を編集
+            </Button>
+          </Link>
           <Link href={`/bills/${billId}/edit`}>
             <Button variant="ghost" size="sm" className="w-full justify-start">
               <Edit className="h-4 w-4 mr-2" />

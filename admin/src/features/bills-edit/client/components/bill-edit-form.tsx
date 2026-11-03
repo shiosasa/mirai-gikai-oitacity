@@ -31,11 +31,6 @@ export function BillEditForm({
 }: BillEditFormProps) {
   const { isSubmitting, error, handleSubmit, handleCancel } = useBillForm();
 
-  // If bill has no council_session_id, default to the latest session (first in the list)
-  const defaultCouncilSessionId =
-    bill.council_session_id ??
-    (councilSessions.length > 0 ? councilSessions[0].id : null);
-
   const form = useForm<BillUpdateInput>({
     resolver: zodResolver(billUpdateSchema),
     defaultValues: {
@@ -50,11 +45,17 @@ export function BillEditForm({
       share_thumbnail_url: bill.share_thumbnail_url,
       is_featured: bill.is_featured,
       committee_id: bill.committee_id,
-      council_session_id: defaultCouncilSessionId,
+      council_session_id: bill.council_session_id,
     },
   });
 
   const onSubmit = (data: BillUpdateInput) => {
+    if (
+      !window.confirm(
+        "議案の基本情報・画像を保存します。公開中の議案に反映されます。変更内容を確認しましたか？"
+      )
+    )
+      return;
     handleSubmit(
       () => updateBill(bill.id, data),
       "更新中にエラーが発生しました"

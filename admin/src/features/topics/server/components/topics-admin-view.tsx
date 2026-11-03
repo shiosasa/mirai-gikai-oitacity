@@ -1,4 +1,6 @@
 import "server-only";
+import Link from "next/link";
+import { Button } from "@/components/ui/button";
 import { requireAdmin } from "@/features/auth/server/lib/auth-server";
 import { TopicPublicationButton } from "../../client/components/topic-publication-button";
 import { findTopicsForAdmin } from "../repositories/topic-repository";
@@ -27,6 +29,9 @@ export async function TopicsAdminView() {
         {topics.map((topic) => (
           <li key={topic.id} className="rounded-lg border p-4 space-y-3">
             <h2 className="font-semibold">{topic.title}</h2>
+            <Button asChild variant="outline">
+              <Link href={`/topics/${topic.id}/edit`}>記事の内容を編集</Link>
+            </Button>
             <p>
               {topic.publish_status === "published" ? "公開中" : "下書き"}
               {" / サイト公開日: "}
