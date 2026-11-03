@@ -6,20 +6,27 @@ import { toast } from "sonner";
 import { z } from "zod";
 import { Button } from "@/components/ui/button";
 
-export function SaveForm({
-  children,
-  save,
-  confirmMessage,
-  label = "保存する",
-  resetAfterSave = false,
-}: {
+type SaveFormProps = {
   children?: ReactNode;
   save: (data: FormData) => Promise<void>;
   confirmMessage: string;
   label?: string;
   resetAfterSave?: boolean;
-}) {
+};
+
+export function SaveForm(props: SaveFormProps) {
   const router = useRouter();
+  return <SaveFormView {...props} onSaved={() => router.refresh()} />;
+}
+
+export function SaveFormView({
+  children,
+  save,
+  confirmMessage,
+  label = "保存する",
+  resetAfterSave = false,
+  onSaved,
+}: SaveFormProps & { onSaved: () => void }) {
   const [pending, setPending] = useState(false);
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
 
@@ -37,7 +44,7 @@ export function SaveForm({
           await save(data);
           toast.success("保存しました");
           if (resetAfterSave) form.reset();
-          router.refresh();
+          onSaved();
         } catch (error) {
           console.error("Content save failed:", error);
           const message =

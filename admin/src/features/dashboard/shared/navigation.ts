@@ -57,6 +57,12 @@ export const contentLinks = [
     description: "トップページのお知らせを更新",
     icon: Bell,
   },
+  {
+    href: "/topic-voices",
+    label: "インタビュー確認・公開",
+    description: "回答・チャット履歴を確認し、要約を記事の「生の声」に掲載",
+    icon: MessagesSquare,
+  },
 ];
 
 export const navigationGroups = [
@@ -68,14 +74,7 @@ export const navigationGroups = [
   },
   {
     label: "コンテンツ更新",
-    links: [
-      ...contentLinks,
-      {
-        href: "/topic-voices",
-        label: "AIインタビューの声",
-        icon: MessagesSquare,
-      },
-    ],
+    links: contentLinks,
   },
   {
     label: "紹介ページ",

@@ -9,7 +9,10 @@ import { isNavigationActive } from "@/features/dashboard/shared/utils/navigation
 import { cn } from "@/lib/utils";
 
 export function NavigationLinks() {
-  const pathname = usePathname();
+  return <NavigationMenu pathname={usePathname()} />;
+}
+
+export function NavigationMenu({ pathname }: { pathname: string }) {
   const mobileMenu = useRef<HTMLDetailsElement>(null);
 
   const links = (
