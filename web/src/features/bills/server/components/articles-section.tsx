@@ -15,7 +15,7 @@ export function ArticlesSection({ articles }: ArticlesSectionProps) {
     <section className="flex flex-col gap-6">
       {/* セクションヘッダー */}
       <div className="relative isolate overflow-hidden rounded-2xl p-5 flex flex-col gap-1.5">
-        <OitaPhotoBackground photo="station-rooster" />
+        <OitaPhotoBackground photo="station-rooster" tone="pink" />
         <h2 className="text-[22px] font-bold text-mirai-text leading-[1.48]">
           トピックス📰
         </h2>

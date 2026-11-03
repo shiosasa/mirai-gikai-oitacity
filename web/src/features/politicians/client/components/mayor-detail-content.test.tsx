@@ -106,6 +106,13 @@ describe("MayorDetailContent", () => {
     );
 
     const profile = document.querySelector("#profile");
+    const cityHall = profile?.querySelector("figure");
+    expect(cityHall?.textContent).toContain("大分市役所");
+    expect(cityHall?.parentElement?.lastElementChild).toBe(cityHall);
+    expect(cityHall?.querySelector("img")?.getAttribute("sizes")).toBe(
+      "(max-width: 640px) 96px, 112px"
+    );
+    expect(cityHall?.closest("a")).toBeNull();
     expect(profile?.textContent).toContain(mayor.bio);
     expect(profile?.textContent).not.toContain("まちづくりの5つの柱");
     for (const pillar of [

@@ -9,6 +9,7 @@ describe("OitaPhotoBackground", () => {
     "shopping-arcade",
     "station-rooster",
     "sorin-statue",
+    "yumeiro-festival",
   ] as const)("renders %s only as a subdued decorative background", (photo) => {
     const html = renderToStaticMarkup(<OitaPhotoBackground photo={photo} />);
     expect(html).toContain(encodeURIComponent(`/img/oita/${photo}.webp`));
@@ -21,10 +22,24 @@ describe("OitaPhotoBackground", () => {
   it.each([
     "sorin-statue",
     "station-rooster",
+    "yumeiro-festival",
   ] as const)("keeps the entire %s photo visible without cropping", (photo) => {
     const html = renderToStaticMarkup(<OitaPhotoBackground photo={photo} />);
     expect(html).toContain("object-contain object-right opacity-40");
     expect(html).not.toContain("object-cover");
+  });
+
+  it("uses pink tokens for listing headers without changing the default TOP background", () => {
+    const pink = renderToStaticMarkup(
+      <OitaPhotoBackground photo="yumeiro-festival" tone="pink" />
+    );
+    expect(pink).toContain("from-oita-pink-light to-oita-pink-accent");
+    expect(pink).toContain("from-oita-pink-light to-oita-pink-light/10");
+    const original = renderToStaticMarkup(
+      <OitaPhotoBackground photo="river-koinobori" />
+    );
+    expect(original).toContain("bg-white");
+    expect(original).not.toContain("oita-pink");
   });
 
   it.each([

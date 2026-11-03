@@ -4,6 +4,7 @@ import { ArrowLeft, CalendarDays, Link2 } from "lucide-react";
 import Link from "next/link";
 import { useState } from "react";
 import { Button } from "@/components/ui/button";
+import { OitaPhotoBackground } from "@/components/layouts/oita-photo-background";
 import type { BillPickupItem } from "../../shared/utils/build-bill-pickup-items";
 import {
   filterBillPickupItems,
@@ -119,7 +120,8 @@ export function BillPickupsView({ items, detailMode = false }: Props) {
         {detailMode ? "議案一覧へ戻る" : "本会議・委員会一覧へ戻る"}
       </Link>
 
-      <header className="rounded-2xl bg-gradient-to-br from-mirai-gradient-start to-mirai-gradient-end px-6 py-6">
+      <header className="relative isolate overflow-hidden rounded-2xl px-6 py-6">
+        <OitaPhotoBackground photo="wisteria-bridge" tone="pink" />
         <p className="text-xs font-medium text-primary-accent">ピックアップ</p>
         <h1 className="mt-2 text-xl font-bold text-mirai-text sm:text-2xl">
           {detailMode ? "議案詳細" : "議案一覧"}

@@ -35,6 +35,7 @@ describe("MayorDirectoryCard", () => {
     expect(avatar?.className).toContain("sm:size-48");
     expect(link?.textContent).toContain("まちづくりの5つの柱");
     expect(link?.textContent).toContain("基本方針「ひとが真ん中。」");
+    expect(document.querySelector("figure")).toBeNull();
     expect(
       Array.from(link?.querySelectorAll("li") ?? [], (item) => item.textContent)
     ).toEqual([

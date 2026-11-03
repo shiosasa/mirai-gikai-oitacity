@@ -10,6 +10,7 @@ import type {
 } from "../../shared/types/mayor";
 import { calculateAge } from "../../shared/utils/calculate-age";
 import { MayorConferenceArchive } from "./mayor-conference-archive";
+import { CityHallPhoto } from "../../shared/components/city-hall-photo";
 
 type Props = {
   mayor: MayorProfile | null;
@@ -159,6 +160,7 @@ export function MayorDetailContent({
                 </p>
               )
             )}
+            <CityHallPhoto />
           </div>
         </section>
 

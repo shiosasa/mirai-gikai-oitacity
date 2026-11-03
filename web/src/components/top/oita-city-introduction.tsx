@@ -79,7 +79,7 @@ export function OitaCityIntroduction() {
       </div>
 
       <div className="relative isolate overflow-hidden space-y-4 rounded-xl p-5">
-        <OitaPhotoBackground photo="wisteria-bridge" />
+        <OitaPhotoBackground photo="yumeiro-festival" />
         <h3 className="flex items-center gap-2 text-lg font-bold text-mirai-text">
           <MapPin
             aria-hidden="true"

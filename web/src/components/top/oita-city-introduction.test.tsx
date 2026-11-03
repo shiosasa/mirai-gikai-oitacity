@@ -20,6 +20,12 @@ describe("OitaCityIntroduction", () => {
     expect(html).toContain('aria-labelledby="oita-city-heading"');
     expect(html).toContain('id="oita-city-heading"');
     expect(html).toContain('src="/illustrations/sazanka.svg"');
+    expect(html).toContain(
+      encodeURIComponent("/img/oita/yumeiro-festival.webp")
+    );
+    expect(html).not.toContain(
+      encodeURIComponent("/img/oita/wisteria-bridge.webp")
+    );
   });
   it("links to source information and advises checking current visitor information", () => {
     const html = renderToStaticMarkup(<OitaCityIntroduction />);

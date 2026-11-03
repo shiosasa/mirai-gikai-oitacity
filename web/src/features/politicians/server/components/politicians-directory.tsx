@@ -2,7 +2,6 @@ import { siteConfig } from "@/config/site.config";
 import { OitaPhotoBackground } from "@/components/layouts/oita-photo-background";
 import { MayorDirectoryCard } from "../../client/components/mayor-directory-card";
 import { PoliticiansFactionSection } from "../../shared/components/politicians-faction-section";
-import { CityHallPhoto } from "../../shared/components/city-hall-photo";
 import { COUNCILLORS_DIRECTORY_HEADING_ID } from "../../shared/utils/faction-directory-links";
 import { groupPoliticiansByFaction } from "../../shared/utils/group-politicians-by-faction";
 import { getPublishedPoliticians } from "../loaders/get-published-politicians";
@@ -20,7 +19,7 @@ export async function PoliticiansDirectory() {
   return (
     <div className="mx-auto max-w-5xl px-5 py-10 sm:px-8">
       <header className="relative isolate overflow-hidden rounded-2xl mb-6 border border-oita-pink-accent p-5">
-        <OitaPhotoBackground photo="sorin-statue" />
+        <OitaPhotoBackground photo="sorin-statue" tone="pink" />
         <p className="text-sm font-semibold text-oita-pink">
           {siteConfig.cityName}
         </p>
@@ -64,7 +63,6 @@ export async function PoliticiansDirectory() {
           </div>
         )}
       </section>
-      <CityHallPhoto />
     </div>
   );
 }
