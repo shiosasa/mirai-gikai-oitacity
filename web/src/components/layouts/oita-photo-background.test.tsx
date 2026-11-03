@@ -7,7 +7,7 @@ describe("OitaPhotoBackground", () => {
     "city-hall-wide",
     "river-koinobori",
     "wisteria-bridge",
-    "shopping-arcade",
+    "shopping-arcade-tree",
     "station-rooster-landscape",
     "sorin-statue-banner",
     "yumeiro-performance",
@@ -69,10 +69,21 @@ describe("OitaPhotoBackground", () => {
     expect(html).toContain("from-oita-pink-light to-oita-pink-accent");
   });
 
+  it("keeps the Christmas tree visible without cropping inside the pink archive header", () => {
+    const html = renderToStaticMarkup(
+      <OitaPhotoBackground photo="shopping-arcade-tree" tone="pink" />
+    );
+    expect(html).toContain(
+      encodeURIComponent("/img/oita/shopping-arcade-tree.webp")
+    );
+    expect(html).toContain("object-contain object-right opacity-20");
+    expect(html).not.toContain("object-cover");
+    expect(html).toContain("from-oita-pink-light to-oita-pink-accent");
+  });
+
   it.each([
     "river-koinobori",
     "wisteria-bridge",
-    "shopping-arcade",
   ] as const)("keeps scenery %s subdued", (photo) => {
     const html = renderToStaticMarkup(<OitaPhotoBackground photo={photo} />);
     expect(html).toContain("object-cover object-center opacity-20");

@@ -4,7 +4,7 @@ type OitaPhoto =
   | "city-hall-wide"
   | "river-koinobori"
   | "wisteria-bridge"
-  | "shopping-arcade"
+  | "shopping-arcade-tree"
   | "station-rooster-landscape"
   | "yumeiro-performance"
   | "sorin-statue-banner";
@@ -46,7 +46,7 @@ export function OitaPhotoBackground({
                 : "(max-width: 640px) 65vw, 450px"
           }
           className={
-            photo === "city-hall-wide"
+            photo === "city-hall-wide" || photo === "shopping-arcade-tree"
               ? "object-contain object-right opacity-20"
               : photo === "sorin-statue-banner"
                 ? "object-cover object-right-top opacity-40"
