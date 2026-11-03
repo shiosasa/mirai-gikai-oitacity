@@ -28,12 +28,19 @@ export function HeaderClient({ difficultyLevel }: HeaderClientProps) {
       <div className="rounded-2xl bg-white shadow-sm mx-auto px-4 sm:px-6 lg:px-8">
         <div className="flex justify-between items-center h-16">
           {/* Logo / Site Title */}
-          <div className="flex items-center">
+          <div className="flex min-w-0 items-center">
             <Link
               href="/"
-              className="flex items-center space-x-2"
+              className="flex min-w-0 items-center gap-1 sm:gap-2"
               aria-label="ホーム"
             >
+              <Image
+                src="/illustrations/sazanka.svg"
+                alt=""
+                width={44}
+                height={40}
+                className="h-7 w-8 shrink-0 sm:h-10 sm:w-11"
+              />
               {siteConfig.features.showTeamMiraiSection && (
                 <Image
                   src="/img/logo.svg"
@@ -42,7 +49,7 @@ export function HeaderClient({ difficultyLevel }: HeaderClientProps) {
                   height={36}
                 />
               )}
-              <div className="text-sm sm:text-base font-bold whitespace-nowrap">
+              <div className="text-xs max-[360px]:text-[10px] sm:text-base font-bold leading-tight sm:whitespace-nowrap">
                 {siteConfig.siteName}
               </div>
             </Link>
@@ -50,7 +57,7 @@ export function HeaderClient({ difficultyLevel }: HeaderClientProps) {
 
           {/* Navigation */}
           <nav
-            className="flex items-center space-x-2"
+            className="flex shrink-0 items-center space-x-1 sm:space-x-2"
             aria-label="補助ナビゲーション"
           >
             {showDifficultySelector && (

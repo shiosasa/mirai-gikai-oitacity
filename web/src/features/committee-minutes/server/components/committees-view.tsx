@@ -1,6 +1,7 @@
 import "server-only";
 import { ChevronRight, Landmark } from "lucide-react";
 import Link from "next/link";
+import { OitaPhotoBackground } from "@/components/layouts/oita-photo-background";
 import type { MeetingArchive } from "../repositories/meeting-repository";
 
 type Props = {
@@ -37,7 +38,8 @@ export function CommitteesView({
 
   return (
     <div className="flex flex-col gap-10">
-      <header className="rounded-2xl bg-gradient-to-br from-mirai-gradient-start to-mirai-gradient-end px-6 py-6 flex flex-col gap-3">
+      <header className="relative isolate overflow-hidden rounded-2xl px-6 py-6 flex flex-col gap-3">
+        <OitaPhotoBackground photo="shopping-arcade" tone="pink" />
         <span className="inline-flex items-center gap-1.5 text-xs font-medium text-primary-accent bg-white/70 rounded-full px-3 py-1 w-fit">
           <Landmark className="w-3.5 h-3.5" />
           本会議・委員会アーカイブ
