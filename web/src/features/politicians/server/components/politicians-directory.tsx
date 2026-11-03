@@ -19,7 +19,7 @@ export async function PoliticiansDirectory() {
   return (
     <div className="mx-auto max-w-5xl px-5 py-10 sm:px-8">
       <header className="relative isolate overflow-hidden rounded-2xl mb-6 border border-oita-pink-accent p-5">
-        <OitaPhotoBackground photo="sorin-statue-wide" tone="pink" />
+        <OitaPhotoBackground photo="sorin-statue-landscape" tone="pink" />
         <p className="text-sm font-semibold text-oita-pink">
           {siteConfig.cityName}
         </p>
@@ -28,9 +28,6 @@ export async function PoliticiansDirectory() {
         </h1>
         <p className="mt-2 text-sm text-mirai-text-secondary">
           市長と市議会議員を紹介します。議員は会派別、会派内は議席番号順です。
-        </p>
-        <p className="mt-3 text-right text-xs text-mirai-text-secondary">
-          大友宗麟像（大分駅前）
         </p>
       </header>
 

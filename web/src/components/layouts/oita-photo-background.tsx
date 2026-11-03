@@ -7,7 +7,7 @@ type OitaPhoto =
   | "shopping-arcade"
   | "station-rooster-landscape"
   | "yumeiro-performance"
-  | "sorin-statue-wide";
+  | "sorin-statue-landscape";
 
 export function OitaPhotoBackground({
   photo,
@@ -44,7 +44,7 @@ export function OitaPhotoBackground({
           className={
             photo === "city-hall-wide"
               ? "object-contain object-right opacity-20"
-              : photo === "sorin-statue-wide" ||
+              : photo === "sorin-statue-landscape" ||
                   photo === "station-rooster-landscape"
                 ? "object-contain object-right opacity-40"
                 : "object-cover object-center opacity-20"
