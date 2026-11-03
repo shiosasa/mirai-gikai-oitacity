@@ -3,6 +3,7 @@ import {
   applyMeetingBillFilter,
   buildPostgrestInList,
   deriveBillSource,
+  isMissingBillSourceColumn,
 } from "./meeting-bill-filter";
 
 type Call = { method: "eq" | "not"; args: string[] };
@@ -70,5 +71,28 @@ describe("deriveBillSource", () => {
     const titles = new Set(["【空き家】活用"]);
     expect(deriveBillSource("【空き家】活用", titles)).toBe("topic");
     expect(deriveBillSource("市有財産の処分について", titles)).toBe("meeting");
+  });
+
+  describe("isMissingBillSourceColumn", () => {
+    it.each(["42703", "PGRST204"])(
+      "recognizes missing source column errors (%s)",
+      (code) => {
+        expect(
+          isMissingBillSourceColumn({
+            code,
+            message: "column bills.source does not exist",
+          })
+        ).toBe(true);
+      }
+    );
+
+    it.each([
+      { code: "42501", message: "permission denied for source" },
+      { code: "PGRST301", message: "Invalid JWT" },
+      { code: "42703", message: "column published_at does not exist" },
+      { code: "PGRST204", message: "column other does not exist" },
+    ])("does not hide unrelated database failures: $code", (error) => {
+      expect(isMissingBillSourceColumn(error)).toBe(false);
+    });
   });
 });

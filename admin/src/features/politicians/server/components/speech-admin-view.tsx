@@ -17,7 +17,10 @@ export async function SpeechAdminView() {
     return (
       <section className="space-y-3">
         <h1 className="text-2xl font-bold">議員の発言管理</h1>
-        <p>発言管理は準備中です。DBの設定後に利用できます。</p>
+        <p>
+          発言管理が無効です。必要なDB項目を確認し、管理画面の環境変数に
+          POLITICIAN_SPEECH_MODE=database を設定して再デプロイしてください。
+        </p>
         {mode === "preview" && (
           <p>公開ページには、掲載前の見本を表示しています。</p>
         )}

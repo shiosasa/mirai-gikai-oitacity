@@ -8,7 +8,8 @@ export async function InformationAdminView() {
   if (process.env.SITE_INFORMATION_ENABLED !== "true") {
     return (
       <p>
-        お知らせ管理は準備中です。承認後にDB変更と環境変数の設定が必要です。
+        お知らせ管理が無効です。必要なDB項目を確認し、管理画面の環境変数に
+        SITE_INFORMATION_ENABLED=true を設定して再デプロイしてください。
       </p>
     );
   }

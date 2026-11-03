@@ -13,6 +13,29 @@
 - 議事録要約と提案理由は下書きがなく、保存で公開サイトに反映され得ます。
 - 本番DBを参照する環境では、確認目的でも保存・削除をしないでください。
 
+議案カードの一覧・重複候補・注目議案の評価対象には議案だけを表示し、
+トピックス用の受け皿（`bills.source = topic`）は含めません。
+公開サイトと共通の絞り込みを使用し、`source` 未適用時は
+`proposals` と同名の受け皿を除外します。
+
+### 管理機能の有効化
+
+既存のDB項目を確認したうえで、管理画面用Vercelプロジェクトの
+Productionに以下をConfigとして設定し、再デプロイしてください。
+公開サイト用プロジェクトの設定は別です。この設定自体はデータを公開しません。
+
+| 機能 | Key | Value |
+| --- | --- | --- |
+| トピックス | `TOPIC_PUBLICATION_ENABLED` | `true` |
+| 議員の発言 | `POLITICIAN_SPEECH_MODE` | `database` |
+| お知らせ | `SITE_INFORMATION_ENABLED` | `true` |
+
+トピックスは`bill_articles`の公開状態・初回公開日時と、
+`proposals.published_date`が必要です。議員の発言は
+`politician_speech_highlights`、お知らせは`site_information`を使用します。
+項目が既にある環境には、重ねてDB変更を適用しません。
+公開操作時は各画面で内容と公開条件を確認してください。
+
 詳細は[管理画面再編設計・運用](../docs/20261103_0100_大分市版管理画面再編設計.md)を参照してください。
 
 ## Getting Started

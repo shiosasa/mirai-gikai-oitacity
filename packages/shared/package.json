@@ -7,6 +7,10 @@
     "test:watch": "vitest"
   },
   "exports": {
+    "./bills/meeting-bill-filter": {
+      "types": "./src/bills/meeting-bill-filter.ts",
+      "default": "./src/bills/meeting-bill-filter.ts"
+    },
     "./ai/models": {
       "types": "./src/ai/models.ts",
       "default": "./src/ai/models.ts"

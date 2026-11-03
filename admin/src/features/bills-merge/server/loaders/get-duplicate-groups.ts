@@ -2,6 +2,10 @@ import "server-only";
 
 import { createAdminClient } from "@mirai-gikai/supabase";
 import { requireAdmin } from "@/features/auth/server/lib/auth-server";
+import {
+  applyMeetingBillFilter,
+  getMeetingBillFilter,
+} from "@/features/bills/server/repositories/meeting-bill-filter";
 
 export type BillContent = {
   id: string;
@@ -48,16 +52,21 @@ export async function getDuplicateGroups(): Promise<DuplicateGroup[]> {
   const supabase = createAdminClient();
 
   // bill_number が空文字以外のものだけ対象（空文字は「未設定」扱い）
-  const { data: bills, error } = await supabase
-    .from("bills")
-    .select(
-      "id, bill_number, name, status, status_note, publish_status, published_at, thumbnail_url, share_thumbnail_url, is_featured, committee_id, council_session_id, created_at"
-    )
+  const { data: bills, error } = await applyMeetingBillFilter(
+    supabase
+      .from("bills")
+      .select(
+        "id, bill_number, name, status, status_note, publish_status, published_at, thumbnail_url, share_thumbnail_url, is_featured, committee_id, council_session_id, created_at"
+      ),
+    await getMeetingBillFilter()
+  )
     .neq("bill_number", "")
     .order("bill_number")
     .order("created_at");
 
-  if (error || !bills) return [];
+  if (error) {
+    throw new Error(`重複議案を取得できませんでした: ${error.message}`);
+  }
 
   // Group by bill_number and keep only groups with 2+ bills
   const grouped = new Map<string, typeof bills>();

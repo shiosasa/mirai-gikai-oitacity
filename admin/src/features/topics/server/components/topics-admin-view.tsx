@@ -10,7 +10,8 @@ export async function TopicsAdminView() {
       <section className="space-y-3">
         <h1 className="text-2xl font-bold">トピックス管理</h1>
         <p>
-          公開機能はまだ有効になっていません。承認後にDB変更と環境変数の設定が必要です。
+          管理機能が無効です。必要なDB項目を確認し、管理画面の環境変数に
+          TOPIC_PUBLICATION_ENABLED=true を設定して再デプロイしてください。
         </p>
       </section>
     );
