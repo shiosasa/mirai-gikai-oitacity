@@ -10,6 +10,7 @@ import {
 } from "@/features/committee-minutes/server/components/session-extras";
 import { getAllMeetingsAndCommittees } from "@/features/committee-minutes/server/loaders/get-all-meetings";
 import { formatJapaneseDate } from "@/features/committee-minutes/shared/utils/format-japanese-date";
+import { MinutesPageNavigation } from "@/features/committee-minutes/shared/components/minutes-page-navigation";
 
 export const metadata = {
   title: "セッション詳細 | みらいぎかいっち＠大分",
@@ -47,7 +48,7 @@ export default async function SessionDetailPage({
 
   return (
     <Container className="py-8">
-      <div className="mb-8">
+      <div id="minutes-page-top" tabIndex={-1} className="mb-8 scroll-mt-24">
         <Link
           href={`/committees/committee/${committee.id}`}
           className="text-sm text-primary-accent hover:text-primary font-medium mb-4 inline-block"
@@ -142,6 +143,10 @@ export default async function SessionDetailPage({
           </section>
         )}
       </div>
+      <MinutesPageNavigation
+        backHref={`/committees/committee/${committee.id}`}
+        backLabel="委員会の一覧へ戻る"
+      />
     </Container>
   );
 }
