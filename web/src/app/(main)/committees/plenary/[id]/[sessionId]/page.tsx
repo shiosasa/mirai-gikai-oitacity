@@ -10,6 +10,7 @@ import {
 } from "@/features/committee-minutes/server/components/session-extras";
 import { getAllMeetingsAndCommittees } from "@/features/committee-minutes/server/loaders/get-all-meetings";
 import { formatJapaneseDate } from "@/features/committee-minutes/shared/utils/format-japanese-date";
+import { MinutesPageNavigation } from "@/features/committee-minutes/shared/components/minutes-page-navigation";
 
 export const metadata = {
   title: "本会議詳細 | みらいぎかいっち＠大分",
@@ -45,7 +46,7 @@ export default async function PlenarySessionDetailPage({
 
   return (
     <Container className="py-8">
-      <div className="mb-8">
+      <div id="minutes-page-top" tabIndex={-1} className="mb-8 scroll-mt-24">
         <Link
           href={`/committees/plenary`}
           className="text-sm text-primary-accent hover:text-primary font-medium mb-4 inline-block"
@@ -138,6 +139,10 @@ export default async function PlenarySessionDetailPage({
           </section>
         )}
       </div>
+      <MinutesPageNavigation
+        backHref="/committees/plenary"
+        backLabel="本会議の一覧へ戻る"
+      />
     </Container>
   );
 }
