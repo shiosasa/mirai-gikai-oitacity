@@ -3,6 +3,8 @@
  * アプリケーション全体で使用する環境変数を一元管理
  */
 
+import { resolveWebUrl } from "./utils/resolve-web-url";
+
 if (!process.env.NEXT_PUBLIC_SUPABASE_URL) {
   throw new Error("環境変数 NEXT_PUBLIC_SUPABASE_URL が設定されていません");
 }
@@ -13,7 +15,10 @@ if (!process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY) {
 }
 
 export const env = {
-  webUrl: process.env.NEXT_PUBLIC_WEB_URL || "http://localhost:3000",
+  webUrl: resolveWebUrl(
+    process.env.NEXT_PUBLIC_WEB_URL,
+    process.env.VERCEL === "1"
+  ),
   supabaseUrl: process.env.NEXT_PUBLIC_SUPABASE_URL,
   supabaseAnonKey: process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY,
   revalidateSecret: process.env.REVALIDATE_SECRET,
