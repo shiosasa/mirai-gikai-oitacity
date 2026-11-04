@@ -27,6 +27,17 @@ Web用画像は`web/public/img/oita/`に配置し、元写真を残したまま�
 
 ## 大分市版の初回確認用デプロイ
 
+議案カードの管理画面プレビュー（`/preview/bills/[id]`）は、
+公開カード（`/committees/bill-pickups/[id]`）と同じ表示部品を使用します。
+有効なプレビュートークンを確認してから、その議案1件だけ下書きを読み込みます。
+プレビューを開いても公開状態は変更せず、通常の一覧や詳細には下書きを表示しません。
+議事録カードに紐づかない議案は、従来の議案詳細プレビューを維持します。
+実サーバーでの回帰確認は `BILL_PREVIEW_TEST_URL`（ローカルWeb URL）、
+`BILL_PREVIEW_TEST_ID`（議事録と紐づき、通常・詳しい本文と5つの見出しを持つ下書きID）、
+`BILL_PREVIEW_TEST_TOKEN`（当該議案の既存の有効なトークン）を設定し、
+`pnpm --filter web exec vitest run --config vitest.integration.config.mts src/features/committee-minutes/server/components/bill-pickup-preview.integration.test.ts`
+を実行します。トークンはソースやログに記載しません。
+
 - Vercel プロジェクト: `mirai-gikai-oitacity-wxga`
 - Root Directory: `web`（ルート外の共有パッケージもビルドに含める）
 - 承認済み画面の確認用ブランチ: `fix/oita-approved-preview`

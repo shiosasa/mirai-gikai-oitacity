@@ -103,7 +103,9 @@ function isMissingTableError(error: { code?: string | null }): boolean {
   return error.code === "42P01" || error.code === "PGRST205";
 }
 
-export async function findAllMeetings(): Promise<MeetingSummary[]> {
+export async function findAllMeetings(
+  previewBillId?: string
+): Promise<MeetingSummary[]> {
   const supabase = createAdminClient();
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const { data, error } = await (supabase as any)
@@ -135,7 +137,30 @@ export async function findAllMeetings(): Promise<MeetingSummary[]> {
     throw new Error(`Failed to fetch published bills: ${billsError.message}`);
   }
 
-  const billLinks = (publishedBills ?? []).map((bill) => ({
+  const visibleBills = [...(publishedBills ?? [])];
+  if (
+    previewBillId &&
+    !visibleBills.some((bill) => bill.id === previewBillId)
+  ) {
+    const { data: previewBill, error: previewError } =
+      await applyMeetingBillFilter(
+        supabase
+          .from("bills")
+          .select(
+            "id, name, bill_number, council_sessions(name, start_date, end_date)"
+          ),
+        meetingFilter
+      )
+        .eq("id", previewBillId)
+        .maybeSingle();
+
+    if (previewError) {
+      throw new Error(`Failed to fetch preview bill: ${previewError.message}`);
+    }
+    if (previewBill) visibleBills.push(previewBill);
+  }
+
+  const billLinks = visibleBills.map((bill) => ({
     id: bill.id,
     name: bill.name,
     bill_number: bill.bill_number,

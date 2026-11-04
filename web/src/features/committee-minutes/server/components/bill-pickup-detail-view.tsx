@@ -14,6 +14,7 @@ import { getPublishedPoliticians } from "@/features/politicians/server/loaders/g
 import { groupPoliticiansByFaction } from "@/features/politicians/shared/utils/group-politicians-by-faction";
 import { BillVoteSection } from "../../shared/components/bill-vote-section";
 import { BILL_VOTE_SNAPSHOTS } from "../../shared/data/bill-vote-snapshots";
+import type { BillPickupItem } from "../../shared/utils/build-bill-pickup-items";
 import { extractMarkdownSection } from "../../shared/utils/extract-markdown-section";
 import { getBillTopicInterviews } from "../../shared/utils/get-bill-topic-interviews";
 import { getBillPickups } from "../loaders/get-bill-pickups";
@@ -21,9 +22,15 @@ import { BillPickupsView } from "./bill-pickups-view";
 
 const DETAIL_HEADING = "取り組みの詳細";
 
-export async function BillPickupDetailView({ id }: { id: string }) {
-  const items = await getBillPickups();
-  const item = items.find((item) => item.billId === id);
+export async function BillPickupDetailView({
+  id,
+  previewItem,
+}: {
+  id: string;
+  previewItem?: BillPickupItem;
+}) {
+  const item =
+    previewItem ?? (await getBillPickups()).find((item) => item.billId === id);
   if (!item) notFound();
   const level = await getDifficultyLevel();
   const voteSnapshot = BILL_VOTE_SNAPSHOTS.find(
