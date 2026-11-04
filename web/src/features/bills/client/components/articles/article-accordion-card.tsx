@@ -243,7 +243,12 @@ export function ArticleAccordionCard({ article }: ArticleAccordionCardProps) {
                     )}
                     {ref.detail_bill_id && (
                       <Link
-                        href={`/committees/bill-pickups/${ref.detail_bill_id}`}
+                        href={{
+                          pathname: `/committees/bill-pickups/${ref.detail_bill_id}`,
+                          query: ref.detail_topic_id
+                            ? { topic: ref.detail_topic_id }
+                            : undefined,
+                        }}
                         className="mt-1 inline-flex items-center gap-1 text-xs font-semibold text-oita-pink hover:underline"
                       >
                         {ref.bill_number ?? "議案"}の詳細ページを見る →

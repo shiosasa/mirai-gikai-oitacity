@@ -3,6 +3,14 @@ import { groupBillVotes } from "../utils/bill-votes";
 import { BILL_VOTE_SNAPSHOTS } from "./bill-vote-snapshots";
 
 describe("official bill vote snapshots", () => {
+  it("records each bill's decision date from the official PDF section heading", () => {
+    expect(BILL_VOTE_SNAPSHOTS).toHaveLength(34);
+    for (const snapshot of BILL_VOTE_SNAPSHOTS) {
+      expect(snapshot.decisionDate).toBe(
+        snapshot.meeting === "令和8年第1回定例会" ? "2026-03-26" : "2026-06-26"
+      );
+    }
+  });
   it("preserves the original four bills and uniquely identifies all 34 sources", () => {
     expect(
       BILL_VOTE_SNAPSHOTS.slice(0, 4).map((snapshot) => [

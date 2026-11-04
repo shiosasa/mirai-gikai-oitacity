@@ -31,6 +31,7 @@ export type TopicSourceRef = {
   bill_name: string | null;
   evidence_quote: string | null;
   detail_bill_id?: string | null;
+  detail_topic_id?: string | null;
 };
 
 export type BillArticle = Omit<
