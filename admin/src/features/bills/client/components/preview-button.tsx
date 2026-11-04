@@ -17,17 +17,27 @@ export function PreviewButton({
   const [isLoading, setIsLoading] = useState(false);
 
   const handlePreview = async () => {
+    const previewWindow = window.open("about:blank", "_blank");
+    if (!previewWindow) {
+      alert(
+        "プレビューを開けませんでした。ブラウザーのポップアップ設定をご確認ください"
+      );
+      return;
+    }
+
+    previewWindow.opener = null;
     setIsLoading(true);
     try {
       const result = await generatePreviewUrl(billId);
 
       if (result.success && result.url) {
-        // 新しいタブでプレビューURLを開く
-        window.open(result.url, "_blank");
+        previewWindow.location.href = result.url;
       } else {
+        previewWindow.close();
         alert(result.error || "プレビューURLの生成に失敗しました");
       }
     } catch (error) {
+      previewWindow.close();
       console.error("Preview URL generation failed:", error);
       alert("プレビューURLの生成中にエラーが発生しました");
     } finally {
