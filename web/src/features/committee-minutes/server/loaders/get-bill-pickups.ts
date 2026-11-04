@@ -15,9 +15,9 @@ import {
 } from "../../shared/utils/build-bill-pickup-items";
 import { getAllMeetingsAndCommittees } from "./get-all-meetings";
 
-export async function getBillPickups() {
+export async function getBillPickups(previewBillId?: string) {
   const { plenaryMeetings, committeeMeetings } =
-    await getAllMeetingsAndCommittees();
+    await getAllMeetingsAndCommittees(previewBillId);
   const items = buildBillPickupItems([
     ...plenaryMeetings,
     ...committeeMeetings,

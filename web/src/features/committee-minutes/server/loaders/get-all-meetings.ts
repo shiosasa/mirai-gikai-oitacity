@@ -1,12 +1,12 @@
 import "server-only";
 import {
-  findAllMeetings,
   buildMeetingArchives,
+  findAllMeetings,
 } from "../repositories/meeting-repository";
 
-export async function getAllMeetingsAndCommittees() {
+export async function getAllMeetingsAndCommittees(previewBillId?: string) {
   // すべての会議データ（本会議も委員会も）を、新しい大分用の meetings テーブルから一括取得する
-  const meetings = await findAllMeetings();
+  const meetings = await findAllMeetings(previewBillId);
 
   const meetingsByType = buildMeetingArchives(meetings);
 
