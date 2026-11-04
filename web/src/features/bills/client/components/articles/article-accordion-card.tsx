@@ -232,7 +232,9 @@ export function ArticleAccordionCard({ article }: ArticleAccordionCardProps) {
                       href={buildSessionPath(ref)}
                       className="inline-flex items-center gap-1 font-medium text-indigo-600 hover:underline"
                     >
-                      {ref.session_label}
+                      {ref.meeting_title || ref.meeting_type}
+                      {"・"}
+                      {ref.date ? formatDate(ref.date) : ref.session_label}
                       {ref.bill_number ? ` ${ref.bill_number}` : ""}
                       <span>→</span>
                     </Link>
