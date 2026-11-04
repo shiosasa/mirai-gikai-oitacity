@@ -34,6 +34,30 @@ export type Database = {
   }
   public: {
     Tables: {
+      content_publications: {
+        Row: {
+          content_type: string
+          content_id: string
+          first_published_at: string | null
+          is_public: boolean
+          historical_date_unknown: boolean
+        }
+        Insert: {
+          content_type: string
+          content_id: string
+          first_published_at?: string | null
+          is_public: boolean
+          historical_date_unknown?: boolean
+        }
+        Update: {
+          content_type?: string
+          content_id?: string
+          first_published_at?: string | null
+          is_public?: boolean
+          historical_date_unknown?: boolean
+        }
+        Relationships: []
+      }
       mayor_profile: {
         Row: {
           bio: string | null
@@ -2130,6 +2154,10 @@ export type Database = {
       [_ in never]: never
     }
     Functions: {
+      is_content_public: {
+        Args: { content_type: string; content: Json }
+        Returns: boolean
+      }
       save_admin_topic_content: {
         Args: {
           article_id: string

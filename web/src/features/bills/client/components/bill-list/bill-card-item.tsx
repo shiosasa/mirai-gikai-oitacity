@@ -14,6 +14,7 @@ import {
   ThumbsUp,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
+import { NewPostBadge } from "@/features/new-posts/client/components/new-post-provider";
 import {
   Card,
   CardContent,
@@ -104,6 +105,7 @@ export function BillCard({ bill, onOpenAiModal }: BillCardProps) {
         <div className="flex flex-wrap items-center justify-between gap-2">
           <div className="flex flex-wrap items-center gap-2">
             <BillStatusBadge status={bill.status} className="w-fit" />
+            <NewPostBadge contentType="bills" contentId={bill.id} />
             {bill.tags.map((tag) => (
               <BillTag key={tag.id} tag={tag} />
             ))}

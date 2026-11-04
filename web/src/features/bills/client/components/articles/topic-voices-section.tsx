@@ -1,5 +1,6 @@
 import { MessageSquareQuote } from "lucide-react";
 import Link from "next/link";
+import { NewPostBadge } from "@/features/new-posts/client/components/new-post-provider";
 import {
   stanceLabels,
   stanceTextColors,
@@ -51,6 +52,10 @@ export function TopicVoicesSection({ voices }: { voices: TopicVoice[] }) {
             >
               インタビューレポートを読む →
             </Link>
+            <NewPostBadge
+              contentType="interview_report"
+              contentId={voice.reportId}
+            />
           </li>
         ))}
       </ul>

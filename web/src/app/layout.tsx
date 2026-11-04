@@ -5,6 +5,7 @@ import NextTopLoader from "nextjs-toploader";
 import type { ReactNode } from "react";
 import { siteConfig } from "@/config/site.config";
 import { env } from "@/lib/env";
+import { NewPostProvider } from "@/features/new-posts/client/components/new-post-provider";
 
 const notoSansJP = Noto_Sans_JP({
   variable: "--font-noto-sans-jp",
@@ -80,7 +81,7 @@ export default function RootLayout({
         className={`${notoSansJP.variable} ${lexendGiga.variable} font-sans antialiased bg-mirai-surface-light`}
       >
         <NextTopLoader showSpinner={false} color="#2aa693" />
-        {children}
+        <NewPostProvider>{children}</NewPostProvider>
       </body>
     </html>
   );

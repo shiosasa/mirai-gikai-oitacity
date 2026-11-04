@@ -3,6 +3,7 @@
 import { ChevronRight } from "lucide-react";
 import Link from "next/link";
 import { Button } from "@/components/ui/button";
+import { NewPostBadge } from "@/features/new-posts/client/components/new-post-provider";
 import type { PressConference } from "../../shared/types";
 
 type Props = {
@@ -37,6 +38,10 @@ export function PressConferenceArchiveSection({ pressConferences }: Props) {
               >
                 <span className="font-bold text-mirai-text text-base">
                   {formattedDate} 定例記者会見
+                  <NewPostBadge
+                    contentType="press_conferences"
+                    contentId={pc.id}
+                  />
                 </span>
                 <ChevronRight className="h-5 w-5 text-mirai-text-muted group-hover:translate-x-0.5 transition-transform flex-shrink-0" />
               </Link>

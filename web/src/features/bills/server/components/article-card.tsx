@@ -1,5 +1,6 @@
 import type { BillArticle } from "../../shared/types";
 import { getCategoryLabel } from "../../shared/utils/article-category";
+import { NewPostBadge } from "@/features/new-posts/client/components/new-post-provider";
 
 interface ArticleCardProps {
   article: BillArticle;
@@ -18,6 +19,7 @@ export function ArticleCard({ article }: ArticleCardProps) {
             >
               {article.status_label}
             </span>
+            <NewPostBadge contentType="bill_articles" contentId={article.id} />
           </div>
 
           {/* タイトル */}

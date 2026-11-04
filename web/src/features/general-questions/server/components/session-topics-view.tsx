@@ -14,6 +14,7 @@ import {
   Landmark,
 } from "lucide-react";
 import Link from "next/link";
+import { NewPostBadge } from "@/features/new-posts/client/components/new-post-provider";
 import type { GeneralQuestion } from "../../shared/types";
 import { buildTopicGroups } from "../../shared/utils/build-topic-groups";
 import type {
@@ -134,6 +135,10 @@ function TopicCard({
         <div className="flex items-start gap-2 mb-2">
           <h3 className={`text-base font-bold ${style.text} flex-1`}>
             {entry.title}
+            <NewPostBadge
+              contentType="general_questions"
+              contentId={entry.questioner.id}
+            />
           </h3>
           {entry.topicCount > 1 && (
             <span

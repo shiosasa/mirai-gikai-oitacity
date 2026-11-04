@@ -3,6 +3,7 @@ import { createAdminClient } from "@mirai-gikai/supabase";
 import { unstable_noStore } from "next/cache";
 import Image from "next/image";
 import { formatDateJST } from "@/lib/utils/date";
+import { NewPostBadge } from "@/features/new-posts/client/components/new-post-provider";
 
 export async function InformationSection() {
   unstable_noStore();
@@ -51,7 +52,13 @@ export async function InformationSection() {
                 >
                   {formatDateJST(entry.published_at)}
                 </time>
-                <h3 className="font-semibold text-mirai-text">{entry.title}</h3>
+                <h3 className="font-semibold text-mirai-text">
+                  {entry.title}
+                  <NewPostBadge
+                    contentType="site_information"
+                    contentId={entry.id}
+                  />
+                </h3>
                 {entry.body && (
                   <p className="whitespace-pre-wrap text-sm text-mirai-text-secondary">
                     {entry.body}

@@ -4,6 +4,7 @@ import { ArrowLeft, CalendarDays, Link2 } from "lucide-react";
 import Link from "next/link";
 import { useState } from "react";
 import { Button } from "@/components/ui/button";
+import { NewPostBadge } from "@/features/new-posts/client/components/new-post-provider";
 import { OitaPhotoBackground } from "@/components/layouts/oita-photo-background";
 import type { BillPickupItem } from "../../shared/utils/build-bill-pickup-items";
 import {
@@ -195,6 +196,10 @@ export function BillPickupsView({
                         <span className="rounded-full bg-primary/10 px-3 py-1 text-xs font-semibold text-primary-accent">
                           {item.kind}
                         </span>
+                        <NewPostBadge
+                          contentType="bills"
+                          contentId={item.billId}
+                        />
                         {item.status && getStatusLabel(item.status) && (
                           <span
                             className={`rounded-full px-3 py-1 text-xs font-bold ${getStatusBadgeClass(item.status)}`}

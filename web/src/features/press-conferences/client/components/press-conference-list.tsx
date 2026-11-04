@@ -2,6 +2,7 @@
 
 import { ArrowRight, CalendarDays, Megaphone } from "lucide-react";
 import Link from "next/link";
+import { NewPostBadge } from "@/features/new-posts/client/components/new-post-provider";
 import type { PressConference } from "../../shared/types";
 
 type Props = {
@@ -37,10 +38,14 @@ export function PressConferenceList({ pressConferences }: Props) {
               href={`/press-conferences/${pc.slug}`}
               className="group block rounded-2xl border border-mirai-border bg-white hover:border-primary/50 hover:shadow-md transition-all duration-200"
             >
-              <div className="rounded-t-2xl bg-gradient-to-r from-mirai-gradient-start to-mirai-gradient-end px-5 py-3 flex items-center justify-between">
-                <div className="flex items-center gap-2 text-primary-accent">
+              <div className="rounded-t-2xl bg-gradient-to-r from-mirai-gradient-start to-mirai-gradient-end px-5 py-3 flex flex-wrap items-center justify-between gap-2">
+                <div className="flex flex-wrap items-center gap-2 text-primary-accent">
                   <CalendarDays className="w-4 h-4" />
                   <span className="text-sm font-medium">{formattedDate}</span>
+                  <NewPostBadge
+                    contentType="press_conferences"
+                    contentId={pc.id}
+                  />
                 </div>
                 <span className="text-xs text-primary-accent bg-white/60 rounded-full px-2 py-0.5 font-medium">
                   市長定例記者会見
