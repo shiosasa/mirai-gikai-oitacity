@@ -7,6 +7,7 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Form } from "@/components/ui/form";
 
+import { PreviewButton } from "@/features/bills/client/components/preview-button";
 import type { Committee } from "@/features/committees/shared/types";
 import type { CouncilSession } from "@/features/council-sessions/shared/types";
 import { updateBill } from "../../server/actions/update-bill";
@@ -56,10 +57,10 @@ export function BillEditForm({
       )
     )
       return;
-    handleSubmit(
-      () => updateBill(bill.id, data),
-      "更新中にエラーが発生しました"
-    );
+    handleSubmit(async () => {
+      await updateBill(bill.id, data);
+      form.reset(data);
+    }, "更新中にエラーが発生しました");
   };
 
   return (
@@ -87,6 +88,13 @@ export function BillEditForm({
               <Button type="submit" disabled={isSubmitting}>
                 {isSubmitting ? "保存中..." : "保存"}
               </Button>
+              {(bill.publish_status === "draft" ||
+                bill.publish_status === "coming_soon") && (
+                <PreviewButton
+                  billId={bill.id}
+                  disabled={form.formState.isDirty || isSubmitting}
+                />
+              )}
               <Button
                 type="button"
                 variant="outline"
@@ -96,6 +104,13 @@ export function BillEditForm({
                 キャンセル
               </Button>
             </div>
+            {form.formState.isDirty &&
+              (bill.publish_status === "draft" ||
+                bill.publish_status === "coming_soon") && (
+                <p className="text-sm text-gray-500">
+                  変更を保存すると、プレビューに反映されます。
+                </p>
+              )}
           </form>
         </Form>
       </CardContent>

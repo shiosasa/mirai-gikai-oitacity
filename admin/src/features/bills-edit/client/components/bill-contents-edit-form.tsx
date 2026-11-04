@@ -5,8 +5,8 @@ import { Loader2, Search } from "lucide-react";
 import { useRouter } from "next/navigation";
 import { useState } from "react";
 import { useForm } from "react-hook-form";
-import { toast } from "sonner";
 import ReactMarkdown from "react-markdown";
+import { toast } from "sonner";
 
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
@@ -22,6 +22,7 @@ import {
 import { Input } from "@/components/ui/input";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Textarea } from "@/components/ui/textarea";
+import { PreviewButton } from "@/features/bills/client/components/preview-button";
 import { enrichBillContents } from "../../actions/enrich-bill-contents";
 import { updateBillContents } from "../../server/actions/update-bill-contents";
 import type { Bill } from "../../shared/types";
@@ -30,11 +31,11 @@ import type {
   BillContentsUpdateInput,
   DifficultyLevel,
 } from "../../shared/types/bill-contents";
-import { MarkdownContentEditor } from "./markdown-content-editor";
 import {
   billContentsUpdateSchema,
   DIFFICULTY_LEVELS,
 } from "../../shared/types/bill-contents";
+import { MarkdownContentEditor } from "./markdown-content-editor";
 
 interface BillContentsEditFormProps {
   bill: Bill;
@@ -101,11 +102,21 @@ export function BillContentsEditForm({
         return;
       }
 
-      form.setValue("hard.content", result.content.hard.content);
-      form.setValue("hard.summary", result.content.hard.summary);
-      form.setValue("normal.title", result.content.normal.title);
-      form.setValue("normal.content", result.content.normal.content);
-      form.setValue("normal.summary", result.content.normal.summary);
+      form.setValue("hard.content", result.content.hard.content, {
+        shouldDirty: true,
+      });
+      form.setValue("hard.summary", result.content.hard.summary, {
+        shouldDirty: true,
+      });
+      form.setValue("normal.title", result.content.normal.title, {
+        shouldDirty: true,
+      });
+      form.setValue("normal.content", result.content.normal.content, {
+        shouldDirty: true,
+      });
+      form.setValue("normal.summary", result.content.normal.summary, {
+        shouldDirty: true,
+      });
 
       toast.success(
         "コンテンツを補完しました。内容を確認して保存してください。"
@@ -131,6 +142,7 @@ export function BillContentsEditForm({
     const result = await updateBillContents(bill.id, data);
 
     if (result.success) {
+      form.reset(data);
       toast.success("議案コンテンツを更新しました");
       router.refresh();
     } else {
@@ -149,26 +161,42 @@ export function BillContentsEditForm({
             <CardTitle>詳細本文を編集</CardTitle>
             <p className="text-sm text-gray-600 mt-1">{bill.name}</p>
           </div>
-          <Button
-            type="button"
-            variant="outline"
-            onClick={handleEnrich}
-            disabled={isEnriching || isSubmitting}
-            className="shrink-0"
-          >
-            {isEnriching ? (
-              <>
-                <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                Web検索中...
-              </>
-            ) : (
-              <>
-                <Search className="mr-2 h-4 w-4" />
-                Web検索で補完
-              </>
+          <div className="flex flex-wrap items-center gap-2">
+            {(bill.publish_status === "draft" ||
+              bill.publish_status === "coming_soon") && (
+              <PreviewButton
+                billId={bill.id}
+                disabled={form.formState.isDirty || isSubmitting || isEnriching}
+              />
             )}
-          </Button>
+            <Button
+              type="button"
+              variant="outline"
+              onClick={handleEnrich}
+              disabled={isEnriching || isSubmitting}
+              className="shrink-0"
+            >
+              {isEnriching ? (
+                <>
+                  <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                  Web検索中...
+                </>
+              ) : (
+                <>
+                  <Search className="mr-2 h-4 w-4" />
+                  Web検索で補完
+                </>
+              )}
+            </Button>
+          </div>
         </div>
+        {form.formState.isDirty &&
+          (bill.publish_status === "draft" ||
+            bill.publish_status === "coming_soon") && (
+            <p className="text-sm text-gray-500 mt-2">
+              変更を保存すると、プレビューに反映されます。
+            </p>
+          )}
         {isEnriching && (
           <p className="text-xs text-gray-500 mt-2">
             Webを検索してコンテンツを生成しています。数分かかる場合があります...

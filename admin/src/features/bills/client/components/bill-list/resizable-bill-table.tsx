@@ -5,15 +5,6 @@ import Link from "next/link";
 import { usePathname, useRouter, useSearchParams } from "next/navigation";
 import { useCallback, useState } from "react";
 import { Button } from "@/components/ui/button";
-import { BillActionsMenu } from "../bill-actions-menu/bill-actions-menu";
-import { PreviewButton } from "./preview-button";
-import { PublishStatusBadge } from "./publish-status-badge";
-import { FeaturedFilter } from "./featured-filter";
-import { PublishStatusFilter } from "./publish-status-filter";
-import { ReviewStatusFilter } from "./review-status-filter";
-import { SessionFilter } from "./session-filter";
-import { TagFilter } from "./tag-filter";
-import { ViewButton } from "./view-button";
 import { BILL_STATUS_CONFIG } from "../../../shared/constants/bill-config";
 import type {
   BillSortConfig,
@@ -22,6 +13,15 @@ import type {
   BillWithCouncilSession,
 } from "../../../shared/types";
 import { getBillStatusLabel } from "../../../shared/types";
+import { BillActionsMenu } from "../bill-actions-menu/bill-actions-menu";
+import { PreviewButton } from "../preview-button";
+import { FeaturedFilter } from "./featured-filter";
+import { PublishStatusBadge } from "./publish-status-badge";
+import { PublishStatusFilter } from "./publish-status-filter";
+import { ReviewStatusFilter } from "./review-status-filter";
+import { SessionFilter } from "./session-filter";
+import { TagFilter } from "./tag-filter";
+import { ViewButton } from "./view-button";
 
 type Session = { id: string; name: string };
 type Tag = { id: string; label: string };

@@ -3,13 +3,17 @@
 import { Eye } from "lucide-react";
 import { useState } from "react";
 import { Button } from "@/components/ui/button";
-import { generatePreviewUrl } from "../../../server/actions/generate-preview-url";
+import { generatePreviewUrl } from "../../server/actions/generate-preview-url";
 
 interface PreviewButtonProps {
   billId: string;
+  disabled?: boolean;
 }
 
-export function PreviewButton({ billId }: PreviewButtonProps) {
+export function PreviewButton({
+  billId,
+  disabled = false,
+}: PreviewButtonProps) {
   const [isLoading, setIsLoading] = useState(false);
 
   const handlePreview = async () => {
@@ -33,10 +37,12 @@ export function PreviewButton({ billId }: PreviewButtonProps) {
 
   return (
     <Button
+      type="button"
       variant="outline"
       size="sm"
       onClick={handlePreview}
-      disabled={isLoading}
+      disabled={isLoading || disabled}
+      title={disabled ? "変更を保存してからプレビューしてください" : undefined}
     >
       <Eye className="h-4 w-4" />
       {isLoading ? "プレビュー準備中..." : "プレビュー"}
