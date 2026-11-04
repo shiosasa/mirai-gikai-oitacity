@@ -2,9 +2,11 @@ import "server-only";
 import { createAdminClient } from "@mirai-gikai/supabase";
 import { unstable_cache, unstable_noStore } from "next/cache";
 import { CACHE_TAGS } from "@/lib/cache-tags";
-import type { BillArticle } from "../../shared/types";
+import type { BillArticle, TopicVoice } from "../../shared/types";
 import { categoryEnumFromBadge } from "../../shared/utils/article-category";
 import { buildPublishedBillIdByName } from "../../shared/utils/build-published-bill-id-by-name";
+import { groupTopicVoicesByBillId } from "../../shared/utils/group-topic-voices";
+import { loadArticlesWithFreshVoices } from "../../shared/utils/load-articles-with-fresh-voices";
 import { deriveBillSource } from "../../shared/utils/meeting-bill-filter";
 import { resolveTopicBillDetailId } from "../../shared/utils/resolve-topic-bill-detail-id";
 import { resolveTopicInterviewBillId } from "../../shared/utils/resolve-topic-interview-bill-id";
@@ -20,6 +22,15 @@ export async function getPublishedArticles(): Promise<BillArticle[]> {
     return loadArticles(true);
   }
   return _getCachedArticles(false);
+}
+
+export async function getPublishedArticlesWithVoices(): Promise<BillArticle[]> {
+  unstable_noStore();
+  // 記事と声の対応を古いキャッシュから復元しないよう、両方を毎回取得する。
+  return loadArticlesWithFreshVoices(
+    () => loadArticles(process.env.TOPIC_PUBLICATION_ENABLED === "true"),
+    () => fetchFeaturedTopicVoices(createAdminClient())
+  );
 }
 
 const ARTICLE_COLUMNS = `
@@ -230,9 +241,48 @@ async function fetchBillsWithSource(
   }));
 }
 
+/**
+ * 「生の声」に採用され、本人・管理者とも公開済みのAIインタビュー回答を取得する。
+ * 採用列が未適用の環境では記事表示を止めないよう空で返す。
+ */
+async function fetchFeaturedTopicVoices(
+  supabase: ReturnType<typeof createAdminClient>
+): Promise<Map<string, TopicVoice[]>> {
+  const { data, error } = await supabase
+    .from("interview_report")
+    .select(
+      "id, stance, role, role_title, municipality_connection, summary, topic_voice_featured_at, interview_sessions!inner(interview_configs!inner(bill_id))"
+    )
+    .not("topic_voice_featured_at", "is", null)
+    .eq("is_public_by_admin", true)
+    .eq("is_public_by_user", true);
+  if (error) {
+    console.warn("Skipping topic voices:", error.message);
+    return new Map();
+  }
+  return groupTopicVoicesByBillId(
+    (data ?? []).flatMap((report) => {
+      const billId = report.interview_sessions?.interview_configs?.bill_id;
+      if (!billId || !report.topic_voice_featured_at) return [];
+      return [
+        {
+          id: report.id,
+          billId,
+          stance: report.stance,
+          role: report.role,
+          roleTitle: report.role_title,
+          municipalityConnection: report.municipality_connection,
+          summary: report.summary,
+          featuredAt: report.topic_voice_featured_at,
+        },
+      ];
+    })
+  );
+}
+
 const _getCachedArticles = unstable_cache(
   loadArticles,
-  ["published-articles-by-proposal-published-date-v6"],
+  ["published-articles-by-proposal-published-date-v8"],
   {
     revalidate: 600, // 10分
     tags: [CACHE_TAGS.BILLS],

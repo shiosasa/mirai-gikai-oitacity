@@ -1,18 +1,19 @@
-import { parseMarkdown } from "@/lib/markdown";
+import { type ParseMarkdownOptions, parseMarkdown } from "@/lib/markdown";
 import type { BillWithContent } from "../../../shared/types";
 
 interface BillContentProps {
   bill: Pick<BillWithContent, "bill_content">;
+  markdownOptions?: ParseMarkdownOptions;
 }
 
-export async function BillContent({ bill }: BillContentProps) {
+export async function BillContent({ bill, markdownOptions }: BillContentProps) {
   const markdownContent = bill.bill_content?.content;
 
   if (!markdownContent) {
     return null;
   }
 
-  const content = await parseMarkdown(markdownContent);
+  const content = await parseMarkdown(markdownContent, markdownOptions);
 
   return (
     <div

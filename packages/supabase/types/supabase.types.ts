@@ -34,6 +34,87 @@ export type Database = {
   }
   public: {
     Tables: {
+      mayor_profile: {
+        Row: {
+          bio: string | null
+          birth_date: string | null
+          created_at: string
+          end_date: string | null
+          id: number
+          image_url: string | null
+          is_current: boolean | null
+          name: string | null
+          name_kana: string | null
+          official_url: string | null
+          start_date: string | null
+          term_number: number | null
+        }
+        Insert: {
+          bio?: string | null
+          birth_date?: string | null
+          created_at?: string
+          end_date?: string | null
+          id?: number
+          image_url?: string | null
+          is_current?: boolean | null
+          name?: string | null
+          name_kana?: string | null
+          official_url?: string | null
+          start_date?: string | null
+          term_number?: number | null
+        }
+        Update: {
+          bio?: string | null
+          birth_date?: string | null
+          created_at?: string
+          end_date?: string | null
+          id?: number
+          image_url?: string | null
+          is_current?: boolean | null
+          name?: string | null
+          name_kana?: string | null
+          official_url?: string | null
+          start_date?: string | null
+          term_number?: number | null
+        }
+        Relationships: []
+      }
+      meetings: {
+        Row: {
+          created_at: string
+          date: string | null
+          id: number
+          mayor_proposal_source_url: string | null
+          mayor_proposal_summary: string | null
+          mayor_proposal_text: string | null
+          meeting_type: string | null
+          term: string | null
+          title: string | null
+        }
+        Insert: {
+          created_at?: string
+          date?: string | null
+          id?: number
+          mayor_proposal_source_url?: string | null
+          mayor_proposal_summary?: string | null
+          mayor_proposal_text?: string | null
+          meeting_type?: string | null
+          term?: string | null
+          title?: string | null
+        }
+        Update: {
+          created_at?: string
+          date?: string | null
+          id?: number
+          mayor_proposal_source_url?: string | null
+          mayor_proposal_summary?: string | null
+          mayor_proposal_text?: string | null
+          meeting_type?: string | null
+          term?: string | null
+          title?: string | null
+        }
+        Relationships: []
+      }
       meeting_sessions: {
         Row: {
           attendees: Json | null
@@ -203,6 +284,57 @@ export type Database = {
             columns: ["bill_id"]
             isOneToOne: true
             referencedRelation: "proposals"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      politician_speech_highlights: {
+        Row: {
+          context: string | null
+          created_at: string
+          id: string
+          is_published: boolean
+          meeting_session_id: number
+          politician_id: string
+          quote: string
+          title: string
+          updated_at: string
+        }
+        Insert: {
+          context?: string | null
+          created_at?: string
+          id?: string
+          is_published?: boolean
+          meeting_session_id: number
+          politician_id: string
+          quote: string
+          title: string
+          updated_at?: string
+        }
+        Update: {
+          context?: string | null
+          created_at?: string
+          id?: string
+          is_published?: boolean
+          meeting_session_id?: number
+          politician_id?: string
+          quote?: string
+          title?: string
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "politician_speech_highlights_meeting_session_id_fkey"
+            columns: ["meeting_session_id"]
+            isOneToOne: false
+            referencedRelation: "meeting_sessions"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "politician_speech_highlights_politician_id_fkey"
+            columns: ["politician_id"]
+            isOneToOne: false
+            referencedRelation: "politicians"
             referencedColumns: ["id"]
           },
         ]
@@ -1327,6 +1459,7 @@ export type Database = {
           interview_session_id: string
           is_public_by_admin: boolean
           is_public_by_user: boolean
+          municipality_connection: "resident" | "connected" | "other" | null
           opinions: Json | null
           role: Database["public"]["Enums"]["interview_report_role_enum"] | null
           role_description: string | null
@@ -1334,6 +1467,7 @@ export type Database = {
           scores: Json | null
           stance: Database["public"]["Enums"]["stance_type_enum"] | null
           summary: string | null
+          topic_voice_featured_at: string | null
           total_score: number | null
           updated_at: string
         }
@@ -1343,6 +1477,7 @@ export type Database = {
           interview_session_id: string
           is_public_by_admin?: boolean
           is_public_by_user?: boolean
+          municipality_connection?: "resident" | "connected" | "other" | null
           opinions?: Json | null
           role?:
             | Database["public"]["Enums"]["interview_report_role_enum"]
@@ -1352,6 +1487,7 @@ export type Database = {
           scores?: Json | null
           stance?: Database["public"]["Enums"]["stance_type_enum"] | null
           summary?: string | null
+          topic_voice_featured_at?: string | null
           total_score?: number | null
           updated_at?: string
         }
@@ -1361,6 +1497,7 @@ export type Database = {
           interview_session_id?: string
           is_public_by_admin?: boolean
           is_public_by_user?: boolean
+          municipality_connection?: "resident" | "connected" | "other" | null
           opinions?: Json | null
           role?:
             | Database["public"]["Enums"]["interview_report_role_enum"]
@@ -1370,6 +1507,7 @@ export type Database = {
           scores?: Json | null
           stance?: Database["public"]["Enums"]["stance_type_enum"] | null
           summary?: string | null
+          topic_voice_featured_at?: string | null
           total_score?: number | null
           updated_at?: string
         }
@@ -1992,6 +2130,14 @@ export type Database = {
       [_ in never]: never
     }
     Functions: {
+      save_admin_topic_content: {
+        Args: {
+          article_id: string
+          expected_updated_at: string
+          content_input: Json
+        }
+        Returns: undefined
+      }
       count_reactions_by_report_ids: {
         Args: { report_ids: string[] }
         Returns: {

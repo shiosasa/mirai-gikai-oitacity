@@ -66,6 +66,41 @@ describe("ArticleAccordionCard", () => {
     expect(screen.getByText("| サイト公開日: 2026/9/1")).toBeDefined();
   });
 
+  it("shows featured interview voices with a link to the full report", () => {
+    render(
+      createElement(ArticleAccordionCard, {
+        article: {
+          ...article,
+          voices: [
+            {
+              reportId: "report-1",
+              municipalityConnectionLabel: "大分市在住",
+              stance: "for",
+              roleLabel: "保護者",
+              summary: "送迎の負担が減るので期待しています。",
+            },
+          ],
+        },
+      })
+    );
+
+    expect(screen.getByText("みんなの生の声")).toBeDefined();
+    expect(screen.getByText("大分市在住")).toBeDefined();
+    expect(screen.getByText("保護者")).toBeDefined();
+    expect(screen.getByText("期待している")).toBeDefined();
+    expect(
+      screen
+        .getByRole("link", { name: "インタビューレポートを読む →" })
+        .getAttribute("href")
+    ).toBe("/report/report-1");
+  });
+
+  it("omits the voices section when no voice is featured", () => {
+    render(createElement(ArticleAccordionCard, { article }));
+
+    expect(screen.queryByText("みんなの生の声")).toBeNull();
+  });
+
   it("omits the decision label and separator for a report without a vote", () => {
     render(
       createElement(ArticleAccordionCard, {

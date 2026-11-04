@@ -22,7 +22,7 @@ import { BILL_STATUS_CONFIG } from "../../../shared/constants/bill-config";
 import type { BillPublishStatus, BillStatus } from "../../../shared/types";
 import { getBillStatusLabel } from "../../../shared/types";
 import { BillActionsMenu } from "../bill-actions-menu/bill-actions-menu";
-import { PreviewButton } from "./preview-button";
+import { PreviewButton } from "../preview-button";
 import { PublishStatusBadge } from "./publish-status-badge";
 import { ViewButton } from "./view-button";
 

@@ -8,6 +8,7 @@ import {
   formatBillPickupNumber,
   getBillPickupHeading,
   getBillPickupKind,
+  sortBillPickupItemsByUpdatedAt,
 } from "./build-bill-pickup-items";
 
 describe("buildBillPickupItems", () => {
@@ -403,5 +404,41 @@ describe("buildBillPickupItems", () => {
       "令和8年陳情第1号"
     );
     expect(formatBillPickupNumber("議第1号", "")).toBe("議第1号");
+  });
+});
+
+describe("sortBillPickupItemsByUpdatedAt", () => {
+  const item = (billId: string, updatedAt: string | null) => ({
+    billId,
+    description: null,
+    kind: "法案" as const,
+    updatedAt,
+    status: null,
+    categories: [],
+    relatedTopicTitles: [],
+    references: [],
+  });
+
+  it("puts the most recently updated bills first and undated bills last", () => {
+    const sorted = sortBillPickupItemsByUpdatedAt([
+      item("old", "2026-10-10T01:50:33.049923+00:00"),
+      item("none", null),
+      item("new", "2026-10-31T13:26:21.491147+00:00"),
+      item("mid", "2026-10-31T13:26:21.252802+00:00"),
+    ]);
+    expect(sorted.map((entry) => entry.billId)).toEqual([
+      "new",
+      "mid",
+      "old",
+      "none",
+    ]);
+  });
+
+  it("keeps the original order for equal timestamps", () => {
+    const sorted = sortBillPickupItemsByUpdatedAt([
+      item("a", "2026-10-10T00:00:00Z"),
+      item("b", "2026-10-10T00:00:00Z"),
+    ]);
+    expect(sorted.map((entry) => entry.billId)).toEqual(["a", "b"]);
   });
 });

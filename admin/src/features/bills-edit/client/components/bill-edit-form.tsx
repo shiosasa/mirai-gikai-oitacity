@@ -7,6 +7,7 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Form } from "@/components/ui/form";
 
+import { PreviewButton } from "@/features/bills/client/components/preview-button";
 import type { Committee } from "@/features/committees/shared/types";
 import type { CouncilSession } from "@/features/council-sessions/shared/types";
 import { updateBill } from "../../server/actions/update-bill";
@@ -31,11 +32,6 @@ export function BillEditForm({
 }: BillEditFormProps) {
   const { isSubmitting, error, handleSubmit, handleCancel } = useBillForm();
 
-  // If bill has no council_session_id, default to the latest session (first in the list)
-  const defaultCouncilSessionId =
-    bill.council_session_id ??
-    (councilSessions.length > 0 ? councilSessions[0].id : null);
-
   const form = useForm<BillUpdateInput>({
     resolver: zodResolver(billUpdateSchema),
     defaultValues: {
@@ -50,15 +46,21 @@ export function BillEditForm({
       share_thumbnail_url: bill.share_thumbnail_url,
       is_featured: bill.is_featured,
       committee_id: bill.committee_id,
-      council_session_id: defaultCouncilSessionId,
+      council_session_id: bill.council_session_id,
     },
   });
 
   const onSubmit = (data: BillUpdateInput) => {
-    handleSubmit(
-      () => updateBill(bill.id, data),
-      "更新中にエラーが発生しました"
-    );
+    if (
+      !window.confirm(
+        "議案の基本情報・画像を保存します。公開中の議案に反映されます。変更内容を確認しましたか？"
+      )
+    )
+      return;
+    handleSubmit(async () => {
+      await updateBill(bill.id, data);
+      form.reset(data);
+    }, "更新中にエラーが発生しました");
   };
 
   return (
@@ -86,6 +88,13 @@ export function BillEditForm({
               <Button type="submit" disabled={isSubmitting}>
                 {isSubmitting ? "保存中..." : "保存"}
               </Button>
+              {(bill.publish_status === "draft" ||
+                bill.publish_status === "coming_soon") && (
+                <PreviewButton
+                  billId={bill.id}
+                  disabled={form.formState.isDirty || isSubmitting}
+                />
+              )}
               <Button
                 type="button"
                 variant="outline"
@@ -95,6 +104,13 @@ export function BillEditForm({
                 キャンセル
               </Button>
             </div>
+            {form.formState.isDirty &&
+              (bill.publish_status === "draft" ||
+                bill.publish_status === "coming_soon") && (
+                <p className="text-sm text-gray-500">
+                  変更を保存すると、プレビューに反映されます。
+                </p>
+              )}
           </form>
         </Form>
       </CardContent>

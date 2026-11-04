@@ -1,13 +1,15 @@
+import { ArrowLeft, ExternalLink } from "lucide-react";
 import Link from "next/link";
 import { notFound } from "next/navigation";
-import { ArrowLeft, ExternalLink } from "lucide-react";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { findCommitteeList } from "@/features/committee-minutes/server/repositories/meeting-repository";
+import { PoliticianSpeechSection } from "../../shared/components/politician-speech-section";
+import { parseCommitteeAssignments } from "../../shared/utils/parse-committee-assignments";
+import { getPoliticianSpeechHighlights } from "../loaders/get-politician-speech-highlights";
 import {
   getPoliticianDiscussions,
   getPublishedPolitician,
 } from "../loaders/get-published-politician";
-import { parseCommitteeAssignments } from "../../shared/utils/parse-committee-assignments";
 
 type PoliticianProfileProps = {
   id: string;
@@ -50,8 +52,11 @@ export async function PoliticianProfile({ id }: PoliticianProfileProps) {
   const politician = await getPublishedPolitician(id);
   if (!politician) notFound();
 
-  const discussions = await getPoliticianDiscussions(id);
-  const committees = await findCommitteeList();
+  const [discussions, committees, speechData] = await Promise.all([
+    getPoliticianDiscussions(id),
+    findCommitteeList(),
+    getPoliticianSpeechHighlights(id),
+  ]);
   const committeeIdByName = new Map(
     committees.map((committee) => [committee.title, committee.id])
   );
@@ -63,7 +68,7 @@ export async function PoliticianProfile({ id }: PoliticianProfileProps) {
         className="inline-flex items-center gap-2 text-sm font-semibold text-mirai-text-secondary hover:text-mirai-text"
       >
         <ArrowLeft aria-hidden="true" className="size-4" />
-        議員紹介へ戻る
+        市長・議員紹介へ戻る
       </Link>
 
       <section className="mt-6 border-b border-oita-pink-accent pb-7">
@@ -143,43 +148,12 @@ export async function PoliticianProfile({ id }: PoliticianProfileProps) {
         </ul>
       </section>
 
-      <section className="pt-7">
-        <h2 className="text-lg font-bold text-mirai-text">議会での発言</h2>
-        {discussions.length === 0 ? (
-          <p className="mt-3 text-sm text-mirai-text-secondary">
-            関連する発言はまだ掲載されていません。
-          </p>
-        ) : (
-          <ul className="mt-4 divide-y divide-mirai-border">
-            {discussions.map((discussion) => (
-              <li key={discussion.id} className="py-4">
-                <Link
-                  href={`/bills/${discussion.bills?.id}`}
-                  className="font-semibold text-primary hover:underline"
-                >
-                  {discussion.bills?.name ?? "関連議案"}
-                </Link>
-                {discussion.question_summary && (
-                  <p className="mt-2 text-sm leading-6 text-mirai-text">
-                    {discussion.question_summary}
-                  </p>
-                )}
-                {discussion.source_url && (
-                  <a
-                    href={discussion.source_url}
-                    target="_blank"
-                    rel="noreferrer"
-                    className="mt-2 inline-flex items-center gap-1 text-xs font-semibold text-primary hover:underline"
-                  >
-                    議会中継を見る{" "}
-                    <ExternalLink aria-hidden="true" className="size-3" />
-                  </a>
-                )}
-              </li>
-            ))}
-          </ul>
-        )}
-      </section>
+      <PoliticianSpeechSection
+        highlights={speechData.highlights}
+        discussions={discussions}
+        invalidCount={speechData.invalidCount}
+        isPreview={speechData.isPreview}
+      />
     </main>
   );
 }

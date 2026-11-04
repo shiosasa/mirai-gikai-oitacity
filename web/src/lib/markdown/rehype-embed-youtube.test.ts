@@ -63,6 +63,15 @@ https://www.youtube.com/watch?v=dQw4w9WgXcQ
     expect(normalizeHTML(output)).toBe(normalizeHTML(expected));
   });
 
+  it("should not embed URLs that only resemble a YouTube host", async () => {
+    const input = "https://youtube.com.example.org/watch?v=dQw4w9WgXcQ";
+
+    const result = await processor.process(input);
+
+    expect(result.toString()).not.toContain("<iframe");
+    expect(result.toString()).toContain("youtube.com.example.org");
+  });
+
   it("should handle multiple YouTube URLs", async () => {
     const input = `最初の動画：
 

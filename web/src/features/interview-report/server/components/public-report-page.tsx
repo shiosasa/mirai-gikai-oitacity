@@ -64,6 +64,8 @@ export async function PublicReportPage({ reportId }: PublicReportPageProps) {
           summary={data.summary}
           stance={data.stance}
           role={data.role}
+          roleTitle={data.role_title}
+          municipalityConnection={data.municipality_connection}
           sessionStartedAt={data.session_started_at}
           duration={duration}
           characterCount={data.characterCount}

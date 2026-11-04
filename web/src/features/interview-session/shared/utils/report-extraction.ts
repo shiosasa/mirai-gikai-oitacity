@@ -1,4 +1,6 @@
+import { MUNICIPALITY_CONNECTIONS } from "@mirai-gikai/shared/interview/municipality-connection";
 import { z } from "zod";
+import { parseMessageContent } from "../message-utils";
 import { type InterviewReportData, interviewReportSchema } from "../schemas";
 
 /**
@@ -7,7 +9,12 @@ import { type InterviewReportData, interviewReportSchema } from "../schemas";
  */
 const reportExtractionSchema = z.object({
   text: z.string(),
-  report: interviewReportSchema,
+  report: interviewReportSchema.extend({
+    municipality_connection: z
+      .enum(MUNICIPALITY_CONNECTIONS)
+      .nullable()
+      .optional(),
+  }),
 });
 
 /**
@@ -20,11 +27,29 @@ export function extractReportFromMessage(
     const parsed = JSON.parse(content);
     const result = reportExtractionSchema.safeParse(parsed);
     if (result.success) {
-      return result.data.report;
+      return {
+        ...result.data.report,
+        municipality_connection:
+          result.data.report.municipality_connection ?? null,
+      };
     }
   } catch (e) {
     // JSONでない場合は無視
     console.error("Failed to parse report from message content", content, e);
   }
   return null;
+}
+
+/** 新しい順の履歴で、最新メッセージだけを提出対象にする。 */
+export function extractCurrentReport(
+  messagesNewestFirst: ReadonlyArray<{ role: string; content: string }>
+): InterviewReportData | null {
+  const latestMessage = messagesNewestFirst[0];
+  if (
+    latestMessage?.role !== "assistant" ||
+    !parseMessageContent(latestMessage.content).report
+  ) {
+    return null;
+  }
+  return extractReportFromMessage(latestMessage.content);
 }

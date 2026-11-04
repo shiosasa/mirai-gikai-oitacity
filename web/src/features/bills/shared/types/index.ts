@@ -43,6 +43,17 @@ export type BillArticle = Omit<
   related_bill_id?: string | null;
   /** 記事と同名の議案に公開中のAIインタビューがある場合、その bills.id */
   interview_bill_id?: string | null;
+  /** 管理者が「生の声」に採用したAIインタビュー回答（本人・管理者とも公開済み） */
+  voices?: TopicVoice[];
+};
+
+// トピックス記事に掲載するAIインタビューの「生の声」
+export type TopicVoice = {
+  reportId: string;
+  municipalityConnectionLabel: string | null;
+  stance: string | null;
+  roleLabel: string | null;
+  summary: string;
 };
 export type BillArticleInsert =
   Database["public"]["Tables"]["bill_articles"]["Insert"];

@@ -1,11 +1,13 @@
-import type { ReactNode } from "react";
+import type { MunicipalityConnection } from "@mirai-gikai/shared/interview/municipality-connection";
+import { getMunicipalityConnectionLabel } from "@mirai-gikai/shared/interview/municipality-connection";
 import { MessageSquareMore } from "lucide-react";
 import Link from "next/link";
+import type { ReactNode } from "react";
 import { SpeechBubble } from "@/components/ui/speech-bubble";
 import { getInterviewChatLogLink } from "@/features/interview-config/shared/utils/interview-links";
-import type { Opinion } from "./opinions-list";
 import { BackToBillButton } from "./back-to-bill-button";
 import { IntervieweeInfo } from "./interviewee-info";
+import type { Opinion } from "./opinions-list";
 import { OpinionsList } from "./opinions-list";
 import { ReportBreadcrumb } from "./report-breadcrumb";
 import { ReportMetaInfo } from "./report-meta-info";
@@ -16,6 +18,8 @@ interface ReportContentProps {
   summary: string | null;
   stance: string | null;
   role: string | null;
+  roleTitle: string | null;
+  municipalityConnection: MunicipalityConnection | null;
   sessionStartedAt: string | null;
   duration?: string;
   characterCount: number;
@@ -31,6 +35,8 @@ export function ReportContent({
   summary,
   stance,
   role,
+  roleTitle,
+  municipalityConnection,
   sessionStartedAt,
   duration,
   characterCount,
@@ -38,6 +44,10 @@ export function ReportContent({
   opinions,
   children,
 }: ReportContentProps) {
+  const municipalityConnectionLabel = getMunicipalityConnectionLabel(
+    municipalityConnection
+  );
+
   return (
     <div className="flex flex-col gap-9">
       {/* 要約カード */}
@@ -47,6 +57,15 @@ export function ReportContent({
             {summary}
           </p>
         </SpeechBubble>
+
+        {(municipalityConnection || roleTitle) && (
+          <div className="flex flex-col items-center gap-1 text-sm font-bold text-gray-800">
+            {municipalityConnectionLabel && (
+              <p>市とのつながり：{municipalityConnectionLabel}</p>
+            )}
+            {roleTitle && <p>記事との関わり：{roleTitle}</p>}
+          </div>
+        )}
 
         {/* スタンスと日時情報 */}
         <ReportMetaInfo

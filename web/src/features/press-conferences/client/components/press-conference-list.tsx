@@ -12,9 +12,9 @@ export function PressConferenceList({ pressConferences }: Props) {
   return (
     <div className="flex flex-col gap-6">
       <div className="flex flex-col gap-1">
-        <h1 className="text-xl font-bold text-mirai-text">知事記者会見</h1>
+        <h1 className="text-xl font-bold text-mirai-text">市長記者会見</h1>
         <p className="text-sm text-mirai-text-secondary">
-          服部知事が記者の皆さんと直接やりとりした内容をわかりやすくお届けします。
+          大分市長と記者のやりとりを紹介します。
         </p>
       </div>
 
@@ -43,7 +43,7 @@ export function PressConferenceList({ pressConferences }: Props) {
                   <span className="text-sm font-medium">{formattedDate}</span>
                 </div>
                 <span className="text-xs text-primary-accent bg-white/60 rounded-full px-2 py-0.5 font-medium">
-                  知事定例記者会見
+                  市長定例記者会見
                 </span>
               </div>
 

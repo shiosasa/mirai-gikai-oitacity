@@ -11,9 +11,9 @@ export function PoliticiansBanner() {
       <div className="flex items-start gap-3">
         <User className="w-6 h-6 text-primary shrink-0 mt-0.5" />
         <div>
-          <p className="font-bold text-mirai-text">議員紹介</p>
+          <p className="font-bold text-mirai-text">市長・議員紹介</p>
           <p className="mt-0.5 text-sm text-mirai-text-secondary">
-            {siteConfig.councilName}の議員を紹介します
+            {siteConfig.cityName}の市長と市議会議員を紹介します
           </p>
         </div>
       </div>

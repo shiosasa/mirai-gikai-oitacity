@@ -1,8 +1,8 @@
 "use client";
 
+import { ArrowLeft, ExternalLink, Globe, Mail, User } from "lucide-react";
 import Image from "next/image";
 import Link from "next/link";
-import { User, Globe, Mail, ExternalLink, ArrowLeft } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import type { Politician } from "@/features/politicians/shared/types/politician";
@@ -19,7 +19,7 @@ export function PoliticianProfile({ politician }: PoliticianProfileProps) {
         className="inline-flex items-center gap-1 text-sm text-mirai-text-secondary hover:text-primary transition-colors"
       >
         <ArrowLeft className="w-4 h-4" />
-        議員一覧へ戻る
+        市長・議員紹介へ戻る
       </Link>
 
       <div className="bg-white border border-mirai-border rounded-2xl p-6 shadow-xs space-y-6">

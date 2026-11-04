@@ -32,7 +32,7 @@ export function PressConferenceDetail({ pressConference }: Props) {
           {pressConference.title}
         </h1>
         <p className="text-sm text-mirai-text-secondary leading-relaxed">
-          服部知事が記者の皆さんと直接やりとりした内容を、わかりやすくお届けします。
+          大分市長と記者のやりとりを紹介します。
         </p>
         {pressConference.youtubeUrl && (
           <a
@@ -53,7 +53,7 @@ export function PressConferenceDetail({ pressConference }: Props) {
           <div className="flex items-center gap-2">
             <span className="text-xl">📣</span>
             <h2 className="text-base font-bold text-mirai-text">
-              県からの発表
+              市からの発表
             </h2>
             <span className="text-xs text-mirai-text-muted bg-mirai-surface-muted rounded-full px-2 py-0.5">
               {announcements.length}件
@@ -78,7 +78,9 @@ export function PressConferenceDetail({ pressConference }: Props) {
           </span>
         </div>
         <p className="text-xs text-mirai-text-muted -mt-2">
-          タップすると詳しいやりとりが読めます
+          {qaItems.length > 0
+            ? "タップすると要約や、登録されたやりとりを確認できます。"
+            : "質疑の内容は準備中です。"}
         </p>
         <div className="flex flex-col gap-2">
           {qaItems.map((item, i) => (

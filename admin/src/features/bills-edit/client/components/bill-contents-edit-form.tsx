@@ -5,6 +5,7 @@ import { Loader2, Search } from "lucide-react";
 import { useRouter } from "next/navigation";
 import { useState } from "react";
 import { useForm } from "react-hook-form";
+import ReactMarkdown from "react-markdown";
 import { toast } from "sonner";
 
 import { Button } from "@/components/ui/button";
@@ -21,6 +22,7 @@ import {
 import { Input } from "@/components/ui/input";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Textarea } from "@/components/ui/textarea";
+import { PreviewButton } from "@/features/bills/client/components/preview-button";
 import { enrichBillContents } from "../../actions/enrich-bill-contents";
 import { updateBillContents } from "../../server/actions/update-bill-contents";
 import type { Bill } from "../../shared/types";
@@ -33,6 +35,7 @@ import {
   billContentsUpdateSchema,
   DIFFICULTY_LEVELS,
 } from "../../shared/types/bill-contents";
+import { MarkdownContentEditor } from "./markdown-content-editor";
 
 interface BillContentsEditFormProps {
   bill: Bill;
@@ -47,6 +50,7 @@ export function BillContentsEditForm({
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [isEnriching, setIsEnriching] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [showPreview, setShowPreview] = useState(false);
 
   // BillContent配列を難易度別のオブジェクトに変換
   const contentsByDifficulty = billContents.reduce(
@@ -98,11 +102,21 @@ export function BillContentsEditForm({
         return;
       }
 
-      form.setValue("hard.content", result.content.hard.content);
-      form.setValue("hard.summary", result.content.hard.summary);
-      form.setValue("normal.title", result.content.normal.title);
-      form.setValue("normal.content", result.content.normal.content);
-      form.setValue("normal.summary", result.content.normal.summary);
+      form.setValue("hard.content", result.content.hard.content, {
+        shouldDirty: true,
+      });
+      form.setValue("hard.summary", result.content.hard.summary, {
+        shouldDirty: true,
+      });
+      form.setValue("normal.title", result.content.normal.title, {
+        shouldDirty: true,
+      });
+      form.setValue("normal.content", result.content.normal.content, {
+        shouldDirty: true,
+      });
+      form.setValue("normal.summary", result.content.normal.summary, {
+        shouldDirty: true,
+      });
 
       toast.success(
         "コンテンツを補完しました。内容を確認して保存してください。"
@@ -116,13 +130,21 @@ export function BillContentsEditForm({
   }
 
   async function onSubmit(data: BillContentsUpdateInput) {
+    if (
+      !window.confirm(
+        "詳細本文を保存します。公開中の議案は公開サイトにも反映されます。内容・出典を確認しましたか？"
+      )
+    )
+      return;
     setIsSubmitting(true);
     setError(null);
 
     const result = await updateBillContents(bill.id, data);
 
     if (result.success) {
+      form.reset(data);
       toast.success("議案コンテンツを更新しました");
+      router.refresh();
     } else {
       setError(result.error);
       toast.error("更新に失敗しました");
@@ -136,29 +158,45 @@ export function BillContentsEditForm({
       <CardHeader>
         <div className="flex items-start justify-between gap-4">
           <div>
-            <CardTitle>議案コンテンツ編集</CardTitle>
+            <CardTitle>詳細本文を編集</CardTitle>
             <p className="text-sm text-gray-600 mt-1">{bill.name}</p>
           </div>
-          <Button
-            type="button"
-            variant="outline"
-            onClick={handleEnrich}
-            disabled={isEnriching || isSubmitting}
-            className="shrink-0"
-          >
-            {isEnriching ? (
-              <>
-                <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                Web検索中...
-              </>
-            ) : (
-              <>
-                <Search className="mr-2 h-4 w-4" />
-                Web検索で補完
-              </>
+          <div className="flex flex-wrap items-center gap-2">
+            {(bill.publish_status === "draft" ||
+              bill.publish_status === "coming_soon") && (
+              <PreviewButton
+                billId={bill.id}
+                disabled={form.formState.isDirty || isSubmitting || isEnriching}
+              />
             )}
-          </Button>
+            <Button
+              type="button"
+              variant="outline"
+              onClick={handleEnrich}
+              disabled={isEnriching || isSubmitting}
+              className="shrink-0"
+            >
+              {isEnriching ? (
+                <>
+                  <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                  Web検索中...
+                </>
+              ) : (
+                <>
+                  <Search className="mr-2 h-4 w-4" />
+                  Web検索で補完
+                </>
+              )}
+            </Button>
+          </div>
         </div>
+        {form.formState.isDirty &&
+          (bill.publish_status === "draft" ||
+            bill.publish_status === "coming_soon") && (
+            <p className="text-sm text-gray-500 mt-2">
+              変更を保存すると、プレビューに反映されます。
+            </p>
+          )}
         {isEnriching && (
           <p className="text-xs text-gray-500 mt-2">
             Webを検索してコンテンツを生成しています。数分かかる場合があります...
@@ -166,6 +204,13 @@ export function BillContentsEditForm({
         )}
       </CardHeader>
       <CardContent>
+        <p className="mb-4 text-sm text-muted-foreground">
+          公開サイトの「取り組みの詳細」や重要ポイントなどは、この本文を表示します。
+          「ふつう」は通常表示、「難しい」は「説明をもっと詳しく」で使われます。
+          見出し「##
+          取り組みの詳細」を維持すると、詳細ページの同名の欄に表示されます。
+          空欄で保存すると、その説明を消します。公開状態・インタビューは変更しません。
+        </p>
         <Form {...form}>
           <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
             <Tabs defaultValue="normal" className="">
@@ -200,6 +245,31 @@ export function BillContentsEditForm({
                       </FormItem>
                     )}
                   />
+                  <Button
+                    type="button"
+                    variant="outline"
+                    onClick={() => setShowPreview((value) => !value)}
+                  >
+                    {showPreview ? "プレビューを閉じる" : "保存前の本文を確認"}
+                  </Button>
+                  {showPreview && (
+                    <section
+                      aria-label={`${level.label}の本文プレビュー`}
+                      className="space-y-3 rounded-lg border p-4"
+                    >
+                      <h3 className="text-lg font-bold">
+                        {form.watch(`${level.value}.title`)}
+                      </h3>
+                      <p className="whitespace-pre-wrap">
+                        {form.watch(`${level.value}.summary`)}
+                      </p>
+                      <div className="prose max-w-none">
+                        <ReactMarkdown>
+                          {form.watch(`${level.value}.content`) ?? ""}
+                        </ReactMarkdown>
+                      </div>
+                    </section>
+                  )}
 
                   <FormField
                     control={form.control}
@@ -225,12 +295,10 @@ export function BillContentsEditForm({
                     render={({ field }) => (
                       <FormItem>
                         <FormLabel>内容</FormLabel>
-                        <FormControl>
-                          <Textarea
-                            {...field}
-                            className="min-h-[400px] font-mono text-sm"
-                          />
-                        </FormControl>
+                        <MarkdownContentEditor
+                          value={field.value ?? ""}
+                          onChange={field.onChange}
+                        />
                         <FormDescription>
                           {level.label}
                           レベル向けの内容をMarkdown形式で入力してください（任意・最大50000文字）

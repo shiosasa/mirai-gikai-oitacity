@@ -1,5 +1,7 @@
 import { PoliticianProfile } from "@/features/politicians/server/components/politician-profile";
 
+export const dynamic = "force-dynamic";
+
 interface PoliticianDetailPageProps {
   params: Promise<{ id: string }>;
 }

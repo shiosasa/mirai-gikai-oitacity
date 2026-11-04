@@ -25,6 +25,7 @@ import type {
 } from "@/features/interview-session/shared/types";
 import { DEFAULT_INTERVIEW_CHAT_MODEL } from "@/lib/ai/models";
 import { logger } from "@/lib/logger";
+import { isUsableSummaryResponse } from "../../shared/utils/is-usable-summary-response";
 import { mergeMessagesWithIds } from "../../shared/utils/merge-messages-with-ids";
 import {
   buildInterviewSystemPrompt,
@@ -228,6 +229,12 @@ async function generateStreamingResponse({
   const handleFinish = async (event: { text?: string }) => {
     try {
       if (event.text) {
+        if (isSummaryPhase && !isUsableSummaryResponse(event.text)) {
+          console.error(
+            "Invalid interview summary response; assistant message was not saved"
+          );
+          return;
+        }
         await saveInterviewMessage({
           sessionId,
           role: "assistant",

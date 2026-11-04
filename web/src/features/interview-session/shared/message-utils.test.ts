@@ -18,6 +18,7 @@ describe("isValidReport", () => {
         role: null,
         role_description: null,
         role_title: null,
+        municipality_connection: null,
         opinions: [],
       })
     ).toBe(false);
@@ -31,6 +32,7 @@ describe("isValidReport", () => {
         role: null,
         role_description: null,
         role_title: null,
+        municipality_connection: null,
         opinions: [],
       })
     ).toBe(true);
@@ -44,6 +46,7 @@ describe("isValidReport", () => {
         role: null,
         role_description: null,
         role_title: null,
+        municipality_connection: null,
         opinions: [],
       })
     ).toBe(true);
@@ -57,6 +60,7 @@ describe("isValidReport", () => {
         role: "subject_expert",
         role_description: null,
         role_title: null,
+        municipality_connection: null,
         opinions: [],
       })
     ).toBe(true);
@@ -70,6 +74,7 @@ describe("isValidReport", () => {
         role: null,
         role_description: "専門家として",
         role_title: null,
+        municipality_connection: null,
         opinions: [],
       })
     ).toBe(true);
@@ -83,6 +88,7 @@ describe("isValidReport", () => {
         role: null,
         role_description: null,
         role_title: "教師",
+        municipality_connection: null,
         opinions: [],
       })
     ).toBe(true);
@@ -96,6 +102,7 @@ describe("isValidReport", () => {
         role: null,
         role_description: null,
         role_title: null,
+        municipality_connection: null,
         opinions: [
           { title: "意見1", content: "内容1", source_message_id: null },
         ],
@@ -119,6 +126,7 @@ describe("parseMessageContent", () => {
       quickReplies: ["はい", "いいえ"],
       questionId: "q1",
       topicTitle: "経済政策",
+      nextStage: null,
     });
   });
 
@@ -130,6 +138,7 @@ describe("parseMessageContent", () => {
       quickReplies: [],
       questionId: null,
       topicTitle: null,
+      nextStage: null,
     });
   });
 
@@ -141,6 +150,7 @@ describe("parseMessageContent", () => {
       quickReplies: [],
       questionId: null,
       topicTitle: null,
+      nextStage: null,
     });
   });
 
@@ -153,7 +163,34 @@ describe("parseMessageContent", () => {
       quickReplies: [],
       questionId: null,
       topicTitle: null,
+      nextStage: null,
     });
+  });
+
+  it("保存済みの有効なnext_stageを復元し、不正な値は無視する", () => {
+    expect(
+      parseMessageContent(
+        JSON.stringify({ text: "まとめますか？", next_stage: "summary" })
+      ).nextStage
+    ).toBe("summary");
+    expect(
+      parseMessageContent(
+        JSON.stringify({ text: "こんにちは", next_stage: "invalid" })
+      ).nextStage
+    ).toBeNull();
+  });
+
+  it("会話を再開する応答に誤って含まれたレポートは復元しない", () => {
+    const result = parseMessageContent(
+      JSON.stringify({
+        text: "続きを聞かせてください",
+        next_stage: "chat",
+        report: { summary: "以前の要約", opinions: [] },
+      })
+    );
+
+    expect(result.nextStage).toBe("chat");
+    expect(result.report).toBeNull();
   });
 
   it("reportがある場合にInterviewReportViewDataとして返す", () => {
@@ -165,6 +202,7 @@ describe("parseMessageContent", () => {
         role: "general_citizen",
         role_description: "一般市民",
         role_title: "市民",
+        municipality_connection: null,
         opinions: [{ title: "意見", content: "内容" }],
       },
     });
@@ -175,6 +213,7 @@ describe("parseMessageContent", () => {
       role: "general_citizen",
       role_description: "一般市民",
       role_title: "市民",
+      municipality_connection: null,
       opinions: [{ title: "意見", content: "内容" }],
     });
     expect(result.text).toBe("レポートです");
@@ -189,6 +228,7 @@ describe("parseMessageContent", () => {
         role: null,
         role_description: null,
         role_title: null,
+        municipality_connection: null,
         opinions: [],
         scores: { total: 80, clarity: 70 },
       },
@@ -207,6 +247,7 @@ describe("parseMessageContent", () => {
         role: null,
         role_description: null,
         role_title: null,
+        municipality_connection: null,
         opinions: [],
       },
     });

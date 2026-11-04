@@ -52,13 +52,14 @@ function StatusBadge({ message }: StatusBadgeProps) {
       <div className="w-full text-center bg-mirai-gradient rounded-lg px-4 py-3.5">
         <span className="text-base font-medium text-black">{message}</span>
       </div>
-      {/* 下向き三角形 */}
+      {/* 下向き三角形（吹き出し下辺中央のピンクに合わせる） */}
       <div
         className="absolute left-1/2 -translate-x-1/2 w-0 h-0"
         style={{
           borderLeft: "7.5px solid transparent",
           borderRight: "7.5px solid transparent",
-          borderTop: "7.5px solid var(--color-mirai-progress-fill)",
+          borderTop:
+            "7.5px solid color-mix(in srgb, var(--color-mirai-gradient-start), var(--color-mirai-gradient-end))",
         }}
       />
     </div>

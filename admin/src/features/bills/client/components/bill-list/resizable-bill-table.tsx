@@ -5,15 +5,6 @@ import Link from "next/link";
 import { usePathname, useRouter, useSearchParams } from "next/navigation";
 import { useCallback, useState } from "react";
 import { Button } from "@/components/ui/button";
-import { BillActionsMenu } from "../bill-actions-menu/bill-actions-menu";
-import { PreviewButton } from "./preview-button";
-import { PublishStatusBadge } from "./publish-status-badge";
-import { FeaturedFilter } from "./featured-filter";
-import { PublishStatusFilter } from "./publish-status-filter";
-import { ReviewStatusFilter } from "./review-status-filter";
-import { SessionFilter } from "./session-filter";
-import { TagFilter } from "./tag-filter";
-import { ViewButton } from "./view-button";
 import { BILL_STATUS_CONFIG } from "../../../shared/constants/bill-config";
 import type {
   BillSortConfig,
@@ -22,6 +13,15 @@ import type {
   BillWithCouncilSession,
 } from "../../../shared/types";
 import { getBillStatusLabel } from "../../../shared/types";
+import { BillActionsMenu } from "../bill-actions-menu/bill-actions-menu";
+import { PreviewButton } from "../preview-button";
+import { FeaturedFilter } from "./featured-filter";
+import { PublishStatusBadge } from "./publish-status-badge";
+import { PublishStatusFilter } from "./publish-status-filter";
+import { ReviewStatusFilter } from "./review-status-filter";
+import { SessionFilter } from "./session-filter";
+import { TagFilter } from "./tag-filter";
+import { ViewButton } from "./view-button";
 
 type Session = { id: string; name: string };
 type Tag = { id: string; label: string };
@@ -45,7 +45,7 @@ const COLUMNS: ColumnConfig[] = [
   },
   { key: "status", defaultWidth: 160, minWidth: 100, resizable: true },
   { key: "published_at", defaultWidth: 100, minWidth: 80, resizable: true },
-  { key: "actions", defaultWidth: 50, minWidth: 50, resizable: false },
+  { key: "actions", defaultWidth: 230, minWidth: 230, resizable: false },
 ];
 
 function StatusBadge({ status }: { status: BillStatus }) {
@@ -284,7 +284,7 @@ function BillRow({ bill }: { bill: BillWithCouncilSession }) {
       </td>
       <td className="p-2 align-middle overflow-hidden">
         <Link
-          href={`/bills/${bill.id}/edit`}
+          href={`/bills/${bill.id}/card/edit`}
           className="block truncate font-medium hover:underline"
           title={bill.name}
         >
@@ -322,7 +322,12 @@ function BillRow({ bill }: { bill: BillWithCouncilSession }) {
         </span>
       </td>
       <td className="p-2 align-middle">
-        <BillActionsMenu billId={bill.id} billName={bill.name} />
+        <div className="flex items-center gap-2">
+          <Button asChild size="sm" variant="outline">
+            <Link href={`/bills/${bill.id}/card/edit`}>カード・本文を編集</Link>
+          </Button>
+          <BillActionsMenu billId={bill.id} billName={bill.name} />
+        </div>
       </td>
     </tr>
   );
