@@ -1,3 +1,4 @@
+import { formatDateJST } from "@/lib/utils/date";
 import type { BillStatusEnum } from "../../../shared/types";
 import {
   calculateProgressWidth,
@@ -8,6 +9,7 @@ import {
 interface BillStatusProgressProps {
   status: BillStatusEnum;
   statusNote?: string | null;
+  decisionDate?: string | null;
 }
 
 interface StatusBadgeProps {
@@ -107,6 +109,7 @@ function ProgressStep({
 export function BillStatusProgress({
   status,
   statusNote,
+  decisionDate,
 }: BillStatusProgressProps) {
   const isPreparing = status === "preparing";
   const currentStep = getCurrentStep(status);
@@ -127,6 +130,17 @@ export function BillStatusProgress({
         <div className="flex flex-col items-center gap-7">
           {/* ステータスメッセージバッジ */}
           <StatusBadge message={statusMessage} />
+          {decisionDate &&
+            ["approved", "rejected", "adopted", "partially_adopted"].includes(
+              status
+            ) && (
+              <p className="text-sm text-mirai-text-secondary text-center -mt-4">
+                議決日：
+                <time dateTime={decisionDate}>
+                  {formatDateJST(decisionDate)}
+                </time>
+              </p>
+            )}
           {/* ステータス備考 */}
           {statusNote && (
             <p className="text-sm text-gray-600 text-center -mt-4">

@@ -15,6 +15,7 @@ import {
 type Props = {
   items: BillPickupItem[];
   detailMode?: boolean;
+  detailTitle?: string;
 };
 
 function formatDate(date: string): string {
@@ -100,7 +101,11 @@ function getSessionHref(
   return `/committees/${meetingPath}/${meetingId}/${sessionId}`;
 }
 
-export function BillPickupsView({ items, detailMode = false }: Props) {
+export function BillPickupsView({
+  items,
+  detailMode = false,
+  detailTitle,
+}: Props) {
   const [activeCategory, setActiveCategory] = useState("すべて");
   const categories = [
     "子育て・教育",
@@ -210,11 +215,13 @@ export function BillPickupsView({ items, detailMode = false }: Props) {
                         )}
                       </div>
                       <h2 className="mt-2 text-xl font-bold leading-snug text-mirai-text group-hover:text-primary-accent">
-                        {getBillPickupHeading(
-                          firstReference.billName,
-                          item.description,
-                          item.relatedTopicTitles
-                        )}
+                        {detailMode && detailTitle
+                          ? detailTitle
+                          : getBillPickupHeading(
+                              firstReference.billName,
+                              item.description,
+                              item.relatedTopicTitles
+                            )}
                       </h2>
                       {getBillPickupHeading(
                         firstReference.billName,
