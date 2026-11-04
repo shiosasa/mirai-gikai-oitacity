@@ -7,6 +7,7 @@ import {
   Users,
 } from "lucide-react";
 import Link from "next/link";
+import { NewPostBadge } from "@/features/new-posts/client/components/new-post-provider";
 import { MinutesPageNavigation } from "../../shared/components/minutes-page-navigation";
 import type { CommitteeMeetingDetail } from "../../shared/types";
 import { getCommitteeTypeLabel } from "../../shared/utils/committee-type";
@@ -39,6 +40,10 @@ export function MeetingDetailView({ meeting }: Props) {
           </span>
           <h1 className="text-xl sm:text-2xl font-bold text-mirai-text leading-snug">
             {meeting.committeeName}
+            <NewPostBadge
+              contentType="committee_meetings"
+              contentId={meeting.id}
+            />
           </h1>
           <p className="flex items-center gap-1.5 text-sm text-mirai-text-secondary">
             <CalendarDays className="w-4 h-4" />

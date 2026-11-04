@@ -1,5 +1,6 @@
 import { ChevronDown, ExternalLink, FileText } from "lucide-react";
 import Link from "next/link";
+import { NewPostBadge } from "@/features/new-posts/client/components/new-post-provider";
 import { formatDateJST } from "@/lib/utils/date";
 import { getHttpUrl } from "@/lib/utils/external-url";
 import { extractYouTubeId } from "@/lib/utils/extract-youtube-id";
@@ -56,6 +57,12 @@ export function MayorConferenceArchive({ conferences }: Props) {
                       </span>
                       <span className="mt-1 block font-bold text-mirai-text">
                         {conference.title}
+                        {conference.status === "published" && (
+                          <NewPostBadge
+                            contentType="press_conferences"
+                            contentId={conference.id}
+                          />
+                        )}
                       </span>
                     </span>
                     <ChevronDown

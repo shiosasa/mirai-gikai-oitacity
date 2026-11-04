@@ -4,6 +4,7 @@ import { ChevronDown, ChevronUp } from "lucide-react";
 import Link from "next/link";
 import { useState } from "react";
 import { Button } from "@/components/ui/button";
+import { NewPostBadge } from "@/features/new-posts/client/components/new-post-provider";
 import type { BillArticle, TopicSourceRef } from "../../../shared/types";
 import { getCategoryLabel } from "../../../shared/utils/article-category";
 import { buildSessionPath } from "../../../shared/utils/build-session-path";
@@ -26,16 +27,22 @@ export function ArticleAccordionCard({ article }: ArticleAccordionCardProps) {
       <div className="p-4 sm:p-6 grid grid-cols-[minmax(0,1fr)_auto] items-start gap-x-3">
         <div className="min-w-0">
           {/* カテゴリバッジ */}
-          <div className="mb-2">
-            <span className="inline-flex items-center rounded-full bg-oita-pink-light px-3 py-1 text-xs font-medium text-oita-pink">
-              {getCategoryLabel(article.category)}
-            </span>
+          <div className="mb-2 flex flex-wrap items-center gap-x-2 gap-y-1">
+            <div className="inline-flex items-center">
+              <span className="inline-flex items-center rounded-full bg-oita-pink-light px-3 py-1 text-xs font-medium text-oita-pink">
+                {getCategoryLabel(article.category)}
+              </span>
+              <NewPostBadge
+                contentType="bill_articles"
+                contentId={article.id}
+              />
+            </div>
             {article.decision_date && (
-              <span className="text-xs text-mirai-text-secondary ml-2">
+              <span className="text-xs text-mirai-text-secondary">
                 議決日: {formatDate(article.decision_date)}
               </span>
             )}
-            <span className="text-xs text-mirai-text-secondary ml-2">
+            <span className="text-xs text-mirai-text-secondary">
               {article.decision_date && "| "}サイト公開日:{" "}
               {article.published_date
                 ? formatDate(article.published_date)

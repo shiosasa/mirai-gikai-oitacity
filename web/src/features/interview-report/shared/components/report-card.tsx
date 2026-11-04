@@ -1,6 +1,7 @@
 import { getMunicipalityConnectionLabel } from "@mirai-gikai/shared/interview/municipality-connection";
 import Image from "next/image";
 import Link from "next/link";
+import { NewPostBadge } from "@/features/new-posts/client/components/new-post-provider";
 import { getPublicReportLink } from "@/features/interview-config/shared/utils/interview-links";
 import { cn } from "@/lib/utils";
 import {
@@ -54,7 +55,7 @@ export function ReportCard({ report, summaryMaxLength = 80 }: ReportCardProps) {
       href={getPublicReportLink(report.id)}
       className="block bg-white rounded-lg p-4 hover:bg-gray-50 transition-colors"
     >
-      <div className="flex items-center gap-2">
+      <div className="flex flex-wrap items-center gap-2">
         {report.stance && (
           <Image
             src={`/icons/stance-${report.stance}.png`}
@@ -85,6 +86,10 @@ export function ReportCard({ report, summaryMaxLength = 80 }: ReportCardProps) {
             <span className="text-[13px] text-mirai-text-muted leading-[1.2]">
               {relativeTime}
             </span>
+            <NewPostBadge
+              contentType="interview_report"
+              contentId={report.id}
+            />
           </div>
         </div>
       </div>

@@ -2,6 +2,7 @@ import { buildSessionPath } from "@mirai-gikai/shared/meetings/session-path";
 import { ExternalLink } from "lucide-react";
 import Link from "next/link";
 import { formatDateJST } from "@/lib/utils/date";
+import { NewPostBadge } from "@/features/new-posts/client/components/new-post-provider";
 import type {
   PoliticianDiscussion,
   SpeechHighlight,
@@ -49,6 +50,12 @@ export function PoliticianSpeechSection({
                   <article>
                     <h3 className="font-bold text-mirai-text">
                       {highlight.title}
+                      {!isPreview && (
+                        <NewPostBadge
+                          contentType="politician_speech_highlights"
+                          contentId={highlight.id}
+                        />
+                      )}
                     </h3>
                     <blockquote className="mt-3 whitespace-pre-line border-l-2 border-oita-pink-accent pl-3 text-sm leading-7 text-mirai-text">
                       「{highlight.quote}」

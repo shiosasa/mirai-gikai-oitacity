@@ -1,5 +1,6 @@
 import { CalendarDays } from "lucide-react";
 import Link from "next/link";
+import { NewPostBadge } from "@/features/new-posts/client/components/new-post-provider";
 import { Container } from "@/components/layouts/container";
 import { DifficultySelector } from "@/features/bill-difficulty/client/components/difficulty-selector";
 import { getDifficultyLevel } from "@/features/bill-difficulty/server/loaders/get-difficulty-level";
@@ -57,6 +58,7 @@ export default async function SessionDetailPage({
         </Link>
         <h1 className="text-2xl font-bold text-mirai-text mb-2">
           {committee.title}
+          <NewPostBadge contentType="meeting_sessions" contentId={session.id} />
         </h1>
         <div className="flex items-center gap-2 text-sm text-mirai-text-muted">
           <CalendarDays className="w-4 h-4" />

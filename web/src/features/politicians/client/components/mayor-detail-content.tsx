@@ -1,5 +1,6 @@
 import { ArrowLeft, ChevronDown, ExternalLink } from "lucide-react";
 import Link from "next/link";
+import { NewPostBadge } from "@/features/new-posts/client/components/new-post-provider";
 import { OitaPhotoBackground } from "@/components/layouts/oita-photo-background";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { formatDateJST } from "@/lib/utils/date";
@@ -171,6 +172,10 @@ export function MayorDetailContent({
               className="text-xl font-bold text-mirai-text"
             >
               市議会への提案理由
+              <NewPostBadge
+                contentType="meetings"
+                contentId={proposals.map((proposal) => proposal.id)}
+              />
             </h2>
             <p className="mt-2 text-sm leading-6 text-mirai-text-secondary">
               定例会などで市長が説明した提案理由の要点を紹介します。
@@ -198,6 +203,10 @@ export function MayorDetailContent({
                           )}
                           <span className="mt-1 block">
                             {proposal.title || "会議名は準備中です"}
+                            <NewPostBadge
+                              contentType="meetings"
+                              contentId={proposal.id}
+                            />
                           </span>
                         </h3>
                         <ChevronDown

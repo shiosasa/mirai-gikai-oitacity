@@ -3,6 +3,7 @@ import type { Metadata } from "next";
 import Link from "next/link";
 import { notFound } from "next/navigation";
 import { Container } from "@/components/layouts/container";
+import { NewPostBadge } from "@/features/new-posts/client/components/new-post-provider";
 import { siteConfig } from "@/config/site.config";
 import { RawTranscriptView } from "@/features/general-questions/server/components/raw-transcript-view";
 import { QuestionChatView } from "@/features/general-questions/client/components/question-chat-view";
@@ -70,6 +71,10 @@ export default async function GeneralQuestionDetailPage({ params }: Props) {
       <div className="mb-6">
         <h1 className="text-2xl font-bold text-mirai-text">
           {question.questioner_name} 議員
+          <NewPostBadge
+            contentType="general_questions"
+            contentId={question.id}
+          />
         </h1>
         <p className="mt-1 text-sm text-mirai-text-secondary">
           {question.questioner_party && (

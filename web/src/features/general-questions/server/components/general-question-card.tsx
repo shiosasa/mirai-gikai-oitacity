@@ -1,5 +1,6 @@
 import { ArrowRight } from "lucide-react";
 import Link from "next/link";
+import { NewPostBadge } from "@/features/new-posts/client/components/new-post-provider";
 import type { GeneralQuestion } from "../../shared/types";
 
 interface GeneralQuestionCardProps {
@@ -23,6 +24,7 @@ export function GeneralQuestionCard({ question }: GeneralQuestionCardProps) {
   return (
     <article className="flex items-start justify-between gap-4 rounded-lg border border-border bg-card px-5 py-4 transition-colors hover:border-primary">
       <div className="min-w-0 flex-1">
+        <NewPostBadge contentType="general_questions" contentId={question.id} />
         {topicTitles && (
           <p className="mb-1 truncate text-xs text-mirai-text-secondary">
             {topicTitles}

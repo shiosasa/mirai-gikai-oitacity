@@ -2,6 +2,7 @@ import { ExternalLink } from "lucide-react";
 import Image from "next/image";
 import Link from "next/link";
 import { Button } from "@/components/ui/button";
+import { NewPostBadge } from "@/features/new-posts/client/components/new-post-provider";
 import { formatDateJST } from "@/lib/utils/date";
 import { getInterviewLPLink } from "@/features/interview-config/shared/utils/interview-links";
 import { BillDetailShareButton } from "../../../client/components/bill-detail/bill-detail-share-button";
@@ -52,6 +53,7 @@ export async function BillDetailHeader({
         )}
         <div className="flex flex-row gap-4">
           <BillStatusBadge status={bill.status} className="w-fit" />
+          <NewPostBadge contentType="bills" contentId={bill.id} />
           <div className="flex items-center gap-2 text-xs font-medium text-muted-foreground">
             {bill.published_at && (
               <time>{formatDateJST(bill.published_at)} 提出</time>

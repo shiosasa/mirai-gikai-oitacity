@@ -1,6 +1,7 @@
 "use client";
 
 import { ExternalLink, Mic, PlayCircle } from "lucide-react";
+import { NewPostBadge } from "@/features/new-posts/client/components/new-post-provider";
 import type { PressConference } from "../../shared/types";
 import { AnnouncementItem } from "./announcement-item";
 import { QaItem } from "./qa-item";
@@ -30,6 +31,10 @@ export function PressConferenceDetail({ pressConference }: Props) {
         </span>
         <h1 className="text-lg font-bold text-mirai-text leading-snug">
           {pressConference.title}
+          <NewPostBadge
+            contentType="press_conferences"
+            contentId={pressConference.id}
+          />
         </h1>
         <p className="text-sm text-mirai-text-secondary leading-relaxed">
           大分市長と記者のやりとりを紹介します。
