@@ -1,6 +1,12 @@
-import { describe, expect, it } from "vitest";
 import type { Database } from "@mirai-gikai/supabase";
-import { getTopicEditValues, topicEditSchema } from "./topic-edit";
+import { describe, expect, it } from "vitest";
+import {
+  getEmptyTopicValues,
+  getTopicEditValues,
+  topicContentSchema,
+  topicEditSchema,
+  topicFormData,
+} from "./topic-edit";
 
 const input = {
   id: "00000000-0000-4000-8000-000000000001",
@@ -34,6 +40,7 @@ const article: Database["public"]["Tables"]["bill_articles"]["Row"] = {
   first_published_at: null,
   publish_status: "draft",
   source_refs: null,
+  interview_bill_id: null,
   details: "記事の詳細",
   summary_line_1: "記事の要点",
 };
@@ -89,6 +96,23 @@ describe("getTopicEditValues", () => {
 });
 
 describe("topicEditSchema", () => {
+  it("starts a new topic with blank text and validates it before creation", () => {
+    const initial = getEmptyTopicValues();
+    expect(initial.title).toBe("");
+    expect(initial.source_refs).toEqual([]);
+    expect(topicContentSchema.safeParse(initial).success).toBe(false);
+    expect(
+      topicContentSchema.safeParse({ ...initial, title: "手入力の記事" })
+        .success
+    ).toBe(true);
+  });
+  it("parses structured sources from the form and does not swallow malformed JSON", () => {
+    const form = new FormData();
+    form.set("source_refs", "[]");
+    expect(topicFormData(form).source_refs).toEqual([]);
+    form.set("source_refs", "not-json");
+    expect(() => topicFormData(form)).toThrow();
+  });
   it("allows clearing optional text and preserves unpublished content", () => {
     expect(topicEditSchema.parse(input).details).toBe("");
   });

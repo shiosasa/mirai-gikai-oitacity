@@ -8,10 +8,14 @@ import {
   SelectField,
 } from "@/features/content-management/client/components/edit-field";
 import {
-  parseTopicEditForm,
+  type TopicContentInput,
+  type TopicFormValues,
   topicCategories,
-  type TopicEditInput,
+  topicContentSchema,
+  topicFormData,
 } from "../../shared/utils/topic-edit";
+import type { TopicSourceOption } from "../../shared/utils/topic-sources";
+import { TopicSourceFields } from "./topic-source-fields";
 
 const sections = [
   ["summary_line_1", "３つの要点：1"],
@@ -27,8 +31,14 @@ const sections = [
   ["cautious_voice", "議論の争点：慎重・懸念の声"],
 ] as const;
 
-export function TopicEditFields({ initial }: { initial: TopicEditInput }) {
-  const [preview, setPreview] = useState<TopicEditInput | null>(null);
+export function TopicEditFields({
+  initial,
+  sources = [],
+}: {
+  initial: TopicFormValues;
+  sources?: TopicSourceOption[];
+}) {
+  const [preview, setPreview] = useState<TopicContentInput | null>(null);
   return (
     <div className="space-y-4">
       <input type="hidden" name="id" value={initial.id} />
@@ -94,7 +104,9 @@ export function TopicEditFields({ initial }: { initial: TopicEditInput }) {
         label="関連リンクURL"
         type="url"
         value={initial.link_url}
+        hint="市公式ページや資料のURLを指定します。議事録・議案へのリンクは下の出典欄で設定してください。"
       />
+      <TopicSourceFields initial={initial.source_refs} options={sources} />
       <Button
         type="button"
         variant="outline"
@@ -102,7 +114,9 @@ export function TopicEditFields({ initial }: { initial: TopicEditInput }) {
           const form = event.currentTarget.form;
           if (!form) return;
           try {
-            setPreview(parseTopicEditForm(new FormData(form)));
+            setPreview(
+              topicContentSchema.parse(topicFormData(new FormData(form)))
+            );
           } catch (error) {
             console.error("Topic preview failed:", error);
             toast.error(
@@ -135,6 +149,25 @@ export function TopicEditFields({ initial }: { initial: TopicEditInput }) {
                 </section>
               )
           )}
+          {preview.link_url && (
+            <a
+              href={preview.link_url}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="underline"
+            >
+              {preview.link_label || "詳しく見る"}
+            </a>
+          )}
+          <h3 className="font-semibold">出典の議事録・議案</h3>
+          {preview.source_refs.map((source, index) => (
+            <p key={`${source.session_id}-${index}`}>
+              {source.meeting_title} / {source.date} / {source.session_label}
+              {" / "}
+              {source.bill_number} {source.bill_name}
+              {source.evidence_quote && ` / 引用：${source.evidence_quote}`}
+            </p>
+          ))}
           <p className="text-sm text-muted-foreground">
             入力内容の確認用です。公開・非公開はこの保存では変更しません。
           </p>

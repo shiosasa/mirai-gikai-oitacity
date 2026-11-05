@@ -1,7 +1,10 @@
 import "server-only";
 import { createAdminClient } from "@mirai-gikai/supabase";
+import type {
+  TopicContentInput,
+  TopicEditInput,
+} from "../../shared/utils/topic-edit";
 import type { TopicPublicationStatus } from "../../shared/utils/topic-publication";
-import type { TopicEditInput } from "../../shared/utils/topic-edit";
 
 export async function findTopicForEdit(id: string) {
   const db = createAdminClient();
@@ -25,12 +28,26 @@ export async function findTopicForEdit(id: string) {
 
 export async function saveTopicContent(input: TopicEditInput) {
   const { id, expected_updated_at, ...content } = input;
-  const { error } = await createAdminClient().rpc("save_admin_topic_content", {
-    article_id: id,
-    expected_updated_at,
-    content_input: content,
-  });
+  const { error } = await createAdminClient().rpc(
+    "save_admin_topic_with_sources",
+    {
+      article_id: id,
+      expected_updated_at,
+      content_input: content,
+    }
+  );
   if (error) throw new Error(`記事を保存できませんでした: ${error.message}`);
+}
+
+export async function createTopicContent(input: TopicContentInput) {
+  const { data, error } = await createAdminClient().rpc(
+    "create_admin_topic_content",
+    {
+      content_input: input,
+    }
+  );
+  if (error) throw new Error(`記事を追加できませんでした: ${error.message}`);
+  return data;
 }
 
 export async function findTopicsForAdmin() {

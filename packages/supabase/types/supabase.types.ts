@@ -219,6 +219,7 @@ export type Database = {
       }
       bill_articles: {
         Row: {
+          interview_bill_id: string | null
           publish_status: "draft" | "published"
           first_published_at: string | null
           bill_id: number
@@ -247,6 +248,7 @@ export type Database = {
           updated_at: string
         }
         Insert: {
+          interview_bill_id?: string | null
           publish_status?: "draft" | "published"
           first_published_at?: string | null
           bill_id: number
@@ -275,6 +277,7 @@ export type Database = {
           updated_at?: string
         }
         Update: {
+          interview_bill_id?: string | null
           publish_status?: "draft" | "published"
           first_published_at?: string | null
           bill_id?: number
@@ -2157,6 +2160,18 @@ export type Database = {
       [_ in never]: never
     }
     Functions: {
+      create_admin_topic_content: {
+        Args: { content_input: Json }
+        Returns: string
+      }
+      save_admin_topic_with_sources: {
+        Args: {
+          article_id: string
+          expected_updated_at: string
+          content_input: Json
+        }
+        Returns: undefined
+      }
       is_content_public: {
         Args: { content_type: string; content: Json }
         Returns: boolean
