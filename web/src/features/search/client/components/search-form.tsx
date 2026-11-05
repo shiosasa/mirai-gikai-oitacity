@@ -60,7 +60,8 @@ export function SearchForm({
       </div>
       <p className="mt-2 text-xs text-mirai-text-muted">
         キーワードを入力して「検索」またはEnterキーで検索できます。
-        カテゴリを押すと、入力中のキーワードと組み合わせてトピックスを絞り込みます。
+        カテゴリを押すと、トピックス・議案・関連する議事録を絞り込みます。
+        入力中のキーワードとも組み合わせられます。
       </p>
     </form>
   );
