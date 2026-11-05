@@ -11,9 +11,6 @@ export async function TopicsAdminView() {
     return (
       <section className="space-y-3">
         <h1 className="text-2xl font-bold">トピックス管理</h1>
-        <Button asChild>
-          <Link href="/topics/new">記事を手入力で追加</Link>
-        </Button>
         <p>
           管理機能が無効です。必要なDB項目を確認し、管理画面の環境変数に
           TOPIC_PUBLICATION_ENABLED=true を設定して再デプロイしてください。
@@ -25,6 +22,9 @@ export async function TopicsAdminView() {
   return (
     <section className="space-y-6">
       <h1 className="text-2xl font-bold">トピックス管理</h1>
+      <Button asChild>
+        <Link href="/topics/new">記事を手入力で追加</Link>
+      </Button>
       <p>
         初めて公開した日をサイト公開日として記録します。下書きに戻して再公開しても、元の公開日は変わりません。
       </p>
