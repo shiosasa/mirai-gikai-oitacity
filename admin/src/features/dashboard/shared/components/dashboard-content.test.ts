@@ -12,7 +12,12 @@ afterEach(cleanup);
 describe("管理画面の導線", () => {
   it("AI不要の更新先と未対応項目を区別して案内する", () => {
     render(createElement(ManualUpdateGuide));
-    expect(screen.getAllByRole("link")).toHaveLength(9);
+    expect(screen.getAllByRole("link")).toHaveLength(10);
+    expect(
+      screen
+        .getByRole("link", { name: "市長プロフィール" })
+        .getAttribute("href")
+    ).toBe("/mayor-profile");
     expect(
       screen.getByRole("link", { name: "議員紹介" }).getAttribute("href")
     ).toBe("/politicians");
@@ -26,9 +31,9 @@ describe("管理画面の導線", () => {
       })
     ).toBeTruthy();
     expect(screen.getByText(/外部資料リンクの複数登録は未対応/)).toBeTruthy();
-    expect(screen.getByText(/専用の編集画面は未対応/)).toBeTruthy();
+    expect(screen.getByText(/市長の交代・現職の切替/)).toBeTruthy();
   });
-  it("手動更新ガイドとよく更新する8機能へ移動でき、公開の注意を表示する", () => {
+  it("手動更新ガイドとよく更新する9機能へ移動でき、公開の注意を表示する", () => {
     render(createElement(DashboardContent));
     const links = screen.getAllByRole("link");
     expect(links.map((link) => link.getAttribute("href"))).toEqual([
@@ -38,6 +43,7 @@ describe("管理画面の導線", () => {
       "/topics",
       "/press-conferences",
       "/mayor-proposals",
+      "/mayor-profile",
       "/politician-speeches",
       "/information",
       "/topic-voices",

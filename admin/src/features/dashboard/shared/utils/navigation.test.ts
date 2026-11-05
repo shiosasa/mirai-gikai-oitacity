@@ -18,6 +18,7 @@ describe("isNavigationActive", () => {
       "/factions",
       "/committees",
       "/politicians",
+      "/mayor-profile",
       "/politician-speeches",
       "/ai-collection",
       "/admins",

@@ -46,6 +46,12 @@ export const contentLinks = [
     icon: Landmark,
   },
   {
+    href: "/mayor-profile",
+    label: "市長プロフィール",
+    description: "市長の氏名・写真・経歴・公式リンクを更新",
+    icon: UserRound,
+  },
+  {
     href: "/politician-speeches",
     label: "議員の発言",
     description: "議事録に基づく発言紹介を確認・公開",
