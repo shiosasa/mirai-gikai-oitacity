@@ -1,16 +1,16 @@
-import { siteConfig } from "@/config/site.config";
 import { OitaPhotoBackground } from "@/components/layouts/oita-photo-background";
+import { siteConfig } from "@/config/site.config";
 import { MayorDirectoryCard } from "../../client/components/mayor-directory-card";
 import { PoliticiansFactionSection } from "../../shared/components/politicians-faction-section";
 import { COUNCILLORS_DIRECTORY_HEADING_ID } from "../../shared/utils/faction-directory-links";
 import { groupPoliticiansByFaction } from "../../shared/utils/group-politicians-by-faction";
+import { getCurrentMayor } from "../loaders/get-current-mayor";
 import { getPublishedPoliticians } from "../loaders/get-published-politicians";
-import { findCurrentMayor } from "../repositories/mayor-repository";
 
 export async function PoliticiansDirectory() {
   const [politicians, mayor] = await Promise.all([
     getPublishedPoliticians(),
-    findCurrentMayor(),
+    getCurrentMayor(),
   ]);
   // 欠番（name="欠番"）や無効レコードはリポジトリで除外済み
   // 会派別にグルーピングし、会派内で議席番号順に整列

@@ -7,6 +7,10 @@
     "test:watch": "vitest"
   },
   "exports": {
+    "./politicians/mayor-policy": {
+      "types": "./src/politicians/mayor-policy.ts",
+      "default": "./src/politicians/mayor-policy.ts"
+    },
     "./politicians/birth-date": {
       "types": "./src/politicians/birth-date.ts",
       "default": "./src/politicians/birth-date.ts"
