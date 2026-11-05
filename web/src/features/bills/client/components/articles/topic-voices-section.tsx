@@ -60,7 +60,7 @@ export function TopicVoicesSection({
               インタビューレポートを読む →
             </Link>
             <NewPostBadge
-              contentType="interview_report"
+              contentType="topic_voice"
               contentId={voice.reportId}
             />
           </li>

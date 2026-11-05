@@ -109,13 +109,17 @@ export function NewPostBadge({
   if (!ids.some((id) => activeKeys.has(publicationKey(contentType, id)))) {
     return null;
   }
+  const description =
+    contentType === "topic_voice"
+      ? "トピックス記事に初掲載されてから14日以内"
+      : "サイトで初めて公開してから14日以内";
 
   return (
     <span
       className="ml-2 inline-flex shrink-0 items-center rounded-full bg-oita-pink-light px-2 py-0.5 align-middle text-xs font-bold leading-4 text-mirai-text"
-      title="サイトで初めて公開してから14日以内の投稿です"
+      title={`${description}の投稿です`}
     >
-      NEW<span className="sr-only">（初回公開から14日以内）</span>
+      NEW<span className="sr-only">（{description}）</span>
     </span>
   );
 }

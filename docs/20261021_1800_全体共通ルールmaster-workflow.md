@@ -51,6 +51,7 @@ AIインタビュー関連テーブル（`interview_configs` / `interview_sessio
 - 議案を新規登録するときは `source = 'meeting'`（既定値）のままにする。
 - トピックにAIインタビューを付けるため `bills` に行を作るときは **必ず `source = 'topic'`** にし、`bill_articles.interview_bill_id` にその `bills.id` を設定する（タイトル一致による推測は後方互換のためのフォールバックにすぎない）。
 - アプリで議案を一覧・集計するときは `getMeetingBillFilter()` と `applyMeetingBillFilter()` を使う。`source` 列が未適用の環境では互換処理が必要なため、単純な `.eq("source", "meeting")` に置き換えない。DBを直接確認する場合も列やビューの適用状態を先に確認する。
+- **NEW表示:** 議案カードは `source = 'meeting'` の議案自体の初回公開日時で判定する。トピックス記事内の「みんなの生の声」は、親記事のNEWとは別に、`source = 'topic'` のインタビュー回答がその記事に初掲載された日時（`topic_voice_featured_at`）で回答ごとに判定する。議案とトピックス用インタビューの受け皿を取り違えて表示しない。
 
 ---
 
