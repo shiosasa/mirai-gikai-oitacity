@@ -123,7 +123,7 @@ async function seedDatabase() {
     console.log("👤 Inserting politicians...");
     const politiciansWithFaction = politicians.map((p, idx) => ({
       ...p,
-      faction_id: insertedFactions[idx % insertedFactions.length]?.id,
+      faction: insertedFactions[idx % insertedFactions.length]?.name,
     }));
     const { data: insertedPoliticians, error: politiciansError } =
       await supabase

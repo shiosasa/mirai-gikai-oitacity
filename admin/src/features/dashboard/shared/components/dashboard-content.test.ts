@@ -12,7 +12,11 @@ afterEach(cleanup);
 describe("管理画面の導線", () => {
   it("AI不要の更新先と未対応項目を区別して案内する", () => {
     render(createElement(ManualUpdateGuide));
-    expect(screen.getAllByRole("link")).toHaveLength(8);
+    expect(screen.getAllByRole("link")).toHaveLength(9);
+    expect(
+      screen.getByRole("link", { name: "議員紹介" }).getAttribute("href")
+    ).toBe("/politicians");
+    expect(screen.getByText(/既存の議員IDと発言の紐づけは維持/)).toBeTruthy();
     expect(
       screen.getByText(/文章の手入力・保存・公開にはAIトークンを使用しません/)
     ).toBeTruthy();

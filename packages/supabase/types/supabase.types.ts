@@ -368,71 +368,60 @@ export type Database = {
       }
       politicians: {
         Row: {
-          id: string
-          name: string
-          name_kana: string
-          avatar_url: string | null
-          terms_count: number
-          seat_number: number | null
-          faction_id: string | null
-          committee_names: string[]
-          is_published: boolean
-          data_verified_at: string | null
-          profile_source_url: string | null
-          website_url: string | null
-          twitter_url: string | null
-          contact_info: string | null
-          bio: string | null
+          address: string | null
+          birth_date: string | null
+          contact: string | null
           created_at: string
-          updated_at: string
+          election_count: number | null
+          faction: string | null
+          homepage: string | null
+          id: string
+          image_url: string | null
+          name: string
+          name_kana: string | null
+          number: number
+          seat_number: number | null
+          slug: string | null
+          special_committee: string | null
+          standing_committee: string | null
         }
         Insert: {
-          id?: string
-          name: string
-          name_kana: string
-          avatar_url?: string | null
-          terms_count?: number
-          seat_number?: number | null
-          faction_id?: string | null
-          committee_names?: string[]
-          is_published?: boolean
-          data_verified_at?: string | null
-          profile_source_url?: string | null
-          website_url?: string | null
-          twitter_url?: string | null
-          contact_info?: string | null
-          bio?: string | null
+          address?: string | null
+          birth_date?: string | null
+          contact?: string | null
           created_at?: string
-          updated_at?: string
+          election_count?: number | null
+          faction?: string | null
+          homepage?: string | null
+          id?: string
+          image_url?: string | null
+          name: string
+          name_kana?: string | null
+          number?: number
+          seat_number?: number | null
+          slug?: string | null
+          special_committee?: string | null
+          standing_committee?: string | null
         }
         Update: {
-          id?: string
-          name?: string
-          name_kana?: string
-          avatar_url?: string | null
-          terms_count?: number
-          seat_number?: number | null
-          faction_id?: string | null
-          committee_names?: string[]
-          is_published?: boolean
-          data_verified_at?: string | null
-          profile_source_url?: string | null
-          website_url?: string | null
-          twitter_url?: string | null
-          contact_info?: string | null
-          bio?: string | null
+          address?: string | null
+          birth_date?: string | null
+          contact?: string | null
           created_at?: string
-          updated_at?: string
+          election_count?: number | null
+          faction?: string | null
+          homepage?: string | null
+          id?: string
+          image_url?: string | null
+          name?: string
+          name_kana?: string | null
+          number?: number
+          seat_number?: number | null
+          slug?: string | null
+          special_committee?: string | null
+          standing_committee?: string | null
         }
-        Relationships: [
-          {
-            foreignKeyName: "politicians_faction_id_fkey"
-            columns: ["faction_id"]
-            isOneToOne: false
-            referencedRelation: "factions"
-            referencedColumns: ["id"]
-          },
-        ]
+        Relationships: []
       }
       politician_factions: {
         Row: {
