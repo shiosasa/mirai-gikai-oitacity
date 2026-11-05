@@ -7,6 +7,10 @@
     "test:watch": "vitest"
   },
   "exports": {
+    "./politicians/birth-date": {
+      "types": "./src/politicians/birth-date.ts",
+      "default": "./src/politicians/birth-date.ts"
+    },
     "./bills/meeting-bill-filter": {
       "types": "./src/bills/meeting-bill-filter.ts",
       "default": "./src/bills/meeting-bill-filter.ts"

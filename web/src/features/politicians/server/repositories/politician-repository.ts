@@ -5,7 +5,7 @@ import { createAdminClient } from "@mirai-gikai/supabase";
 export type PoliticianRow = {
   id: string;
   name: string;
-  name_kana: string;
+  name_kana: string | null;
   birth_date: string | null;
   election_count: number | null;
   faction: string | null;
@@ -33,7 +33,7 @@ export async function findPublishedPoliticians(): Promise<PoliticianRow[]> {
     throw new Error(`Failed to fetch politicians: ${error.message}`);
   }
 
-  return (data as unknown as PoliticianRow[]) ?? [];
+  return data;
 }
 
 export async function findPublishedPoliticianById(
@@ -51,7 +51,7 @@ export async function findPublishedPoliticianById(
     throw new Error(`Failed to fetch politician: ${error.message}`);
   }
 
-  return (data as unknown as PoliticianRow) ?? null;
+  return data;
 }
 
 export async function findPoliticianDiscussions(id: string) {
@@ -85,7 +85,7 @@ export async function getPoliticiansRepository(): Promise<PoliticianRow[]> {
     return [];
   }
 
-  return (data as unknown as PoliticianRow[]) ?? [];
+  return data ?? [];
 }
 
 export async function getPoliticianByIdRepository(
@@ -104,5 +104,5 @@ export async function getPoliticianByIdRepository(
     return null;
   }
 
-  return data as unknown as PoliticianRow;
+  return data;
 }
