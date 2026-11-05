@@ -1,7 +1,9 @@
 import "server-only";
 import { getPublishedArticles } from "@/features/bills/server/loaders/get-articles";
 import type { ArticleCategoryFilter } from "@/features/bills/shared/utils/article-category";
+import { getBillPickups } from "@/features/committee-minutes/server/loaders/get-bill-pickups";
 import type { SearchResults } from "../../shared/types/search-types";
+import { getCategorySearchScope } from "../../shared/utils/category-search-scope";
 import { filterSearchTopics } from "../../shared/utils/search-category";
 import {
   searchBills,
@@ -12,11 +14,16 @@ export async function loadSearchResults(
   query: string,
   category: ArticleCategoryFilter = "すべて"
 ): Promise<SearchResults> {
-  const [bills, articles, committees] = await Promise.all([
-    category === "すべて" ? searchBills(query) : Promise.resolve([]),
+  const [bills, articles, pickups] = await Promise.all([
+    searchBills(query),
     getPublishedArticles(),
-    category === "すべて" ? searchCommittees(query) : Promise.resolve([]),
+    category === "すべて" ? Promise.resolve([]) : getBillPickups(),
   ]);
+  const scope =
+    category === "すべて"
+      ? null
+      : getCategorySearchScope(pickups, articles, category);
+  const committees = await searchCommittees(query, scope?.sessionIds);
   const topics = filterSearchTopics(articles, query, category).map(
     (article) => ({
       id: article.id,
@@ -32,5 +39,13 @@ export async function loadSearchResults(
     })
   );
 
-  return { bills, topics, committees };
+  return {
+    bills: scope
+      ? bills.filter(
+          (bill) => bill.tags.includes(category) || scope.billIds.has(bill.id)
+        )
+      : bills,
+    topics,
+    committees,
+  };
 }

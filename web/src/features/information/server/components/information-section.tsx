@@ -25,7 +25,7 @@ export async function InformationSection() {
         information
       </h2>
       <div
-        className="h-32 overflow-y-auto rounded-xl border border-pink-300 bg-pink-100 p-4 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary"
+        className="h-48 sm:h-56 overflow-y-auto rounded-xl border border-pink-300 bg-pink-100 p-5 sm:p-6 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary"
         // biome-ignore lint/a11y/noNoninteractiveTabindex: Keyboard users need to focus and scroll this region.
         tabIndex={0}
         role="region"
