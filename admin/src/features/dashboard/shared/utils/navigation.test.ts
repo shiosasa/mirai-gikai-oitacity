@@ -9,6 +9,7 @@ describe("isNavigationActive", () => {
     );
     for (const href of [
       "/bills",
+      "/update-guide",
       "/topics",
       "/topic-voices",
       "/information",

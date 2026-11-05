@@ -36,7 +36,7 @@ export type TopicSourceRef = {
 
 export type BillArticle = Omit<
   Database["public"]["Tables"]["bill_articles"]["Row"],
-  "source_refs"
+  "source_refs" | "interview_bill_id"
 > & {
   published_date: string | null;
   source_refs?: TopicSourceRef[] | null;

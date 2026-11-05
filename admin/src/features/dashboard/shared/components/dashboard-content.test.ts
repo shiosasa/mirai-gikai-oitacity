@@ -5,14 +5,30 @@ import { createElement } from "react";
 import { afterEach, describe, expect, it } from "vitest";
 import { NavigationMenu } from "@/app/(protected)/layout/navigation-links";
 import { DashboardContent } from "./dashboard-content";
+import { ManualUpdateGuide } from "./manual-update-guide";
 
 afterEach(cleanup);
 
 describe("管理画面の導線", () => {
-  it("よく更新する8機能へ移動でき、公開の注意を表示する", () => {
+  it("AI不要の更新先と未対応項目を区別して案内する", () => {
+    render(createElement(ManualUpdateGuide));
+    expect(screen.getAllByRole("link")).toHaveLength(8);
+    expect(
+      screen.getByText(/文章の手入力・保存・公開にはAIトークンを使用しません/)
+    ).toBeTruthy();
+    expect(
+      screen.getByRole("heading", {
+        name: "まだ管理画面だけでは完結しないもの",
+      })
+    ).toBeTruthy();
+    expect(screen.getByText(/外部資料リンクの複数登録は未対応/)).toBeTruthy();
+    expect(screen.getByText(/専用の編集画面は未対応/)).toBeTruthy();
+  });
+  it("手動更新ガイドとよく更新する8機能へ移動でき、公開の注意を表示する", () => {
     render(createElement(DashboardContent));
     const links = screen.getAllByRole("link");
     expect(links.map((link) => link.getAttribute("href"))).toEqual([
+      "/update-guide",
       "/minutes",
       "/bills",
       "/topics",

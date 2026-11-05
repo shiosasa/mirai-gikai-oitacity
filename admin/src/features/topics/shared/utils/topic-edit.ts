@@ -7,6 +7,7 @@ import {
   recordId,
   titleInput,
 } from "@/features/content-management/shared/utils/content-input";
+import { topicSourcesSchema } from "./topic-sources";
 
 export const topicCategories = [
   { value: "childcare_education", label: "子育て・教育" },
@@ -15,8 +16,7 @@ export const topicCategories = [
   { value: "governance_election", label: "まちの仕組み・選挙" },
 ] as const;
 
-export const topicEditSchema = z.object({
-  id: recordId,
+export const topicContentSchema = z.object({
   title: titleInput,
   category: z.enum(topicCategories.map((category) => category.value)),
   status_label: z.string().trim().min(1, "状況を入力してください").max(100),
@@ -35,10 +35,18 @@ export const topicEditSchema = z.object({
   link_label: z.string().max(200),
   link_url: httpUrl,
   decision_date: z.union([dateInput, z.literal("")]),
+  source_refs: topicSourcesSchema.default([]),
+});
+
+export const topicEditSchema = topicContentSchema.extend({
+  id: recordId,
   expected_updated_at: z.string().min(1),
 });
 
+export type TopicContentInput = z.infer<typeof topicContentSchema>;
 export type TopicEditInput = z.infer<typeof topicEditSchema>;
+export type TopicFormValues = TopicContentInput &
+  Partial<Pick<TopicEditInput, "id" | "expected_updated_at">>;
 type Article = Database["public"]["Tables"]["bill_articles"]["Row"];
 type Proposal = Database["public"]["Tables"]["proposals"]["Row"];
 
@@ -70,9 +78,44 @@ export function getTopicEditValues(
     link_url: article.link_url ?? "",
     decision_date: article.decision_date ?? "",
     expected_updated_at: article.updated_at,
+    source_refs: article.source_refs ?? [],
   });
 }
 
+export function getEmptyTopicValues(): TopicContentInput {
+  return {
+    title: "",
+    ...topicContentSchema.omit({ title: true }).parse({
+      category: "childcare_education",
+      status_label: "審議中",
+      status_class: "status-review",
+      summary_line_1: "",
+      summary_line_2: "",
+      summary_line_3: "",
+      details: "",
+      reason: "",
+      point_1: "",
+      point_2: "",
+      point_3: "",
+      target_audience: "",
+      positive_voice: "",
+      cautious_voice: "",
+      link_label: "",
+      link_url: "",
+      decision_date: "",
+    }),
+  };
+}
+
+export function topicFormData(data: FormData) {
+  const rawSources = data.get("source_refs");
+  return {
+    ...Object.fromEntries(data),
+    source_refs:
+      typeof rawSources === "string" ? JSON.parse(rawSources) : undefined,
+  };
+}
+
 export function parseTopicEditForm(data: FormData): TopicEditInput {
-  return topicEditSchema.parse(Object.fromEntries(data));
+  return topicEditSchema.parse(topicFormData(data));
 }

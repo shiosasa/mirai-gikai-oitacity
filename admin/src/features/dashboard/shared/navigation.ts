@@ -70,6 +70,7 @@ export const navigationGroups = [
     label: "ホーム",
     links: [
       { href: "/dashboard", label: "ダッシュボード", icon: LayoutDashboard },
+      { href: "/update-guide", label: "手動更新ガイド", icon: BookOpen },
     ],
   },
   {
