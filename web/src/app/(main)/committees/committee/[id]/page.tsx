@@ -1,8 +1,8 @@
 import { CalendarDays, ChevronDown } from "lucide-react";
-import { formatJapaneseDate } from "@/features/committee-minutes/shared/utils/format-japanese-date";
-import { getAllMeetingsAndCommittees } from "@/features/committee-minutes/server/loaders/get-all-meetings";
-import { Container } from "@/components/layouts/container";
 import Link from "next/link";
+import { Container } from "@/components/layouts/container";
+import { getAllMeetingsAndCommittees } from "@/features/committee-minutes/server/loaders/get-all-meetings";
+import { formatJapaneseDate } from "@/features/committee-minutes/shared/utils/format-japanese-date";
 import { NewPostBadge } from "@/features/new-posts/client/components/new-post-provider";
 
 export const metadata = {
@@ -62,13 +62,13 @@ export default async function CommitteeDetailPage({
                     {formatJapaneseDate(session.date || committee.date)}
                   </div>
                   <h3 className="font-bold text-mirai-text">
-                    {session.session_title
-                      ? `${committee.term}${session.session_title}`
-                      : committee.title}
                     <NewPostBadge
                       contentType="meeting_sessions"
                       contentId={session.id}
                     />
+                    {session.session_title
+                      ? `${committee.term}${session.session_title}`
+                      : committee.title}
                   </h3>
                 </div>
               </div>

@@ -52,17 +52,17 @@ export function MayorConferenceArchive({ conferences }: Props) {
                   <summary className="flex cursor-pointer list-none items-center justify-between gap-4 p-5 outline-offset-4 focus-visible:outline focus-visible:outline-2 focus-visible:outline-primary">
                     <span className="min-w-0">
                       <span className="block text-xs text-mirai-text-secondary">
-                        {formatDateJST(conference.held_at)} 開催
-                        {conference.status === "draft" && "・下書き"}
-                      </span>
-                      <span className="mt-1 block font-bold text-mirai-text">
-                        {conference.title}
                         {conference.status === "published" && (
                           <NewPostBadge
                             contentType="press_conferences"
                             contentId={conference.id}
                           />
                         )}
+                        {formatDateJST(conference.held_at)} 開催
+                        {conference.status === "draft" && "・下書き"}
+                      </span>
+                      <span className="mt-1 block font-bold text-mirai-text">
+                        {conference.title}
                       </span>
                     </span>
                     <ChevronDown

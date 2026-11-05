@@ -29,13 +29,13 @@ export function ArticleAccordionCard({ article }: ArticleAccordionCardProps) {
           {/* カテゴリバッジ */}
           <div className="mb-2 flex flex-wrap items-center gap-x-2 gap-y-1">
             <div className="inline-flex items-center">
-              <span className="inline-flex items-center rounded-full bg-oita-pink-light px-3 py-1 text-xs font-medium text-oita-pink">
-                {getCategoryLabel(article.category)}
-              </span>
               <NewPostBadge
                 contentType="bill_articles"
                 contentId={article.id}
               />
+              <span className="inline-flex items-center rounded-full bg-oita-pink-light px-3 py-1 text-xs font-medium text-oita-pink">
+                {getCategoryLabel(article.category)}
+              </span>
             </div>
             {article.decision_date && (
               <span className="text-xs text-mirai-text-secondary">

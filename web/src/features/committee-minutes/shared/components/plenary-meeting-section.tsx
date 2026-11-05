@@ -65,11 +65,11 @@ export function PlenaryMeetingSection({
                         {formatJapaneseDate(session.date || meeting.date)}
                       </div>
                       <h3 className="flex flex-wrap items-center gap-2 font-bold text-mirai-text">
-                        {session.session_title || meeting.title}
                         <NewPostBadge
                           contentType="meeting_sessions"
                           contentId={session.id}
                         />
+                        {session.session_title || meeting.title}
                         {isUpdating && <UpdatingBadge />}
                       </h3>
                     </div>

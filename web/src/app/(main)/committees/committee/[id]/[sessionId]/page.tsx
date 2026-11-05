@@ -1,6 +1,5 @@
 import { CalendarDays } from "lucide-react";
 import Link from "next/link";
-import { NewPostBadge } from "@/features/new-posts/client/components/new-post-provider";
 import { Container } from "@/components/layouts/container";
 import { DifficultySelector } from "@/features/bill-difficulty/client/components/difficulty-selector";
 import { getDifficultyLevel } from "@/features/bill-difficulty/server/loaders/get-difficulty-level";
@@ -10,8 +9,9 @@ import {
   BillsSection,
 } from "@/features/committee-minutes/server/components/session-extras";
 import { getAllMeetingsAndCommittees } from "@/features/committee-minutes/server/loaders/get-all-meetings";
-import { formatJapaneseDate } from "@/features/committee-minutes/shared/utils/format-japanese-date";
 import { MinutesPageNavigation } from "@/features/committee-minutes/shared/components/minutes-page-navigation";
+import { formatJapaneseDate } from "@/features/committee-minutes/shared/utils/format-japanese-date";
+import { NewPostBadge } from "@/features/new-posts/client/components/new-post-provider";
 
 export const metadata = {
   title: "セッション詳細 | みらいぎかいっち＠大分",
@@ -57,8 +57,8 @@ export default async function SessionDetailPage({
           ← 戻る
         </Link>
         <h1 className="text-2xl font-bold text-mirai-text mb-2">
-          {committee.title}
           <NewPostBadge contentType="meeting_sessions" contentId={session.id} />
+          {committee.title}
         </h1>
         <div className="flex items-center gap-2 text-sm text-mirai-text-muted">
           <CalendarDays className="w-4 h-4" />
