@@ -126,13 +126,56 @@ describe("NewPostProvider", () => {
     ).toBeNull();
   });
 
-  it("marks a bill pickup card when its related topic is new", async () => {
+  it("marks an interview answer when it is first featured in a topic", async () => {
     vi.stubGlobal(
       "fetch",
       vi
         .fn()
         .mockResolvedValue(
-          response([publication("bill_articles", "new-topic")])
+          response([publication("topic_voice", "newly-featured-report")])
+        )
+    );
+    render(
+      <NewPostProvider>
+        <TopicVoicesSection
+          articleId="older-topic"
+          voices={[
+            {
+              reportId: "newly-featured-report",
+              municipalityConnectionLabel: null,
+              stance: null,
+              roleLabel: null,
+              summary: "市民の声",
+            },
+          ]}
+        />
+      </NewPostProvider>
+    );
+    await settle();
+    const answer = screen
+      .getByRole("link", { name: "インタビューレポートを読む →" })
+      .closest("li");
+    expect(answer?.textContent).toContain("NEW");
+    expect(
+      answer?.querySelector(
+        '[title="トピックス記事に初掲載されてから14日以内の投稿です"]'
+      )
+    ).not.toBeNull();
+    expect(
+      screen.getByRole("heading", { name: /みんなの生の声/ }).textContent
+    ).not.toContain("NEW");
+  });
+
+  it("marks a bill pickup card when the bill or related topic is new", async () => {
+    vi.stubGlobal(
+      "fetch",
+      vi
+        .fn()
+        .mockResolvedValue(
+          response([
+            publication("bills", "older-bill"),
+            publication("bill_articles", "new-topic"),
+          ])
         )
     );
     const item: BillPickupItem = {
@@ -164,8 +207,8 @@ describe("NewPostProvider", () => {
     );
     await settle();
     expect(
-      screen.getByTitle("サイトで初めて公開してから14日以内の投稿です")
-    ).toBeDefined();
+      screen.getAllByTitle("サイトで初めて公開してから14日以内の投稿です")
+    ).toHaveLength(2);
   });
 
   it("refreshes the shared provider on client-side navigation", async () => {

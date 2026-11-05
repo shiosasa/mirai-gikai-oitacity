@@ -11,6 +11,7 @@ export const publicationTypeSchema = z.enum([
   "general_questions",
   "meetings",
   "interview_report",
+  "topic_voice",
 ]);
 
 export type PublicationType = z.infer<typeof publicationTypeSchema>;
