@@ -84,7 +84,7 @@ function TopicCard({ topic }: { topic: TopicSearchResult }) {
 function CommitteeCard({ committee }: { committee: CommitteeSearchResult }) {
   return (
     <Link
-      href={`/committees/${committee.committeeSlug}/${committee.sourceDocumentId}`}
+      href={committee.href}
       className="block border border-mirai-border rounded-lg p-4 bg-white hover:bg-mirai-surface transition-colors"
     >
       <div className="flex items-center gap-2 mb-1">

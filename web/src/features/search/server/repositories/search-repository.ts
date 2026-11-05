@@ -1,165 +1,86 @@
 import "server-only";
 import { createAdminClient } from "@mirai-gikai/supabase";
+import { getMeetingBillFilter } from "@/features/bills/server/repositories/meeting-bill-filter";
+import { applyMeetingBillFilter } from "@/features/bills/shared/utils/meeting-bill-filter";
 import type {
   BillSearchResult,
   CommitteeSearchResult,
 } from "../../shared/types/search-types";
-
-/**
- * テーブル未作成による失敗か（マイグレーション適用前の環境）。
- * この場合のみ「データなし」として扱い、それ以外のDB障害はエラーとして伝播させる。
- */
-function isMissingTableError(error: { code?: string | null }): boolean {
-  // 42P01: undefined_table / PGRST205: スキーマキャッシュにテーブルなし
-  return error.code === "42P01" || error.code === "PGRST205";
-}
+import { toMeetingSearchResult } from "../../shared/utils/meeting-search-result";
+import { buildSearchFilter } from "../../shared/utils/search-filter";
 
 export async function searchBills(query: string): Promise<BillSearchResult[]> {
   const supabase = createAdminClient();
-  const { data, error } = await supabase
-    .from("bill_contents")
-    .select(
-      `
-      bill_id,
-      title,
-      summary,
-      bills!inner (
-        id,
-        publish_status,
-        published_at,
-        council_sessions (name),
-        bills_tags (
-          tags (label)
+  const filter = await getMeetingBillFilter();
+  const { data, error } = await applyMeetingBillFilter(
+    supabase
+      .from("bill_contents")
+      .select(
+        `
+        title,
+        summary,
+        bills!inner (
+          id,
+          published_at,
+          council_sessions (name),
+          bills_tags (tags (label))
         )
+      `
       )
-    `
-    )
-    .eq("difficulty_level", "normal")
-    .or(`title.ilike.%${query}%,summary.ilike.%${query}%`)
+      .eq("difficulty_level", "normal")
+      .eq("bills.publish_status", "published"),
+    filter,
+    "bills."
+  )
+    .or(buildSearchFilter(["title", "summary", "content"], query))
+    .order("bill_id")
     .limit(50);
 
   if (error) throw new Error(`Failed to search bills: ${error.message}`);
 
-  return (data ?? [])
-    .filter((row) => {
-      const bill = row.bills as { publish_status: string };
-      return bill.publish_status === "published";
-    })
-    .map((row) => {
-      const bill = row.bills as {
-        id: string;
-        published_at: string | null;
-        council_sessions: { name: string } | null;
-        bills_tags: Array<{ tags: { label: string } | null }>;
-      };
-      return {
-        id: bill.id,
-        title: row.title,
-        summary: row.summary,
-        session: bill.council_sessions?.name ?? "",
-        publishedAt: bill.published_at,
-        tags: bill.bills_tags
-          .map((bt) => bt.tags?.label)
-          .filter((l): l is string => l != null),
-      };
-    });
-}
-
-type CommitteeMeetingSearchRow = {
-  id: string;
-  committee_name: string;
-  committee_slug: string;
-  meeting_date: string;
-  title: string;
-  source_document_id: number;
-  summary: string | null;
-};
-
-const COMMITTEE_MEETING_SELECT = `
-  id,
-  committee_name,
-  committee_slug,
-  meeting_date,
-  title,
-  source_document_id,
-  summary
-` as const;
-
-function toCommitteeResult(
-  row: CommitteeMeetingSearchRow
-): CommitteeSearchResult {
-  return {
-    id: row.id,
-    committeeName: row.committee_name,
-    committeeSlug: row.committee_slug,
+  return (data ?? []).map((row) => ({
+    id: row.bills.id,
     title: row.title,
     summary: row.summary,
-    meetingDate: row.meeting_date,
-    sourceDocumentId: row.source_document_id,
-    matchedTopics: [],
-  };
+    session: row.bills.council_sessions?.name ?? "",
+    publishedAt: row.bills.published_at,
+    tags: row.bills.bills_tags
+      .map((item) => item.tags?.label)
+      .filter((label): label is string => label != null),
+  }));
 }
 
 export async function searchCommittees(
   query: string
 ): Promise<CommitteeSearchResult[]> {
   const supabase = createAdminClient();
-  const like = `%${query}%`;
-
-  // 1) 会議のタイトル・要約・委員会名で検索
-  // 委員会の一覧・詳細ページと同様、公開（published）の会議のみを対象とする
-  const meetingsRes = await supabase
-    .from("committee_meetings")
-    .select(COMMITTEE_MEETING_SELECT)
-    .eq("publish_status", "published")
-    .or(
-      `title.ilike.${like},summary.ilike.${like},committee_name.ilike.${like}`
-    )
-    .limit(50);
-
-  if (meetingsRes.error) {
-    // マイグレーション未適用の環境では委員会分のみ空にして他の検索を活かす
-    if (isMissingTableError(meetingsRes.error)) return [];
-    throw new Error(
-      `Failed to search committees: ${meetingsRes.error.message}`
-    );
+  const { data: meetings, error: meetingsError } = await supabase
+    .from("meetings")
+    .select("id")
+    .or(buildSearchFilter(["title"], query));
+  if (meetingsError) {
+    throw new Error(`Failed to search meetings: ${meetingsError.message}`);
   }
-
-  // 会議IDをキーに結果をまとめ、議題マッチはタイトルを追記する
-  const byId = new Map<string, CommitteeSearchResult>();
-  for (const row of (meetingsRes.data ?? []) as CommitteeMeetingSearchRow[]) {
-    byId.set(row.id, toCommitteeResult(row));
-  }
-
-  // 2) 議題のタイトル・要約で検索し、親会議（公開のもの）に紐づける
-  const topicsRes = await supabase
-    .from("committee_meeting_topics")
+  const meetingIds = (meetings ?? []).map((meeting) => meeting.id);
+  const conditions = [
+    buildSearchFilter(
+      ["session_title", "summary", "detailed_summary", "content", "decisions"],
+      query
+    ),
+    ...(meetingIds.length ? [`meeting_id.in.(${meetingIds.join(",")})`] : []),
+  ].join(",");
+  const { data, error } = await supabase
+    .from("meeting_sessions")
     .select(
-      `title, committee_meetings!inner (${COMMITTEE_MEETING_SELECT}, publish_status)`
+      "id, session_title, date, summary, meetings!inner(id, title, meeting_type)"
     )
-    .eq("committee_meetings.publish_status", "published")
-    .or(`title.ilike.${like},summary.ilike.${like}`)
-    .limit(100);
-
-  if (topicsRes.error) {
-    if (isMissingTableError(topicsRes.error)) {
-      return [...byId.values()];
-    }
-    throw new Error(`Failed to search committees: ${topicsRes.error.message}`);
+    .or(conditions)
+    .order("date", { ascending: false })
+    .order("id", { ascending: false })
+    .limit(50);
+  if (error) {
+    throw new Error(`Failed to search meeting sessions: ${error.message}`);
   }
 
-  for (const row of (topicsRes.data ?? []) as Array<{
-    title: string;
-    committee_meetings: CommitteeMeetingSearchRow | null;
-  }>) {
-    const meeting = row.committee_meetings;
-    if (!meeting) continue;
-    const existing = byId.get(meeting.id) ?? toCommitteeResult(meeting);
-    if (row.title && !existing.matchedTopics.includes(row.title)) {
-      existing.matchedTopics.push(row.title);
-    }
-    byId.set(meeting.id, existing);
-  }
-
-  return [...byId.values()].slice(0, 50);
+  return (data ?? []).map(toMeetingSearchResult);
 }
