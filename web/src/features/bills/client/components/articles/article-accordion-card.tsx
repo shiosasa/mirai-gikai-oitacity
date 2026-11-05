@@ -290,7 +290,10 @@ export function ArticleAccordionCard({ article }: ArticleAccordionCardProps) {
       )}
 
       {/* 管理者が採用したAIインタビューの「生の声」 */}
-      <TopicVoicesSection voices={article.voices ?? []} />
+      <TopicVoicesSection
+        articleId={article.id}
+        voices={article.voices ?? []}
+      />
 
       {/* AI インタビューボタン（公開中のインタビューがある場合のみ表示） */}
       {article.interview_bill_id && (

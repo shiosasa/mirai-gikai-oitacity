@@ -3,6 +3,9 @@
 import { act, cleanup, render, screen } from "@testing-library/react";
 import { PathnameContext } from "next/dist/shared/lib/hooks-client-context.shared-runtime";
 import { afterEach, describe, expect, it, vi } from "vitest";
+import { TopicVoicesSection } from "@/features/bills/client/components/articles/topic-voices-section";
+import { BillPickupsView } from "@/features/committee-minutes/server/components/bill-pickups-view";
+import type { BillPickupItem } from "@/features/committee-minutes/shared/utils/build-bill-pickup-items";
 import { ReportCard } from "@/features/interview-report/shared/components/report-card";
 import type { RecentPublications } from "../../shared/types";
 import { NewPostBadge, NewPostProvider } from "./new-post-provider";
@@ -86,6 +89,83 @@ describe("NewPostProvider", () => {
     expect(screen.getByTestId("bill").textContent).toBe("");
     expect(screen.getByTestId("archive").textContent).toContain("NEW");
     expect(screen.getByTestId("report").textContent).toContain("NEW");
+  });
+
+  it("marks voices shown as part of a newly published topic", async () => {
+    vi.stubGlobal(
+      "fetch",
+      vi
+        .fn()
+        .mockResolvedValue(
+          response([publication("bill_articles", "new-topic")])
+        )
+    );
+    render(
+      <NewPostProvider>
+        <TopicVoicesSection
+          articleId="new-topic"
+          voices={[
+            {
+              reportId: "older-report",
+              municipalityConnectionLabel: null,
+              stance: null,
+              roleLabel: null,
+              summary: "市民の声",
+            },
+          ]}
+        />
+      </NewPostProvider>
+    );
+    await settle();
+    expect(
+      screen.getByRole("heading", { name: /みんなの生の声/ }).textContent
+    ).toContain("NEW");
+    expect(
+      screen.getByRole("link", { name: "インタビューレポートを読む →" })
+        .nextElementSibling
+    ).toBeNull();
+  });
+
+  it("marks a bill pickup card when its related topic is new", async () => {
+    vi.stubGlobal(
+      "fetch",
+      vi
+        .fn()
+        .mockResolvedValue(
+          response([publication("bill_articles", "new-topic")])
+        )
+    );
+    const item: BillPickupItem = {
+      billId: "older-bill",
+      description: null,
+      kind: "法案",
+      updatedAt: null,
+      status: "approved",
+      categories: [],
+      relatedTopicArticleIds: ["new-topic"],
+      relatedTopicTitles: ["新しいトピックス"],
+      references: [
+        {
+          meetingId: 1,
+          meetingTitle: "本会議",
+          meetingType: "本会議",
+          sessionId: 10,
+          date: "2026-03-26",
+          billNumber: "議第35号",
+          billName: "条例改正",
+          description: null,
+        },
+      ],
+    };
+    render(
+      <NewPostProvider>
+        <BillPickupsView items={[item]} />
+      </NewPostProvider>
+    );
+    await settle();
+    expect(
+      screen.getByTitle("サイトで初めて公開してから14日以内の投稿です")
+    ).toBeDefined();
   });
 
   it("refreshes the shared provider on client-side navigation", async () => {

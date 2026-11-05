@@ -3,9 +3,9 @@
 import { ArrowLeft, CalendarDays, Link2 } from "lucide-react";
 import Link from "next/link";
 import { useState } from "react";
+import { OitaPhotoBackground } from "@/components/layouts/oita-photo-background";
 import { Button } from "@/components/ui/button";
 import { NewPostBadge } from "@/features/new-posts/client/components/new-post-provider";
-import { OitaPhotoBackground } from "@/components/layouts/oita-photo-background";
 import type { BillPickupItem } from "../../shared/utils/build-bill-pickup-items";
 import {
   filterBillPickupItems,
@@ -199,6 +199,10 @@ export function BillPickupsView({
                         <NewPostBadge
                           contentType="bills"
                           contentId={item.billId}
+                        />
+                        <NewPostBadge
+                          contentType="bill_articles"
+                          contentId={item.relatedTopicArticleIds}
                         />
                         {item.status && getStatusLabel(item.status) && (
                           <span

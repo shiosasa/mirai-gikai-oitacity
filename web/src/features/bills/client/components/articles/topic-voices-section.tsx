@@ -1,14 +1,20 @@
 import { MessageSquareQuote } from "lucide-react";
 import Link from "next/link";
-import { NewPostBadge } from "@/features/new-posts/client/components/new-post-provider";
 import {
   stanceLabels,
   stanceTextColors,
 } from "@/features/interview-report/shared/constants";
+import { NewPostBadge } from "@/features/new-posts/client/components/new-post-provider";
 import { cn } from "@/lib/utils";
 import type { TopicVoice } from "../../../shared/types";
 
-export function TopicVoicesSection({ voices }: { voices: TopicVoice[] }) {
+export function TopicVoicesSection({
+  articleId,
+  voices,
+}: {
+  articleId: string;
+  voices: TopicVoice[];
+}) {
   if (voices.length === 0) return null;
 
   return (
@@ -16,6 +22,7 @@ export function TopicVoicesSection({ voices }: { voices: TopicVoice[] }) {
       <h4 className="flex items-center gap-1.5 text-sm font-bold text-mirai-text">
         <MessageSquareQuote className="size-4 text-oita-pink" />
         みんなの生の声
+        <NewPostBadge contentType="bill_articles" contentId={articleId} />
       </h4>
       <ul className="space-y-3">
         {voices.map((voice) => (
