@@ -1492,6 +1492,7 @@ export type Database = {
           stance: Database["public"]["Enums"]["stance_type_enum"] | null
           summary: string | null
           topic_voice_featured_at: string | null
+          topic_voice_first_featured_at: string | null
           total_score: number | null
           updated_at: string
         }
@@ -1512,6 +1513,7 @@ export type Database = {
           stance?: Database["public"]["Enums"]["stance_type_enum"] | null
           summary?: string | null
           topic_voice_featured_at?: string | null
+          topic_voice_first_featured_at?: string | null
           total_score?: number | null
           updated_at?: string
         }
@@ -1532,6 +1534,7 @@ export type Database = {
           stance?: Database["public"]["Enums"]["stance_type_enum"] | null
           summary?: string | null
           topic_voice_featured_at?: string | null
+          topic_voice_first_featured_at?: string | null
           total_score?: number | null
           updated_at?: string
         }

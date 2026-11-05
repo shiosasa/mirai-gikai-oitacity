@@ -5,8 +5,12 @@ import { PathnameContext } from "next/dist/shared/lib/hooks-client-context.share
 import { afterEach, describe, expect, it, vi } from "vitest";
 import { TopicVoicesSection } from "@/features/bills/client/components/articles/topic-voices-section";
 import { BillPickupsView } from "@/features/committee-minutes/server/components/bill-pickups-view";
+import { PlenaryMeetingSection } from "@/features/committee-minutes/shared/components/plenary-meeting-section";
 import type { BillPickupItem } from "@/features/committee-minutes/shared/utils/build-bill-pickup-items";
 import { ReportCard } from "@/features/interview-report/shared/components/report-card";
+import { MayorDetailContent } from "@/features/politicians/client/components/mayor-detail-content";
+import { PoliticianSpeechSection } from "@/features/politicians/shared/components/politician-speech-section";
+import { PressConferenceList } from "@/features/press-conferences/client/components/press-conference-list";
 import type { RecentPublications } from "../../shared/types";
 import { NewPostBadge, NewPostProvider } from "./new-post-provider";
 
@@ -156,6 +160,7 @@ describe("NewPostProvider", () => {
       .getByRole("link", { name: "インタビューレポートを読む →" })
       .closest("li");
     expect(answer?.textContent).toContain("NEW");
+    expect(answer?.firstElementChild?.textContent).toMatch(/^NEW/);
     expect(
       answer?.querySelector(
         '[title="トピックス記事に初掲載されてから14日以内の投稿です"]'
@@ -208,7 +213,109 @@ describe("NewPostProvider", () => {
     await settle();
     expect(
       screen.getAllByTitle("サイトで初めて公開してから14日以内の投稿です")
-    ).toHaveLength(2);
+    ).toHaveLength(1);
+    expect(
+      screen.getByText("法案").parentElement?.firstElementChild?.textContent
+    ).toMatch(/^NEW/);
+  });
+
+  it("places NEW before speeches, mayor proposals, conferences and minutes headings", async () => {
+    vi.stubGlobal(
+      "fetch",
+      vi
+        .fn()
+        .mockResolvedValue(
+          response([
+            publication("politician_speech_highlights", "speech"),
+            publication("meetings", "1"),
+            publication("press_conferences", "conference"),
+            publication("meeting_sessions", "123"),
+          ])
+        )
+    );
+    render(
+      <NewPostProvider>
+        <PoliticianSpeechSection
+          highlights={[
+            {
+              id: "speech",
+              title: "発言の見出し",
+              quote: "原文",
+              context: null,
+              meetingId: 1,
+              sessionId: 123,
+              meetingType: "本会議",
+              meetingTitle: "定例会",
+              meetingDate: "2026-03-05",
+            },
+          ]}
+          discussions={[]}
+          invalidCount={0}
+          isPreview={false}
+        />
+        <MayorDetailContent
+          mayor={null}
+          localPreview={false}
+          proposals={[
+            {
+              id: 1,
+              title: "提案理由の会議",
+              date: "2026-03-05",
+              mayor_proposal_summary: "要約",
+              mayor_proposal_source_url: null,
+            },
+          ]}
+          conferences={[
+            {
+              id: "conference",
+              slug: "conference",
+              title: "市長記者会見",
+              held_at: "2026-03-01",
+              youtube_url: null,
+              status: "published",
+              press_conference_items: [],
+            },
+          ]}
+        />
+        <PressConferenceList
+          pressConferences={[
+            {
+              id: "conference",
+              slug: "conference",
+              title: "市長記者会見",
+              heldAt: "2026-03-01",
+              youtubeUrl: null,
+              status: "published",
+              items: [],
+            },
+          ]}
+        />
+        <PlenaryMeetingSection
+          meeting={{
+            id: 1,
+            title: "定例会",
+            date: "2026-03-05",
+            sessions: [
+              { id: 123, session_title: "議事録の見出し", content: "原文" },
+            ],
+          }}
+        />
+      </NewPostProvider>
+    );
+    await settle();
+    expect(
+      screen.getByRole("heading", { name: "市議会への提案理由" }).textContent
+    ).toBe("市議会への提案理由");
+    for (const title of ["発言の見出し", "提案理由の会議", "議事録の見出し"]) {
+      expect(
+        screen.getByRole("heading", { name: new RegExp(title) })
+          .firstElementChild?.textContent
+      ).toMatch(/^NEW/);
+    }
+    expect(
+      screen.getByText("市長記者会見", { selector: "span" }).parentElement
+        ?.firstElementChild?.textContent
+    ).toMatch(/^NEW/);
   });
 
   it("refreshes the shared provider on client-side navigation", async () => {

@@ -1,5 +1,5 @@
-import { PGlite } from "@electric-sql/pglite";
 import { readFile } from "node:fs/promises";
+import { PGlite } from "@electric-sql/pglite";
 import { afterAll, beforeAll, describe, expect, it } from "vitest";
 
 const db = new PGlite();
@@ -40,7 +40,8 @@ beforeAll(async () => {
     );
     create table interview_report (
       id text primary key, is_public_by_user boolean default false,
-      is_public_by_admin boolean default false, summary text
+      is_public_by_admin boolean default false, summary text,
+      topic_voice_featured_at timestamptz
     );
     insert into bill_articles values
       ('known-topic', 'published', '2000-01-01T00:00:00Z', 'old'),
@@ -49,7 +50,7 @@ beforeAll(async () => {
     insert into bills values
       ('legacy-bill', 'published', 'old'),
       ('legacy-draft-with-unknown-history', 'draft', 'old');
-    insert into interview_report values ('legacy-report', true, true, 'old');
+    insert into interview_report values ('legacy-report', true, true, 'old', null);
     insert into meeting_sessions values (1, 'old minutes', null, null);
     insert into site_information (id, is_published, published_at) values
       ('scheduled-legacy', true, now() + interval '30 days'),
@@ -63,6 +64,18 @@ beforeAll(async () => {
     "utf8"
   );
   await db.exec(migration);
+  await db.exec(
+    "update interview_report set topic_voice_featured_at = '2026-11-03T00:00:00Z' where id = 'legacy-report'"
+  );
+  await db.exec(
+    await readFile(
+      new URL(
+        "../../../../../../supabase/migrations/20261105120000_preserve_topic_voice_first_publication.sql",
+        import.meta.url
+      ),
+      "utf8"
+    )
+  );
 }, 60_000);
 
 afterAll(async () => {
@@ -83,6 +96,54 @@ async function history(type: string, id: string | number) {
 }
 
 describe("first-publication migration (PostgreSQL)", () => {
+  it("keeps the original voice listing date after removal, edits and relisting", async () => {
+    const first = async () =>
+      (
+        await db.query<{ date: string }>(
+          `select topic_voice_first_featured_at::text as date
+            from interview_report where id = 'legacy-report'`
+        )
+      ).rows[0].date;
+    expect(await first()).toBe("2026-11-03 00:00:00+00");
+    await db.exec(`
+      update interview_report set topic_voice_featured_at = null
+        where id = 'legacy-report';
+      update interview_report
+        set topic_voice_featured_at = now(),
+          topic_voice_first_featured_at = now()
+        where id = 'legacy-report';
+    `);
+    expect(await first()).toBe("2026-11-03 00:00:00+00");
+  });
+
+  it("records the first voice listing only when consent and approval are both present", async () => {
+    await db.exec(`
+      insert into interview_report (
+        id, is_public_by_admin, topic_voice_featured_at,
+        topic_voice_first_featured_at
+      ) values ('consented-voice', true, now(), now());
+    `);
+    const first = async () =>
+      (
+        await db.query<{ date: string | null }>(
+          `select topic_voice_first_featured_at::text as date
+            from interview_report where id = 'consented-voice'`
+        )
+      ).rows[0].date;
+    expect(await first()).toBeNull();
+    await db.exec(
+      "update interview_report set is_public_by_user = true where id = 'consented-voice'"
+    );
+    const original = await first();
+    expect(original).not.toBeNull();
+    await db.exec(`
+      update interview_report set is_public_by_user = false
+        where id = 'consented-voice';
+      update interview_report set is_public_by_user = true
+        where id = 'consented-voice';
+    `);
+    expect(await first()).toBe(original);
+  });
   it("preserves confirmed topic history, but does not invent legacy dates", async () => {
     expect(
       (await history("bill_articles", "known-topic")).first_published_at

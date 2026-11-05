@@ -39,11 +39,11 @@ export function MeetingDetailView({ meeting }: Props) {
             {getCommitteeTypeLabel(meeting.committeeSlug)}
           </span>
           <h1 className="text-xl sm:text-2xl font-bold text-mirai-text leading-snug">
-            {meeting.committeeName}
             <NewPostBadge
               contentType="committee_meetings"
               contentId={meeting.id}
             />
+            {meeting.committeeName}
           </h1>
           <p className="flex items-center gap-1.5 text-sm text-mirai-text-secondary">
             <CalendarDays className="w-4 h-4" />

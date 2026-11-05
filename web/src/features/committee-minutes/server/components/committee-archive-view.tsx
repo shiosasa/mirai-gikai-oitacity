@@ -51,12 +51,12 @@ export function CommitteeArchiveView({ meetings }: Props) {
                 className="block rounded-2xl border border-mirai-border bg-white p-5 hover:border-primary/50 hover:shadow-md transition-all duration-200"
               >
                 <div className="flex flex-wrap items-center gap-2 text-sm font-bold text-mirai-text">
-                  <CalendarDays className="w-4 h-4 text-primary-accent" />
-                  {m.meetingDate ? formatJapaneseDate(m.meetingDate) : ""}
                   <NewPostBadge
                     contentType="committee_meetings"
                     contentId={m.id}
                   />
+                  <CalendarDays className="w-4 h-4 text-primary-accent" />
+                  {m.meetingDate ? formatJapaneseDate(m.meetingDate) : ""}
                   {m.committeeName !== committeeName && (
                     <span className="text-xs font-normal text-mirai-text-muted">
                       （当時の名称: {m.committeeName}）

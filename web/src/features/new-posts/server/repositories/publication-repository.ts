@@ -36,14 +36,14 @@ export async function findRecentPublications(): Promise<RecentPublications> {
     const { data, error } = await client
       .from("interview_report")
       .select(
-        "id, topic_voice_featured_at, interview_sessions!inner(interview_configs!inner(bill_id, bills!inner(source)))"
+        "id, topic_voice_first_featured_at, interview_sessions!inner(interview_configs!inner(bill_id, bills!inner(source)))"
       )
       .eq("is_public_by_admin", true)
       .eq("is_public_by_user", true)
       .eq("interview_sessions.interview_configs.bills.source", "topic")
       .not("topic_voice_featured_at", "is", null)
-      .gt("topic_voice_featured_at", cutoff)
-      .lte("topic_voice_featured_at", now.toISOString())
+      .gt("topic_voice_first_featured_at", cutoff)
+      .lte("topic_voice_first_featured_at", now.toISOString())
       .order("id")
       .range(offset, offset + pageSize - 1);
 
@@ -55,12 +55,12 @@ export async function findRecentPublications(): Promise<RecentPublications> {
 
     topicVoicePublications.push(
       ...(data ?? []).flatMap((report) =>
-        report.topic_voice_featured_at
+        report.topic_voice_first_featured_at
           ? [
               {
                 content_type: "topic_voice" as const,
                 content_id: report.id,
-                first_published_at: report.topic_voice_featured_at,
+                first_published_at: report.topic_voice_first_featured_at,
               },
             ]
           : []

@@ -1,6 +1,6 @@
+import { NewPostBadge } from "@/features/new-posts/client/components/new-post-provider";
 import type { BillArticle } from "../../shared/types";
 import { getCategoryLabel } from "../../shared/utils/article-category";
-import { NewPostBadge } from "@/features/new-posts/client/components/new-post-provider";
 
 interface ArticleCardProps {
   article: BillArticle;
@@ -14,12 +14,12 @@ export function ArticleCard({ article }: ArticleCardProps) {
         <div className="flex-1">
           {/* ステータスバッジ */}
           <div className="mb-2">
+            <NewPostBadge contentType="bill_articles" contentId={article.id} />
             <span
               className={`inline-flex items-center rounded-full px-3 py-1 text-xs font-bold text-white ${article.status_class || "bg-gray-500"}`}
             >
               {article.status_label}
             </span>
-            <NewPostBadge contentType="bill_articles" contentId={article.id} />
           </div>
 
           {/* タイトル */}

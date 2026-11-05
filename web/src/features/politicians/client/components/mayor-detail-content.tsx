@@ -1,8 +1,8 @@
 import { ArrowLeft, ChevronDown, ExternalLink } from "lucide-react";
 import Link from "next/link";
-import { NewPostBadge } from "@/features/new-posts/client/components/new-post-provider";
 import { OitaPhotoBackground } from "@/components/layouts/oita-photo-background";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
+import { NewPostBadge } from "@/features/new-posts/client/components/new-post-provider";
 import { formatDateJST } from "@/lib/utils/date";
 import { getHttpUrl } from "@/lib/utils/external-url";
 import type {
@@ -172,10 +172,6 @@ export function MayorDetailContent({
               className="text-xl font-bold text-mirai-text"
             >
               市議会への提案理由
-              <NewPostBadge
-                contentType="meetings"
-                contentId={proposals.map((proposal) => proposal.id)}
-              />
             </h2>
             <p className="mt-2 text-sm leading-6 text-mirai-text-secondary">
               定例会などで市長が説明した提案理由の要点を紹介します。
@@ -196,17 +192,15 @@ export function MayorDetailContent({
                     <details className="group rounded-lg border border-mirai-border bg-card">
                       <summary className="flex cursor-pointer list-none items-center justify-between gap-4 p-5 outline-offset-4 focus-visible:outline focus-visible:outline-2 focus-visible:outline-primary">
                         <h3 className="min-w-0 font-bold text-mirai-text">
-                          {proposal.date && (
-                            <span className="block text-xs font-normal text-mirai-text-secondary">
-                              {formatDateJST(proposal.date)}
-                            </span>
-                          )}
-                          <span className="mt-1 block">
-                            {proposal.title || "会議名は準備中です"}
+                          <span className="block text-xs font-normal text-mirai-text-secondary">
                             <NewPostBadge
                               contentType="meetings"
                               contentId={proposal.id}
                             />
+                            {proposal.date && formatDateJST(proposal.date)}
+                          </span>
+                          <span className="mt-1 block">
+                            {proposal.title || "会議名は準備中です"}
                           </span>
                         </h3>
                         <ChevronDown

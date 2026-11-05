@@ -193,17 +193,19 @@ export function BillPickupsView({
                   >
                     <div className="p-6">
                       <div className="flex flex-wrap items-center gap-2">
-                        <span className="rounded-full bg-primary/10 px-3 py-1 text-xs font-semibold text-primary-accent">
-                          {item.kind}
-                        </span>
                         <NewPostBadge
                           contentType="bills"
                           contentId={item.billId}
+                          relatedPublications={item.relatedTopicArticleIds.map(
+                            (id) => ({
+                              contentType: "bill_articles",
+                              contentId: id,
+                            })
+                          )}
                         />
-                        <NewPostBadge
-                          contentType="bill_articles"
-                          contentId={item.relatedTopicArticleIds}
-                        />
+                        <span className="rounded-full bg-primary/10 px-3 py-1 text-xs font-semibold text-primary-accent">
+                          {item.kind}
+                        </span>
                         {item.status && getStatusLabel(item.status) && (
                           <span
                             className={`rounded-full px-3 py-1 text-xs font-bold ${getStatusBadgeClass(item.status)}`}
