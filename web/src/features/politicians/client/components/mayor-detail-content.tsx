@@ -171,10 +171,6 @@ export function MayorDetailContent({
               id="mayor-proposals-heading"
               className="text-xl font-bold text-mirai-text"
             >
-              <NewPostBadge
-                contentType="meetings"
-                contentId={proposals.map((proposal) => proposal.id)}
-              />
               市議会への提案理由
             </h2>
             <p className="mt-2 text-sm leading-6 text-mirai-text-secondary">

@@ -303,6 +303,9 @@ describe("NewPostProvider", () => {
       </NewPostProvider>
     );
     await settle();
+    expect(
+      screen.getByRole("heading", { name: "市議会への提案理由" }).textContent
+    ).toBe("市議会への提案理由");
     for (const title of ["発言の見出し", "提案理由の会議", "議事録の見出し"]) {
       expect(
         screen.getByRole("heading", { name: new RegExp(title) })
