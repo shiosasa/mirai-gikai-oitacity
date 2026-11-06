@@ -5,6 +5,7 @@ import {
   FileText,
   Landmark,
   LayoutDashboard,
+  LayoutTemplate,
   MessagesSquare,
   Mic,
   Newspaper,
@@ -15,6 +16,12 @@ import {
 } from "lucide-react";
 
 export const contentLinks = [
+  {
+    href: "/homepage",
+    label: "トップページ",
+    description: "トップの文章・画像・リンクをプレビューして更新",
+    icon: LayoutTemplate,
+  },
   {
     href: "/minutes",
     label: "議事録要約",

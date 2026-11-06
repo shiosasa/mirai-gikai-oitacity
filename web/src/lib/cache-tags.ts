@@ -2,6 +2,7 @@
  * Next.js cache tags for revalidation
  */
 export const CACHE_TAGS = {
+  HOMEPAGE: "homepage",
   BILLS: "bills",
   COUNCIL_SESSIONS: "council-sessions",
   DIET_SESSIONS: "diet-sessions",

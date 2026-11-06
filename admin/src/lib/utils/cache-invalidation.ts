@@ -6,6 +6,7 @@ import { logger } from "../logger";
  * web/src/lib/cache-tags.ts と同期を保つこと
  */
 export const WEB_CACHE_TAGS = {
+  HOMEPAGE: "homepage",
   BILLS: "bills",
   COUNCIL_SESSIONS: "council-sessions",
   DIET_SESSIONS: "diet-sessions",

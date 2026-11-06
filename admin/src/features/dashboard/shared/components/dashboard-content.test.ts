@@ -12,7 +12,7 @@ afterEach(cleanup);
 describe("管理画面の導線", () => {
   it("AI不要の更新先と未対応項目を区別して案内する", () => {
     render(createElement(ManualUpdateGuide));
-    expect(screen.getAllByRole("link")).toHaveLength(11);
+    expect(screen.getAllByRole("link")).toHaveLength(12);
     expect(
       screen
         .getByRole("link", { name: "市長プロフィール" })
@@ -36,11 +36,12 @@ describe("管理画面の導線", () => {
     ).toBe("/office-history");
     expect(screen.getByText(/導入前の全任期の復元/)).toBeTruthy();
   });
-  it("手動更新ガイドとよく更新する10機能へ移動でき、公開の注意を表示する", () => {
+  it("手動更新ガイドとよく更新する11機能へ移動でき、公開の注意を表示する", () => {
     render(createElement(DashboardContent));
     const links = screen.getAllByRole("link");
     expect(links.map((link) => link.getAttribute("href"))).toEqual([
       "/update-guide",
+      "/homepage",
       "/minutes",
       "/bills",
       "/topics",
