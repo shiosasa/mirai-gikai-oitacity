@@ -24,7 +24,7 @@ const faqs: FaqItem[] = [
     answer: (
       <>
         {siteConfig.siteDescription}
-        。議案の情報収集や解説にAIを活用し、県民の皆さまが議会の動向を把握しやすくすることを目的としています。
+        。議案の情報収集や解説にAIを活用し、市民の皆さまが議会の動向を把握しやすくすることを目的としています。
       </>
     ),
   },
@@ -61,6 +61,24 @@ const faqs: FaqItem[] = [
           {siteConfig.councilName}公式サイト
         </Link>
         に公開されている情報をもとに掲載しています。最新情報や正確な内容については公式サイトをご確認ください。
+      </>
+    ),
+  },
+  {
+    question: "掲載している記録はいつのものですか？",
+    answer: (
+      <>
+        このサイトは、令和8年からの{siteConfig.councilName}
+        の記録をもとに掲載しています。令和7年以前の記録は掲載していません。それより前の情報は、
+        <Link
+          href={siteConfig.councilBaseUrl}
+          target="_blank"
+          rel="noreferrer"
+          className="underline underline-offset-2"
+        >
+          {siteConfig.councilName}公式サイト
+        </Link>
+        をご確認ください。
       </>
     ),
   },
