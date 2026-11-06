@@ -8,6 +8,7 @@ describe("isNavigationActive", () => {
       group.links.map((link) => link.href)
     );
     for (const href of [
+      "/homepage",
       "/bills",
       "/update-guide",
       "/topics",

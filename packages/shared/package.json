@@ -7,6 +7,10 @@
     "test:watch": "vitest"
   },
   "exports": {
+    "./homepage/content": {
+      "types": "./src/homepage/content.ts",
+      "default": "./src/homepage/content.ts"
+    },
     "./bills/related-links": {
       "types": "./src/bills/related-links.ts",
       "default": "./src/bills/related-links.ts"

@@ -34,6 +34,27 @@ export type Database = {
   }
   public: {
     Tables: {
+      homepage_content: {
+        Row: {
+          content: Json
+          id: boolean
+          revision: number
+          updated_at: string
+        }
+        Insert: {
+          content: Json
+          id?: boolean
+          revision: number
+          updated_at?: string
+        }
+        Update: {
+          content?: Json
+          id?: boolean
+          revision?: number
+          updated_at?: string
+        }
+        Relationships: []
+      }
       content_publications: {
         Row: {
           content_type: string
@@ -2242,6 +2263,10 @@ export type Database = {
       [_ in never]: never
     }
     Functions: {
+      save_admin_homepage_content: {
+        Args: { content_input: Json; expected_revision: number }
+        Returns: number
+      }
       create_admin_topic_content: {
         Args: { content_input: Json }
         Returns: string
