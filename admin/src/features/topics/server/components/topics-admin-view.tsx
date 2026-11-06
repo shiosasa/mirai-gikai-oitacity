@@ -3,6 +3,7 @@ import Link from "next/link";
 import { Button } from "@/components/ui/button";
 import { requireAdmin } from "@/features/auth/server/lib/auth-server";
 import { TopicPublicationButton } from "../../client/components/topic-publication-button";
+import { parseTopicPublicationStatus } from "../../shared/utils/topic-publication";
 import { findTopicsForAdmin } from "../repositories/topic-repository";
 
 export async function TopicsAdminView() {
@@ -42,7 +43,7 @@ export async function TopicsAdminView() {
             </p>
             <TopicPublicationButton
               id={topic.id}
-              status={topic.publish_status}
+              status={parseTopicPublicationStatus(topic.publish_status)}
             />
           </li>
         ))}

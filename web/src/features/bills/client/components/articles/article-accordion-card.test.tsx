@@ -1,6 +1,7 @@
 // @vitest-environment jsdom
 import { cleanup, fireEvent, render, screen } from "@testing-library/react";
 import { afterEach, describe, expect, it } from "vitest";
+import { ArticleCard } from "../../../server/components/article-card";
 import type { BillArticle, TopicSourceRef } from "../../../shared/types";
 import { ArticleAccordionCard } from "./article-accordion-card";
 
@@ -39,6 +40,38 @@ function articleWithReference(reference: TopicSourceRef): BillArticle {
 }
 
 describe("article source meeting links", () => {
+  it.each([
+    ArticleAccordionCard,
+    ArticleCard,
+  ])("renders all related links in saved order in %s", (Component) => {
+    const article = articleWithReference({
+      meeting_type: "本会議",
+      meeting_title: "会議",
+      meeting_id: 1,
+      session_id: 1,
+      date: "",
+      session_label: "",
+      bill_name: null,
+      bill_number: null,
+      evidence_quote: null,
+    });
+    article.related_links = [
+      { label: "資料B", url: "https://example.com/b" },
+      { label: "", url: "https://example.com/a" },
+    ];
+    article.link_url = "https://example.com/old";
+    render(<Component article={article} />);
+    const expand = screen.queryByRole("button", { name: /詳細・重要/ });
+    if (expand) fireEvent.click(expand);
+    const links = screen
+      .getAllByRole("link")
+      .filter((link) => link.getAttribute("href")?.startsWith("https://"));
+    expect(links.map((link) => link.getAttribute("href"))).toEqual([
+      "https://example.com/b",
+      "https://example.com/a",
+    ]);
+    expect(links[1].textContent).toContain("詳しく見る");
+  });
   it.each([
     {
       meeting_type: "委員会",

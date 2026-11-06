@@ -9,8 +9,8 @@ import type {
   TopicSourceRef,
   TopicVoice,
 } from "../../shared/types";
-import { addTopicSourceBillDetailIds } from "../../shared/utils/add-topic-source-bill-detail-ids";
 import { addTopicBudgetDetailLinks } from "../../shared/utils/add-topic-budget-detail-links";
+import { addTopicSourceBillDetailIds } from "../../shared/utils/add-topic-source-bill-detail-ids";
 import { categoryEnumFromBadge } from "../../shared/utils/article-category";
 import { groupTopicVoicesByBillId } from "../../shared/utils/group-topic-voices";
 import { loadArticlesWithFreshVoices } from "../../shared/utils/load-articles-with-fresh-voices";
@@ -59,6 +59,7 @@ const ARTICLE_COLUMNS = `
         cautious_voice,
         link_label,
         link_url,
+        related_links,
         decision_date,
         created_at,
         updated_at,
@@ -297,7 +298,7 @@ async function fetchFeaturedTopicVoices(
 
 const _getCachedArticles = unstable_cache(
   loadArticles,
-  ["published-articles-by-proposal-published-date-v9"],
+  ["published-articles-with-related-links-v10"],
   {
     revalidate: 600, // 10分
     tags: [CACHE_TAGS.BILLS],

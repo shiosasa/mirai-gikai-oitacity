@@ -1,3 +1,4 @@
+import { getRelatedLinks } from "@mirai-gikai/shared/bills/related-links";
 import type { Database } from "@mirai-gikai/supabase";
 import { z } from "zod";
 import {
@@ -34,6 +35,17 @@ export const topicContentSchema = z.object({
   cautious_voice: optionalText,
   link_label: z.string().max(200),
   link_url: httpUrl,
+  related_links: z
+    .array(
+      z.object({
+        label: z.string().trim().max(200),
+        url: httpUrl.refine(
+          (value) => !!value,
+          "関連リンクURLを入力してください"
+        ),
+      })
+    )
+    .default([]),
   decision_date: z.union([dateInput, z.literal("")]),
   source_refs: topicSourcesSchema.default([]),
 });
@@ -76,6 +88,7 @@ export function getTopicEditValues(
     cautious_voice: proposal?.con || article.cautious_voice,
     link_label: article.link_label ?? "",
     link_url: article.link_url ?? "",
+    related_links: getRelatedLinks(article),
     decision_date: article.decision_date ?? "",
     expected_updated_at: article.updated_at,
     source_refs: article.source_refs ?? [],
@@ -109,10 +122,13 @@ export function getEmptyTopicValues(): TopicContentInput {
 
 export function topicFormData(data: FormData) {
   const rawSources = data.get("source_refs");
+  const rawLinks = data.get("related_links");
   return {
     ...Object.fromEntries(data),
     source_refs:
       typeof rawSources === "string" ? JSON.parse(rawSources) : undefined,
+    related_links:
+      typeof rawLinks === "string" ? JSON.parse(rawLinks) : undefined,
   };
 }
 

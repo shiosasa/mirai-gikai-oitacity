@@ -15,6 +15,7 @@ import {
   topicFormData,
 } from "../../shared/utils/topic-edit";
 import type { TopicSourceOption } from "../../shared/utils/topic-sources";
+import { TopicRelatedLinkFields } from "./topic-related-link-fields";
 import { TopicSourceFields } from "./topic-source-fields";
 
 const sections = [
@@ -40,7 +41,7 @@ export function TopicEditFields({
 }) {
   const [preview, setPreview] = useState<TopicContentInput | null>(null);
   return (
-    <div className="space-y-4">
+    <div className="space-y-4" onChange={() => setPreview(null)}>
       <input type="hidden" name="id" value={initial.id} />
       <input
         type="hidden"
@@ -94,17 +95,11 @@ export function TopicEditFields({
         type="date"
         value={initial.decision_date}
       />
-      <EditField
-        name="link_label"
-        label="関連リンクの表示名"
-        value={initial.link_label}
-      />
-      <EditField
-        name="link_url"
-        label="関連リンクURL"
-        type="url"
-        value={initial.link_url}
-        hint="市公式ページや資料のURLを指定します。議事録・議案へのリンクは下の出典欄で設定してください。"
+      <input type="hidden" name="link_label" value={initial.link_label} />
+      <input type="hidden" name="link_url" value={initial.link_url} />
+      <TopicRelatedLinkFields
+        initial={initial.related_links}
+        onChange={() => setPreview(null)}
       />
       <TopicSourceFields initial={initial.source_refs} options={sources} />
       <Button
@@ -149,15 +144,24 @@ export function TopicEditFields({
                 </section>
               )
           )}
-          {preview.link_url && (
-            <a
-              href={preview.link_url}
-              target="_blank"
-              rel="noopener noreferrer"
-              className="underline"
-            >
-              {preview.link_label || "詳しく見る"}
-            </a>
+          {preview.related_links.length > 0 && (
+            <section aria-label="関連リンクのプレビュー">
+              <h3 className="font-semibold">関連リンク</h3>
+              <ul className="space-y-2">
+                {preview.related_links.map((link, index) => (
+                  <li key={`${link.url}-${index}`}>
+                    <a
+                      href={link.url}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="underline"
+                    >
+                      {link.label || "詳しく見る"}
+                    </a>
+                  </li>
+                ))}
+              </ul>
+            </section>
           )}
           <h3 className="font-semibold">出典の議事録・議案</h3>
           {preview.source_refs.map((source, index) => (

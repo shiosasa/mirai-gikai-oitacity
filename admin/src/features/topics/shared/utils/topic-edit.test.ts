@@ -96,6 +96,46 @@ describe("getTopicEditValues", () => {
 });
 
 describe("topicEditSchema", () => {
+  it("validates every related URL and preserves list order", () => {
+    const related_links = [
+      { label: "資料2", url: "https://example.com/2" },
+      { label: "", url: "https://example.com/1" },
+    ];
+    expect(
+      topicEditSchema.parse({ ...input, related_links }).related_links
+    ).toEqual(related_links);
+    for (const url of [
+      "",
+      "javascript:alert(1)",
+      "https://user:pass@example.com",
+      "/local",
+    ]) {
+      expect(
+        topicEditSchema.safeParse({
+          ...input,
+          related_links: [{ label: "資料", url }],
+        }).success
+      ).toBe(false);
+    }
+    const form = new FormData();
+    form.set("related_links", JSON.stringify(related_links));
+    expect(topicFormData(form).related_links).toEqual(related_links);
+    form.set("related_links", "broken");
+    expect(() => topicFormData(form)).toThrow();
+  });
+  it("loads an existing single link for editing without changing it", () => {
+    expect(
+      getTopicEditValues(
+        {
+          ...article,
+          related_links: null,
+          link_label: "旧資料",
+          link_url: "https://example.com/old",
+        },
+        proposal
+      ).related_links
+    ).toEqual([{ label: "旧資料", url: "https://example.com/old" }]);
+  });
   it("starts a new topic with blank text and validates it before creation", () => {
     const initial = getEmptyTopicValues();
     expect(initial.title).toBe("");
