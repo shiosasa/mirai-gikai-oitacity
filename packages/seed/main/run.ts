@@ -124,16 +124,35 @@ async function seedDatabase() {
     const politiciansWithFaction = politicians.map((p, idx) => ({
       ...p,
       faction: insertedFactions[idx % insertedFactions.length]?.name,
+      is_current: true,
     }));
     const { data: insertedPoliticians, error: politiciansError } =
       await supabase
         .from("politicians")
         .insert(politiciansWithFaction)
-        .select("id, name");
+        .select(
+          "id, name, number, faction, standing_committee, special_committee"
+        );
 
     if (politiciansError) {
       console.warn(`Politicians insert note: ${politiciansError.message}`);
     } else {
+      if (insertedPoliticians?.length) {
+        const { error } = await supabase.from("office_terms").insert(
+          insertedPoliticians.map((person) => ({
+            role: "councillor",
+            politician_id: person.id,
+            seat_number: person.number,
+            faction: person.faction,
+            standing_committee: person.standing_committee,
+            special_committee: person.special_committee,
+          }))
+        );
+        if (error)
+          throw new Error(
+            `Failed to insert seeded office terms: ${error.message}`
+          );
+      }
       console.log(`✅ Inserted ${insertedPoliticians?.length ?? 0} politicians`);
     }
 

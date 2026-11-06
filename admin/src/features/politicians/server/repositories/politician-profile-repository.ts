@@ -13,7 +13,11 @@ export async function savePoliticianProfile(input: PoliticianProfileInput) {
         .neq("name", "欠番")
         .select("id")
         .single()
-    : await supabase.from("politicians").insert(payload).select("id").single();
+    : await supabase
+        .from("politicians")
+        .insert({ ...payload, is_current: false })
+        .select("id")
+        .single();
 
   if (result.error) {
     throw new Error(`議員情報の保存に失敗しました: ${result.error.message}`);

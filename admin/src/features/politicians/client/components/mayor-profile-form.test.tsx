@@ -53,6 +53,40 @@ function confirmPreview() {
 }
 
 describe("MayorProfileForm", () => {
+  it("registers a distinct non-current person without inventing appointment dates", async () => {
+    const calls: MayorProfileInput[] = [];
+    render(
+      <MayorProfileForm
+        initial={{
+          ...mayor,
+          id: 0,
+          name: "",
+          start_date: null,
+          term_number: null,
+        }}
+        onSave={async (input) => {
+          calls.push(input);
+          return { data: { id: 99, ...input.content } };
+        }}
+      />
+    );
+    fireEvent.change(screen.getByLabelText("氏名"), {
+      target: { value: "後任の確認用人物" },
+    });
+    expect(screen.getByLabelText<HTMLInputElement>("就任日").readOnly).toBe(
+      true
+    );
+    expect(screen.getByLabelText<HTMLInputElement>("期数").readOnly).toBe(true);
+    confirmPreview();
+    fireEvent.click(
+      screen.getByRole("button", { name: "人物を登録（就任は別途）" })
+    );
+    await waitFor(() => expect(calls).toHaveLength(1));
+    expect(calls[0].id).toBeUndefined();
+    expect(calls[0].content.start_date).toBeNull();
+    expect(calls[0].content.term_number).toBeNull();
+    expect(screen.getByRole("status").textContent).toContain("就任を登録");
+  });
   it("loads all fields and previews public pillars without saving", () => {
     render(
       <MayorProfileForm
@@ -127,7 +161,7 @@ describe("MayorProfileForm", () => {
         onSave={async (input) => {
           calls.push(input);
           return {
-            data: { id: input.id, ...input.content },
+            data: { id: input.id ?? 1, ...input.content },
             warning: "保存済みですがキャッシュ更新に失敗しました",
           };
         }}

@@ -134,7 +134,7 @@ describe("PoliticianManager", () => {
     ).toBeNull();
   });
 
-  it("creates a new profile only after explicit public-save confirmation", async () => {
+  it("registers an unappointed person before a separate appointment", async () => {
     const saved: PoliticianProfileInput[] = [];
     render(
       <PoliticianManager
@@ -147,7 +147,9 @@ describe("PoliticianManager", () => {
         scrollToForm={() => {}}
       />
     );
-    expect(screen.getByText(/下書き・非公開機能はありません/)).toBeTruthy();
+    expect(
+      screen.getByText(/登録だけでは現職・歴代の一覧に掲載されません/)
+    ).toBeTruthy();
     fireEvent.change(screen.getByLabelText("氏名"), {
       target: { value: "新規確認議員" },
     });
@@ -155,7 +157,9 @@ describe("PoliticianManager", () => {
       target: { value: "44" },
     });
     confirmPreview();
-    fireEvent.click(screen.getByRole("button", { name: "議員を登録して公開" }));
+    fireEvent.click(
+      screen.getByRole("button", { name: "人物を登録（就任は別途）" })
+    );
     await waitFor(() => expect(saved).toHaveLength(1));
     expect(saved[0].id).toBeUndefined();
     expect(saved[0].number).toBe(44);
