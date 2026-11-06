@@ -7,6 +7,10 @@
     "test:watch": "vitest"
   },
   "exports": {
+    "./politicians/office-history": {
+      "types": "./src/politicians/office-history.ts",
+      "default": "./src/politicians/office-history.ts"
+    },
     "./politicians/mayor-policy": {
       "types": "./src/politicians/mayor-policy.ts",
       "default": "./src/politicians/mayor-policy.ts"

@@ -18,6 +18,7 @@ export type PoliticianRow = {
   slug: string | null;
   created_at: string;
   number: number | null;
+  is_current: boolean;
 };
 
 export async function findPublishedPoliticians(): Promise<PoliticianRow[]> {
@@ -26,6 +27,7 @@ export async function findPublishedPoliticians(): Promise<PoliticianRow[]> {
     .from("politicians")
     .select("*")
     .neq("name", "欠番")
+    .eq("is_current", true)
     .order("number", { ascending: true, nullsFirst: false })
     .order("name_kana", { ascending: true });
 
@@ -33,6 +35,17 @@ export async function findPublishedPoliticians(): Promise<PoliticianRow[]> {
     throw new Error(`Failed to fetch politicians: ${error.message}`);
   }
 
+  return data;
+}
+
+export async function findRecordedPoliticians(): Promise<PoliticianRow[]> {
+  const { data, error } = await createAdminClient()
+    .from("politicians")
+    .select("*,office_terms!inner(id)")
+    .neq("name", "欠番")
+    .order("name_kana");
+  if (error)
+    throw new Error(`Failed to fetch recorded politicians: ${error.message}`);
   return data;
 }
 
@@ -77,6 +90,7 @@ export async function getPoliticiansRepository(): Promise<PoliticianRow[]> {
     .from("politicians")
     .select("*")
     .neq("name", "欠番")
+    .eq("is_current", true)
     .order("number", { ascending: true, nullsFirst: false })
     .order("name_kana", { ascending: true });
 

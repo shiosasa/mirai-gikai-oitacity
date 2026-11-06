@@ -46,6 +46,12 @@ export const contentLinks = [
     icon: Landmark,
   },
   {
+    href: "/office-history",
+    label: "交代と任期履歴",
+    description: "市長・議員の退任・後任登録・再選・再就任を管理",
+    icon: Users,
+  },
+  {
     href: "/mayor-profile",
     label: "市長プロフィール",
     description: "市長の氏名・写真・経歴・公式リンクを更新",

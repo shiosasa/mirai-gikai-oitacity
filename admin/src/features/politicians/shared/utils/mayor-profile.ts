@@ -36,7 +36,7 @@ export const mayorProfileContentSchema = z.object({
 });
 
 export const mayorProfileInputSchema = z.object({
-  id: z.number().int().positive().max(Number.MAX_SAFE_INTEGER),
+  id: z.number().int().positive().max(Number.MAX_SAFE_INTEGER).optional(),
   content: mayorProfileContentSchema,
 });
 

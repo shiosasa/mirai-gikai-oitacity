@@ -83,7 +83,10 @@ export function MayorProfileForm({
     setError("");
     setMessage("");
     try {
-      const result = await onSave({ id: initial.id, content: preview });
+      const result = await onSave({
+        id: saved.id || undefined,
+        content: preview,
+      });
       if (result.error) {
         setError(result.error);
         return;
@@ -99,7 +102,9 @@ export function MayorProfileForm({
       setPreview(null);
       setConfirmed(false);
       setMessage(
-        "市長プロフィールを保存しました。公開サイトの更新対象になりました。"
+        saved.id
+          ? "市長プロフィールを保存しました。公開サイトの更新対象になりました。"
+          : "人物を登録しました。「交代と任期履歴」で就任を登録すると一覧に掲載されます。"
       );
       setError(result.warning ?? "");
     } catch (error) {
@@ -125,12 +130,18 @@ export function MayorProfileForm({
                 min={field.type === "number" ? 1 : undefined}
                 step={field.type === "number" ? 1 : undefined}
                 required={field.key === "name"}
+                readOnly={
+                  field.key === "start_date" || field.key === "term_number"
+                }
                 value={form[field.key]}
                 onChange={(event) => changeField(field.key, event.target.value)}
               />
             </div>
           ))}
         </div>
+        <p className="text-sm text-muted-foreground">
+          就任日・期数は「交代と任期履歴」で管理します。新規の人物はプロフィール登録だけでは現職・歴代の一覧に掲載されません。
+        </p>
         <div className="space-y-2">
           <Label htmlFor="mayor-bio">紹介文・経歴・基本方針</Label>
           <Textarea
@@ -228,7 +239,7 @@ export function MayorProfileForm({
             onCheckedChange={(checked) => setConfirmed(checked === true)}
           />
           <Label htmlFor="mayor-confirmed">
-            公式資料と表示を確認しました。保存すると公開されることを確認しました
+            公式資料と表示、保存後の公開範囲を確認しました
           </Label>
         </div>
         <div className="flex justify-end gap-3">
@@ -236,7 +247,11 @@ export function MayorProfileForm({
             変更を取り消す
           </Button>
           <Button type="submit" disabled={submitting || !preview || !confirmed}>
-            {submitting ? "保存中..." : "変更を保存して公開"}
+            {submitting
+              ? "保存中..."
+              : saved.id
+                ? "変更を保存して公開"
+                : "人物を登録（就任は別途）"}
           </Button>
         </div>
       </fieldset>

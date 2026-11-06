@@ -366,6 +366,72 @@ export type Database = {
           },
         ]
       }
+      office_terms: {
+        Row: {
+          created_at: string
+          ended_on: string | null
+          ended_source_url: string | null
+          faction: string | null
+          id: number
+          mayor_id: number | null
+          politician_id: string | null
+          role: string
+          seat_number: number | null
+          source_url: string | null
+          special_committee: string | null
+          standing_committee: string | null
+          started_on: string | null
+          term_number: number | null
+        }
+        Insert: {
+          created_at?: string
+          ended_on?: string | null
+          ended_source_url?: string | null
+          faction?: string | null
+          id?: never
+          mayor_id?: number | null
+          politician_id?: string | null
+          role: string
+          seat_number?: number | null
+          source_url?: string | null
+          special_committee?: string | null
+          standing_committee?: string | null
+          started_on?: string | null
+          term_number?: number | null
+        }
+        Update: {
+          created_at?: string
+          ended_on?: string | null
+          ended_source_url?: string | null
+          faction?: string | null
+          id?: never
+          mayor_id?: number | null
+          politician_id?: string | null
+          role?: string
+          seat_number?: number | null
+          source_url?: string | null
+          special_committee?: string | null
+          standing_committee?: string | null
+          started_on?: string | null
+          term_number?: number | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "office_terms_mayor_id_fkey"
+            columns: ["mayor_id"]
+            isOneToOne: false
+            referencedRelation: "mayor_profile"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "office_terms_politician_id_fkey"
+            columns: ["politician_id"]
+            isOneToOne: false
+            referencedRelation: "politicians"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       politicians: {
         Row: {
           address: string | null
@@ -377,6 +443,7 @@ export type Database = {
           homepage: string | null
           id: string
           image_url: string | null
+          is_current: boolean
           name: string
           name_kana: string | null
           number: number
@@ -395,6 +462,7 @@ export type Database = {
           homepage?: string | null
           id?: string
           image_url?: string | null
+          is_current?: boolean
           name: string
           name_kana?: string | null
           number?: number
@@ -413,6 +481,7 @@ export type Database = {
           homepage?: string | null
           id?: string
           image_url?: string | null
+          is_current?: boolean
           name?: string
           name_kana?: string | null
           number?: number
@@ -2152,6 +2221,22 @@ export type Database = {
       create_admin_topic_content: {
         Args: { content_input: Json }
         Returns: string
+      }
+      change_office_term: {
+        // postgres-meta omits NULL support for the six action-dependent inputs.
+        Args: {
+          p_action: string
+          p_ended_on: string | null
+          p_expected_term: number | null
+          p_person_id: string
+          p_role: string
+          p_seat_number: number | null
+          p_source_url: string
+          p_started_on: string | null
+          p_successor_id: string | null
+          p_term_number: number | null
+        }
+        Returns: number
       }
       save_admin_topic_with_sources: {
         Args: {

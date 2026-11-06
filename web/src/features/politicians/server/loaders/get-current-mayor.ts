@@ -5,6 +5,6 @@ import { findCurrentMayor } from "../repositories/mayor-repository";
 
 export const getCurrentMayor = unstable_cache(
   findCurrentMayor,
-  ["current-mayor-profile"],
+  ["current-mayor-profile-with-identity"],
   { revalidate: 3600, tags: [CACHE_TAGS.POLITICIANS] }
 );

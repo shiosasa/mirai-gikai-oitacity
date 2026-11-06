@@ -96,7 +96,11 @@ export function PoliticianManager({
       setForm(getPoliticianProfileFormValues());
       setPreview(null);
       setConfirmed(false);
-      setMessage("議員情報を保存しました。公開サイトの更新対象になりました。");
+      setMessage(
+        editingId
+          ? "議員情報を保存しました。公開サイトの更新対象になりました。"
+          : "人物を登録しました。「交代と任期履歴」で就任を登録すると一覧に掲載されます。"
+      );
       setError(result.warning ?? "");
       onRefresh();
     } catch (error) {
@@ -114,8 +118,11 @@ export function PoliticianManager({
           {editingId ? "議員情報を編集" : "議員を登録"}
         </h2>
         <p className="text-sm text-muted-foreground">
-          下書き・非公開機能はありません。新規登録も変更も、保存すると公開サイトに反映されます。公式資料と表示を確認してから保存してください。
+          新規の人物は登録だけでは現職・歴代の一覧に掲載されません。「交代と任期履歴」で就任を登録してください。既存の人物の変更は公開に反映されます。別人への氏名の上書きは禁止です。
         </p>
+        <Link href="/office-history" className="underline">
+          交代と任期履歴を管理
+        </Link>
         <p className="text-sm text-muted-foreground">
           生年月日は「昭和50年4月1日」「1975-04-01」など原資料の表記で入力できます。常任・特別委員会は別々に入力し、役職も含めて記載してください。
         </p>
@@ -188,7 +195,7 @@ export function PoliticianManager({
                 onCheckedChange={(checked) => setConfirmed(checked === true)}
               />
               <Label htmlFor="politician-confirmed">
-                公式資料と入力内容を確認しました。保存すると公開されることを確認しました
+                公式資料と入力内容、保存後の公開範囲を確認しました
               </Label>
             </div>
             <div className="flex justify-end gap-2">
@@ -209,7 +216,7 @@ export function PoliticianManager({
                   ? "保存中..."
                   : editingId
                     ? "変更を保存して公開"
-                    : "議員を登録して公開"}
+                    : "人物を登録（就任は別途）"}
               </Button>
             </div>
           </fieldset>

@@ -8,7 +8,7 @@ export async function loadPoliticiansForAdmin() {
   const politiciansResult = await supabase
     .from("politicians")
     .select(
-      "id,name,name_kana,number,birth_date,election_count,faction,standing_committee,special_committee,address,contact,homepage,image_url"
+      "id,name,name_kana,number,birth_date,election_count,faction,standing_committee,special_committee,address,contact,homepage,image_url,is_current"
     )
     .neq("name", "欠番")
     .order("number", { ascending: true })

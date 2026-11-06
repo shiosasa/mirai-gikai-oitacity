@@ -19,6 +19,7 @@ describe("isNavigationActive", () => {
       "/committees",
       "/politicians",
       "/mayor-profile",
+      "/office-history",
       "/politician-speeches",
       "/ai-collection",
       "/admins",

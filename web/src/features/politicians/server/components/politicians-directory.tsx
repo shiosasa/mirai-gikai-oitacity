@@ -1,3 +1,4 @@
+import Link from "next/link";
 import { OitaPhotoBackground } from "@/components/layouts/oita-photo-background";
 import { siteConfig } from "@/config/site.config";
 import { MayorDirectoryCard } from "../../client/components/mayor-directory-card";
@@ -23,6 +24,12 @@ export async function PoliticiansDirectory() {
         <p className="text-sm font-semibold text-oita-pink">
           {siteConfig.cityName}
         </p>
+        <Link
+          href="/politicians/history"
+          className="mt-3 inline-block text-primary underline"
+        >
+          歴代市長・元議員を見る
+        </Link>
         <h1 className="mt-2 text-2xl font-bold text-mirai-text">
           市長・議員紹介
         </h1>
