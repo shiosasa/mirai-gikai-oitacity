@@ -1,3 +1,4 @@
+import { getRelatedLinks } from "@mirai-gikai/shared/bills/related-links";
 import { NewPostBadge } from "@/features/new-posts/client/components/new-post-provider";
 import type { BillArticle } from "../../shared/types";
 import { getCategoryLabel } from "../../shared/utils/article-category";
@@ -7,6 +8,7 @@ interface ArticleCardProps {
 }
 
 export function ArticleCard({ article }: ArticleCardProps) {
+  const relatedLinks = getRelatedLinks(article);
   return (
     <div className="w-full rounded-lg border border-mirai-border bg-white p-4 sm:p-6 hover:shadow-md transition-shadow">
       {/* ヘッダー */}
@@ -111,18 +113,22 @@ export function ArticleCard({ article }: ArticleCardProps) {
       )}
 
       {/* リンク */}
-      {article.link_url && (
-        <div className="flex gap-2 pt-3 border-t border-gray-200">
-          <a
-            href={article.link_url}
-            target="_blank"
-            rel="noopener noreferrer"
-            className="inline-flex items-center gap-1 text-sm font-medium text-oita-pink hover:underline"
-          >
-            {article.link_label || "詳しく見る"}
-            <span>→</span>
-          </a>
-        </div>
+      {relatedLinks.length > 0 && (
+        <ul className="space-y-2 pt-3 border-t border-mirai-border">
+          {relatedLinks.map((link, index) => (
+            <li key={`${link.url}-${index}`}>
+              <a
+                href={link.url}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="inline-flex items-center gap-1 text-sm font-medium text-oita-pink hover:underline"
+              >
+                {link.label || "詳しく見る"}
+                <span>→</span>
+              </a>
+            </li>
+          ))}
+        </ul>
       )}
     </div>
   );

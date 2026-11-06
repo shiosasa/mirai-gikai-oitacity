@@ -30,7 +30,7 @@ describe("管理画面の導線", () => {
         name: "まだ管理画面だけでは完結しないもの",
       })
     ).toBeTruthy();
-    expect(screen.getByText(/外部資料リンクの複数登録は未対応/)).toBeTruthy();
+    expect(screen.getByText(/関連リンクは表示名とURLを複数登録/)).toBeTruthy();
     expect(
       screen.getByRole("link", { name: "交代と任期履歴" }).getAttribute("href")
     ).toBe("/office-history");

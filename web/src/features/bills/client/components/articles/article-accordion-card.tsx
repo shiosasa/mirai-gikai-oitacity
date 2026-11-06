@@ -1,5 +1,6 @@
 "use client";
 
+import { getRelatedLinks } from "@mirai-gikai/shared/bills/related-links";
 import { ChevronDown, ChevronUp } from "lucide-react";
 import Link from "next/link";
 import { useState } from "react";
@@ -17,6 +18,7 @@ interface ArticleAccordionCardProps {
 
 export function ArticleAccordionCard({ article }: ArticleAccordionCardProps) {
   const [isOpen, setIsOpen] = useState(false);
+  const relatedLinks = getRelatedLinks(article);
 
   return (
     <div
@@ -206,20 +208,26 @@ export function ArticleAccordionCard({ article }: ArticleAccordionCardProps) {
           )}
 
           {/* 正確な根拠と関連リンク */}
-          {article.link_url && (
+          {relatedLinks.length > 0 && (
             <div className="border-l-4 border-green-400 bg-green-50 rounded p-3">
               <p className="text-xs font-bold text-green-700 mb-2">
                 🔗 正確な根拠と関連リンク
               </p>
-              <a
-                href={article.link_url}
-                target="_blank"
-                rel="noopener noreferrer"
-                className="inline-flex items-center gap-1 text-sm font-medium text-green-600 hover:underline"
-              >
-                {article.link_label || "詳しく見る"}
-                <span>→</span>
-              </a>
+              <ul className="space-y-2">
+                {relatedLinks.map((link, index) => (
+                  <li key={`${link.url}-${index}`}>
+                    <a
+                      href={link.url}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="inline-flex items-center gap-1 text-sm font-medium text-green-600 hover:underline"
+                    >
+                      {link.label || "詳しく見る"}
+                      <span>→</span>
+                    </a>
+                  </li>
+                ))}
+              </ul>
             </div>
           )}
 

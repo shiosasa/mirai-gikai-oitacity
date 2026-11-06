@@ -7,6 +7,10 @@
     "test:watch": "vitest"
   },
   "exports": {
+    "./bills/related-links": {
+      "types": "./src/bills/related-links.ts",
+      "default": "./src/bills/related-links.ts"
+    },
     "./politicians/office-history": {
       "types": "./src/politicians/office-history.ts",
       "default": "./src/politicians/office-history.ts"

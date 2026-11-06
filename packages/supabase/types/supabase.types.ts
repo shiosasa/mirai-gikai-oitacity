@@ -219,16 +219,15 @@ export type Database = {
       }
       bill_articles: {
         Row: {
-          interview_bill_id: string | null
-          publish_status: "draft" | "published"
-          first_published_at: string | null
           bill_id: number
           category: Database["public"]["Enums"]["article_category_enum"]
           cautious_voice: string
           created_at: string
           decision_date: string | null
           details: string
+          first_published_at: string | null
           id: string
+          interview_bill_id: string | null
           link_label: string | null
           link_url: string | null
           point_1: string
@@ -236,7 +235,9 @@ export type Database = {
           point_3: string
           positive_voice: string
           proposal_id: number | null
+          publish_status: string
           reason: string
+          related_links: Json | null
           source_refs: Json | null
           status_class: string
           status_label: string
@@ -248,16 +249,15 @@ export type Database = {
           updated_at: string
         }
         Insert: {
-          interview_bill_id?: string | null
-          publish_status?: "draft" | "published"
-          first_published_at?: string | null
           bill_id: number
           category: Database["public"]["Enums"]["article_category_enum"]
           cautious_voice: string
           created_at?: string
           decision_date?: string | null
           details: string
+          first_published_at?: string | null
           id?: string
+          interview_bill_id?: string | null
           link_label?: string | null
           link_url?: string | null
           point_1: string
@@ -265,7 +265,9 @@ export type Database = {
           point_3: string
           positive_voice: string
           proposal_id?: number | null
+          publish_status?: string
           reason: string
+          related_links?: Json | null
           source_refs?: Json | null
           status_class: string
           status_label: string
@@ -277,16 +279,15 @@ export type Database = {
           updated_at?: string
         }
         Update: {
-          interview_bill_id?: string | null
-          publish_status?: "draft" | "published"
-          first_published_at?: string | null
           bill_id?: number
           category?: Database["public"]["Enums"]["article_category_enum"]
           cautious_voice?: string
           created_at?: string
           decision_date?: string | null
           details?: string
+          first_published_at?: string | null
           id?: string
+          interview_bill_id?: string | null
           link_label?: string | null
           link_url?: string | null
           point_1?: string
@@ -294,7 +295,9 @@ export type Database = {
           point_3?: string
           positive_voice?: string
           proposal_id?: number | null
+          publish_status?: string
           reason?: string
+          related_links?: Json | null
           source_refs?: Json | null
           status_class?: string
           status_label?: string
@@ -311,6 +314,27 @@ export type Database = {
             columns: ["bill_id"]
             isOneToOne: true
             referencedRelation: "proposals"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "bill_articles_interview_bill_id_fkey"
+            columns: ["interview_bill_id"]
+            isOneToOne: false
+            referencedRelation: "bills"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "bill_articles_interview_bill_id_fkey"
+            columns: ["interview_bill_id"]
+            isOneToOne: false
+            referencedRelation: "meeting_bills"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "bill_articles_interview_bill_id_fkey"
+            columns: ["interview_bill_id"]
+            isOneToOne: false
+            referencedRelation: "topic_interview_bills"
             referencedColumns: ["id"]
           },
         ]
@@ -2253,8 +2277,16 @@ export type Database = {
       save_admin_topic_content: {
         Args: {
           article_id: string
-          expected_updated_at: string
           content_input: Json
+          expected_updated_at: string
+        }
+        Returns: undefined
+      }
+      save_admin_topic_content_legacy: {
+        Args: {
+          article_id: string
+          content_input: Json
+          expected_updated_at: string
         }
         Returns: undefined
       }

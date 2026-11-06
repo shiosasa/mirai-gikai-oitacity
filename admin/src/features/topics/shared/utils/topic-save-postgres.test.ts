@@ -95,6 +95,15 @@ beforeAll(async () => {
       "utf8"
     )
   );
+  await db.exec(
+    readFileSync(
+      resolve(
+        process.cwd(),
+        "../supabase/migrations/20261106110000_add_topic_related_links.sql"
+      ),
+      "utf8"
+    )
+  );
 }, 30000);
 
 beforeEach(async () => {
@@ -142,6 +151,113 @@ async function saveSources(sources: unknown, time = originalTime) {
 }
 
 describe("manual topic creation and source saving", () => {
+  it("saves ordered links atomically, supports removal and preserves legacy clients", async () => {
+    const links = [
+      { label: "資料2", url: "https://example.com/2" },
+      { label: "資料1", url: "https://example.com/1" },
+    ];
+    await db.query("select public.save_admin_topic_with_sources($1,$2,$3)", [
+      id,
+      originalTime,
+      JSON.stringify({
+        ...content,
+        source_refs: [source],
+        related_links: links,
+      }),
+    ]);
+    const saved = (
+      await db.query<{
+        related_links: unknown;
+        link_url: string;
+        updated_at: Date;
+        first_published_at: Date;
+      }>("select * from public.bill_articles")
+    ).rows[0];
+    expect(saved.related_links).toEqual(links);
+    expect(saved.link_url).toBe(links[0].url);
+    expect(saved.first_published_at.toISOString()).toBe(
+      "2026-10-01T00:00:00.000Z"
+    );
+    await saveSources([source], saved.updated_at.toISOString());
+    const afterLegacy = (
+      await db.query<{ related_links: unknown; updated_at: Date }>(
+        "select * from public.bill_articles"
+      )
+    ).rows[0];
+    expect(afterLegacy.related_links).toEqual(links);
+    await db.query("select public.save_admin_topic_with_sources($1,$2,$3)", [
+      id,
+      afterLegacy.updated_at.toISOString(),
+      JSON.stringify({
+        ...content,
+        source_refs: [source],
+        related_links: [],
+      }),
+    ]);
+    expect(
+      (
+        await db.query(
+          "select related_links,link_url,link_label from public.bill_articles"
+        )
+      ).rows[0]
+    ).toEqual({
+      related_links: [],
+      link_url: null,
+      link_label: null,
+    });
+  });
+  it("rejects malformed or unsafe links without modifying content", async () => {
+    for (const links of [
+      {},
+      null,
+      [{ label: "", url: "javascript:alert(1)" }],
+      [{ label: "", url: "https://user:pass@example.com" }],
+      [{ url: "https://example.com" }],
+    ]) {
+      await expect(
+        db.query("select public.save_admin_topic_with_sources($1,$2,$3)", [
+          id,
+          originalTime,
+          JSON.stringify({
+            ...content,
+            source_refs: [source],
+            related_links: links,
+          }),
+        ])
+      ).rejects.toThrow();
+    }
+    expect(
+      (await db.query("select title,related_links from public.bill_articles"))
+        .rows[0]
+    ).toEqual({ title: "元のタイトル", related_links: null });
+  });
+  it("creates a draft with multiple links through the same validated save path", async () => {
+    const links = [
+      { label: "資料", url: "https://example.com/a" },
+      { label: "", url: "https://example.com/b" },
+    ];
+    const created = await db.query<{ id: string }>(
+      "select public.create_admin_topic_content($1) as id",
+      [
+        JSON.stringify({
+          ...content,
+          source_refs: [source],
+          related_links: links,
+        }),
+      ]
+    );
+    const row = (
+      await db.query(
+        "select related_links,publish_status,first_published_at from public.bill_articles where id=$1",
+        [created.rows[0].id]
+      )
+    ).rows[0];
+    expect(row).toEqual({
+      related_links: links,
+      publish_status: "draft",
+      first_published_at: null,
+    });
+  });
   it("keeps legacy session-only sources with empty bill strings editable", async () => {
     await saveSources([{ ...source, bill_name: "", bill_number: "" }]);
     const saved = (
