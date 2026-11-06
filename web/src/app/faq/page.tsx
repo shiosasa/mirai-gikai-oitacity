@@ -68,8 +68,8 @@ const faqs: FaqItem[] = [
     question: "掲載している記録はいつのものですか？",
     answer: (
       <>
-        このサイトは、令和8年からの{siteConfig.councilName}
-        の記録をもとに掲載しています。令和7年以前の記録は掲載していません。それより前の情報は、
+        このサイトは、令和8年からの記録をもとに掲載しています。市議会の会議や議案だけでなく、議員や市長の情報も対象です。
+        令和7年以前の記録は掲載していません。それより前の情報は、
         <Link
           href={siteConfig.councilBaseUrl}
           target="_blank"
