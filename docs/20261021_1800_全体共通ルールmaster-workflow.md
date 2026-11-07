@@ -104,7 +104,7 @@ AIインタビュー関連テーブル（`interview_configs` / `interview_sessio
 | ページ | 入口（小学生レベル） | 中身（中学生レベル） |
 |---|---|---|
 | 議事録要約（committee-summary） | 会議・議題の見出し、一覧に出る短い説明 | やさしい要約、詳細な要約、決定事項、議案の説明 |
-| 議案詳細・議案カード（bill-detail） | 議案カードの見出し（`bill_contents.title`）、一覧の一言説明（`meeting_sessions.bills[].description`） | 取り組みの詳細（`normal` / `hard`）、背景・理由、重要ポイント、対象者、審議結果 |
+| 議案詳細・議案カード（bill-detail） | 議案カードの見出し（`bill_contents.title`）。一覧の一言説明（`meeting_sessions.bills[].description`）は現時点では書き直さない | 取り組みの詳細（`normal` / `hard`）、背景・理由、重要ポイント、対象者、審議結果 |
 | トピックス記事（topics-article） | タイトルのキャッチコピー、カード表の要約（3行） | 詳細、理由・背景、ポイント3つ、対象者、賛成・慎重の声 |
 
 - 入口と中身の内容が食い違わないこと。入口で言い切った内容は、中身で根拠と経緯を確認できるようにする。
