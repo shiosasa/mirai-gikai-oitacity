@@ -1,7 +1,7 @@
 export type Politician = {
   id: string;
   name: string;
-  name_kana: string;
+  name_kana: string | null;
   birth_date: string | null;
   election_count: number | null;
   faction: string | null;

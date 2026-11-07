@@ -28,6 +28,7 @@ export type BillVoteSnapshot = {
   meeting: string;
   sourceUrl: string;
   sourcePage: number;
+  decisionDate?: string;
   scopeNote?: string;
   votes: readonly MemberVote[];
 };

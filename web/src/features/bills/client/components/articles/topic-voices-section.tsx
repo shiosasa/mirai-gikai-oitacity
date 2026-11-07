@@ -4,15 +4,23 @@ import {
   stanceLabels,
   stanceTextColors,
 } from "@/features/interview-report/shared/constants";
+import { NewPostBadge } from "@/features/new-posts/client/components/new-post-provider";
 import { cn } from "@/lib/utils";
 import type { TopicVoice } from "../../../shared/types";
 
-export function TopicVoicesSection({ voices }: { voices: TopicVoice[] }) {
+export function TopicVoicesSection({
+  articleId,
+  voices,
+}: {
+  articleId: string;
+  voices: TopicVoice[];
+}) {
   if (voices.length === 0) return null;
 
   return (
     <section className="px-4 sm:px-6 pt-4 space-y-3">
       <h4 className="flex items-center gap-1.5 text-sm font-bold text-mirai-text">
+        <NewPostBadge contentType="bill_articles" contentId={articleId} />
         <MessageSquareQuote className="size-4 text-oita-pink" />
         みんなの生の声
       </h4>
@@ -22,6 +30,10 @@ export function TopicVoicesSection({ voices }: { voices: TopicVoice[] }) {
             key={voice.reportId}
             className="rounded-lg border border-mirai-border bg-oita-pink-light/40 p-3 space-y-2"
           >
+            <NewPostBadge
+              contentType="topic_voice"
+              contentId={voice.reportId}
+            />
             {(voice.municipalityConnectionLabel ||
               voice.roleLabel ||
               voice.stance) && (

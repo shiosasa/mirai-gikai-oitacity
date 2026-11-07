@@ -35,7 +35,7 @@ describe("BillVoteSection", () => {
       new Set(["自由民主党", "日本共産党", "地域政党おおいた。"])
     );
 
-    expect(container.textContent).toContain("イノシシ対策だけではなく");
+    expect(container.textContent).toContain("個別の取り組みだけではなく");
     expect(container.textContent).toContain("一般会計予算全体への賛否");
     expect(container.textContent).toContain("賛成 40人");
     expect(container.textContent).toContain("反対 2人");

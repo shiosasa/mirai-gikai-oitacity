@@ -7,6 +7,8 @@ import {
   Users,
 } from "lucide-react";
 import Link from "next/link";
+import { NewPostBadge } from "@/features/new-posts/client/components/new-post-provider";
+import { MinutesPageNavigation } from "../../shared/components/minutes-page-navigation";
 import type { CommitteeMeetingDetail } from "../../shared/types";
 import { getCommitteeTypeLabel } from "../../shared/utils/committee-type";
 import { formatJapaneseDate } from "../../shared/utils/format-japanese-date";
@@ -20,7 +22,11 @@ export function MeetingDetailView({ meeting }: Props) {
 
   return (
     <div className="flex flex-col gap-8">
-      <div className="flex flex-col gap-4">
+      <div
+        id="minutes-page-top"
+        tabIndex={-1}
+        className="flex flex-col gap-4 scroll-mt-24"
+      >
         <Link
           href={`/committees/${meeting.committeeSlug}`}
           className="inline-flex items-center gap-1 text-sm text-mirai-text-muted hover:text-mirai-text"
@@ -33,6 +39,10 @@ export function MeetingDetailView({ meeting }: Props) {
             {getCommitteeTypeLabel(meeting.committeeSlug)}
           </span>
           <h1 className="text-xl sm:text-2xl font-bold text-mirai-text leading-snug">
+            <NewPostBadge
+              contentType="committee_meetings"
+              contentId={meeting.id}
+            />
             {meeting.committeeName}
           </h1>
           <p className="flex items-center gap-1.5 text-sm text-mirai-text-secondary">
@@ -119,6 +129,10 @@ export function MeetingDetailView({ meeting }: Props) {
           チャット形式で会議のやり取りを読めます。わかりやすい表現と原文を切り替えられます。
         </p>
       </div>
+      <MinutesPageNavigation
+        backHref={`/committees/${meeting.committeeSlug}`}
+        backLabel={`${meeting.committeeName}の一覧へ戻る`}
+      />
     </div>
   );
 }

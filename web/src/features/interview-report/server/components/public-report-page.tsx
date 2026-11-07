@@ -4,6 +4,7 @@ import Image from "next/image";
 import Link from "next/link";
 import { notFound } from "next/navigation";
 import { getBillDetailLink } from "@/features/interview-config/shared/utils/interview-links";
+import { NewPostBadge } from "@/features/new-posts/client/components/new-post-provider";
 import { ReportContent } from "../../shared/components/report-content";
 import { parseOpinions } from "../../shared/utils/format-utils";
 import { calculateDuration } from "../../shared/utils/report-utils";
@@ -45,6 +46,7 @@ export async function PublicReportPage({ reportId }: PublicReportPageProps) {
       <div className="px-4 pt-8 pb-4">
         <div className="flex flex-col items-center gap-2">
           <h1 className="text-2xl font-bold text-center text-gray-800">
+            <NewPostBadge contentType="interview_report" contentId={reportId} />
             インタビューレポート
           </h1>
           <Link

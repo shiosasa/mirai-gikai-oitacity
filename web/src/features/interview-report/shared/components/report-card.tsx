@@ -2,6 +2,7 @@ import { getMunicipalityConnectionLabel } from "@mirai-gikai/shared/interview/mu
 import Image from "next/image";
 import Link from "next/link";
 import { getPublicReportLink } from "@/features/interview-config/shared/utils/interview-links";
+import { NewPostBadge } from "@/features/new-posts/client/components/new-post-provider";
 import { cn } from "@/lib/utils";
 import {
   formatRoleLabel,
@@ -54,7 +55,8 @@ export function ReportCard({ report, summaryMaxLength = 80 }: ReportCardProps) {
       href={getPublicReportLink(report.id)}
       className="block bg-white rounded-lg p-4 hover:bg-gray-50 transition-colors"
     >
-      <div className="flex items-center gap-2">
+      <div className="flex flex-wrap items-center gap-2">
+        <NewPostBadge contentType="interview_report" contentId={report.id} />
         {report.stance && (
           <Image
             src={`/icons/stance-${report.stance}.png`}

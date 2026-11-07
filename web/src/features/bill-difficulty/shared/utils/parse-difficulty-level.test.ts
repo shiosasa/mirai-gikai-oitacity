@@ -1,7 +1,10 @@
-import { describe, it, expect } from "vitest";
+import { describe, expect, it } from "vitest";
 import { parseDifficultyLevel } from "./parse-difficulty-level";
 
 describe("parseDifficultyLevel", () => {
+  it("uses the easy default when a URL parameter is absent", () => {
+    expect(parseDifficultyLevel(null)).toBe("normal");
+  });
   it("'normal' を返す（有効値）", () => {
     expect(parseDifficultyLevel("normal")).toBe("normal");
   });

@@ -2,6 +2,7 @@ import "server-only";
 import { createAdminClient } from "@mirai-gikai/supabase";
 import { unstable_noStore } from "next/cache";
 import Image from "next/image";
+import { NewPostBadge } from "@/features/new-posts/client/components/new-post-provider";
 import { formatDateJST } from "@/lib/utils/date";
 
 export async function InformationSection() {
@@ -24,7 +25,7 @@ export async function InformationSection() {
         information
       </h2>
       <div
-        className="h-32 overflow-y-auto rounded-xl border border-pink-300 bg-pink-100 p-4 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary"
+        className="h-48 sm:h-56 overflow-y-auto rounded-xl border border-pink-300 bg-pink-100 p-5 sm:p-6 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary"
         // biome-ignore lint/a11y/noNoninteractiveTabindex: Keyboard users need to focus and scroll this region.
         tabIndex={0}
         role="region"
@@ -51,7 +52,13 @@ export async function InformationSection() {
                 >
                   {formatDateJST(entry.published_at)}
                 </time>
-                <h3 className="font-semibold text-mirai-text">{entry.title}</h3>
+                <h3 className="font-semibold text-mirai-text">
+                  <NewPostBadge
+                    contentType="site_information"
+                    contentId={entry.id}
+                  />
+                  {entry.title}
+                </h3>
                 {entry.body && (
                   <p className="whitespace-pre-wrap text-sm text-mirai-text-secondary">
                     {entry.body}

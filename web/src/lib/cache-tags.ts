@@ -2,12 +2,14 @@
  * Next.js cache tags for revalidation
  */
 export const CACHE_TAGS = {
+  HOMEPAGE: "homepage",
   BILLS: "bills",
   COUNCIL_SESSIONS: "council-sessions",
   DIET_SESSIONS: "diet-sessions",
   GENERAL_QUESTIONS: "general-questions",
   INTERVIEW_CONFIGS: "interview-configs",
   PUBLIC_INTERVIEW_REPORTS: "public-interview-reports",
+  POLITICIANS: "politicians",
 } as const;
 
 export type CacheTag = (typeof CACHE_TAGS)[keyof typeof CACHE_TAGS];

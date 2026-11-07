@@ -1,126 +1,111 @@
 "use client";
 
+import Link from "next/link";
 import { useState } from "react";
-import { useRouter } from "next/navigation";
-import { toast } from "sonner";
 import { Button } from "@/components/ui/button";
 import { Checkbox } from "@/components/ui/checkbox";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { Textarea } from "@/components/ui/textarea";
 import {
-  savePolitician,
-  type SavePoliticianInput,
-} from "../../server/actions/save-politician";
+  getPoliticianProfileFormValues,
+  type PoliticianProfileInput,
+  type PoliticianProfileRecord,
+  parsePoliticianProfileForm,
+} from "../../shared/utils/politician-profile";
 
-type PoliticianRecord = {
-  id: string;
-  name: string;
-  name_kana: string;
-  avatar_url: string | null;
-  terms_count: number;
-  faction_id: string | null;
-  committee_names: string[];
-  website_url: string | null;
-  twitter_url: string | null;
-  contact_info: string | null;
-  bio: string | null;
-  profile_source_url: string | null;
-  is_published: boolean;
-};
-
-type FactionOption = { id: string; display_name: string };
-
-const EMPTY_FORM: Omit<SavePoliticianInput, "id"> = {
-  name: "",
-  name_kana: "",
-  avatar_url: null,
-  terms_count: 0,
-  faction_id: null,
-  committee_names: [],
-  website_url: null,
-  twitter_url: null,
-  contact_info: null,
-  bio: null,
-  profile_source_url: null,
-  is_published: false,
-};
-
-function optionalValue(value: string): string | null {
-  return value.trim() || null;
-}
+const fields = [
+  { key: "name", label: "氏名", type: "text" },
+  { key: "name_kana", label: "ふりがな", type: "text" },
+  { key: "number", label: "議席番号", type: "number" },
+  { key: "birth_date", label: "生年月日", type: "text" },
+  { key: "election_count", label: "当選回数", type: "number" },
+  { key: "faction", label: "所属会派", type: "text" },
+  { key: "standing_committee", label: "常任委員会", type: "text" },
+  { key: "special_committee", label: "特別委員会", type: "text" },
+  { key: "image_url", label: "顔写真URL", type: "url" },
+  { key: "homepage", label: "公式サイトURL", type: "url" },
+  { key: "address", label: "公開住所", type: "text" },
+  { key: "contact", label: "公開電話番号", type: "text" },
+] as const;
 
 export function PoliticianManager({
   politicians,
-  factions,
+  onSave,
+  onRefresh,
+  scrollToForm,
 }: {
-  politicians: PoliticianRecord[];
-  factions: FactionOption[];
+  politicians: PoliticianProfileRecord[];
+  onSave: (
+    input: PoliticianProfileInput
+  ) => Promise<{ data?: { id: string }; error?: string; warning?: string }>;
+  onRefresh: () => void;
+  scrollToForm: () => void;
 }) {
-  const router = useRouter();
-  const [editingId, setEditingId] = useState<string | null>(null);
-  const [form, setForm] = useState<Omit<SavePoliticianInput, "id">>(EMPTY_FORM);
-  const [committeeText, setCommitteeText] = useState("");
+  const [editingId, setEditingId] = useState<string>();
+  const [form, setForm] = useState(getPoliticianProfileFormValues);
+  const [preview, setPreview] = useState<PoliticianProfileInput | null>(null);
+  const [confirmed, setConfirmed] = useState(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [error, setError] = useState("");
+  const [message, setMessage] = useState("");
 
-  function startEditing(politician: PoliticianRecord) {
-    setEditingId(politician.id);
-    setForm({
-      name: politician.name,
-      name_kana: politician.name_kana,
-      avatar_url: politician.avatar_url,
-      terms_count: politician.terms_count,
-      faction_id: politician.faction_id,
-      committee_names: politician.committee_names,
-      website_url: politician.website_url,
-      twitter_url: politician.twitter_url,
-      contact_info: politician.contact_info,
-      bio: politician.bio,
-      profile_source_url: politician.profile_source_url,
-      is_published: politician.is_published,
-    });
-    setCommitteeText(politician.committee_names.join("\n"));
+  function startEditing(politician?: PoliticianProfileRecord) {
+    setEditingId(politician?.id);
+    setForm(getPoliticianProfileFormValues(politician));
+    setPreview(null);
+    setConfirmed(false);
+    setError("");
+    setMessage("");
+    scrollToForm();
   }
 
-  function resetForm() {
-    setEditingId(null);
-    setForm(EMPTY_FORM);
-    setCommitteeText("");
+  function showPreview() {
+    const result = parsePoliticianProfileForm(form, editingId);
+    if (!result.success) {
+      setError(result.error.issues.map((issue) => issue.message).join("、"));
+      setPreview(null);
+      setConfirmed(false);
+      return;
+    }
+    setError("");
+    setPreview(result.data);
   }
 
   async function handleSubmit(event: React.FormEvent<HTMLFormElement>) {
     event.preventDefault();
+    if (!preview || !confirmed) {
+      setError("保存前の表示と公式資料を確認してください");
+      return;
+    }
     setIsSubmitting(true);
-
+    setError("");
+    setMessage("");
     try {
-      const result = await savePolitician({
-        ...form,
-        id: editingId ?? undefined,
-        avatar_url: optionalValue(form.avatar_url ?? ""),
-        website_url: optionalValue(form.website_url ?? ""),
-        twitter_url: optionalValue(form.twitter_url ?? ""),
-        contact_info: optionalValue(form.contact_info ?? ""),
-        bio: optionalValue(form.bio ?? ""),
-        profile_source_url: optionalValue(form.profile_source_url ?? ""),
-        committee_names: committeeText
-          .split(/[\n,、]/)
-          .map((name) => name.trim())
-          .filter(Boolean),
-      });
-
+      const result = await onSave(preview);
       if (result.error) {
-        toast.error(result.error);
+        setError(result.error);
         return;
       }
-
-      toast.success(
-        form.is_published ? "議員情報を公開しました" : "議員情報を保存しました"
+      if (!result.data) {
+        setError(
+          "保存結果を確認できませんでした。再読み込みして確認してください"
+        );
+        return;
+      }
+      setEditingId(undefined);
+      setForm(getPoliticianProfileFormValues());
+      setPreview(null);
+      setConfirmed(false);
+      setMessage(
+        editingId
+          ? "議員情報を保存しました。公開サイトの更新対象になりました。"
+          : "人物を登録しました。「交代と任期履歴」で就任を登録すると一覧に掲載されます。"
       );
-      resetForm();
-      router.refresh();
+      setError(result.warning ?? "");
+      onRefresh();
     } catch (error) {
       console.error("Politician form error:", error);
-      toast.error("議員情報を保存できませんでした");
+      setError("議員情報を保存できませんでした");
     } finally {
       setIsSubmitting(false);
     }
@@ -128,218 +113,144 @@ export function PoliticianManager({
 
   return (
     <div className="space-y-8">
-      <section className="rounded-lg border bg-white p-6">
-        <h2 className="mb-1 text-lg font-semibold">
+      <section className="space-y-5 rounded-lg border bg-card p-6">
+        <h2 className="text-lg font-semibold">
           {editingId ? "議員情報を編集" : "議員を登録"}
         </h2>
-        <p className="mb-5 text-sm text-gray-600">
-          公開する場合は、公式プロフィールなど確認可能な出典URLを登録してください。住所や非公開の連絡先は登録しないでください。
+        <p className="text-sm text-muted-foreground">
+          新規の人物は登録だけでは現職・歴代の一覧に掲載されません。「交代と任期履歴」で就任を登録してください。既存の人物の変更は公開に反映されます。別人への氏名の上書きは禁止です。
         </p>
-
-        <form onSubmit={handleSubmit} className="space-y-5">
-          <div className="grid gap-4 md:grid-cols-2">
-            <div className="space-y-2">
-              <Label htmlFor="politician-name">氏名</Label>
-              <Input
-                id="politician-name"
-                value={form.name}
-                onChange={(event) =>
-                  setForm({ ...form, name: event.target.value })
-                }
-                required
-              />
-            </div>
-            <div className="space-y-2">
-              <Label htmlFor="politician-kana">ふりがな</Label>
-              <Input
-                id="politician-kana"
-                value={form.name_kana}
-                onChange={(event) =>
-                  setForm({ ...form, name_kana: event.target.value })
-                }
-                required
-              />
-            </div>
-            <div className="space-y-2">
-              <Label htmlFor="politician-terms">当選回数（期数）</Label>
-              <Input
-                id="politician-terms"
-                type="number"
-                min={0}
-                value={form.terms_count}
-                onChange={(event) =>
-                  setForm({ ...form, terms_count: Number(event.target.value) })
-                }
-              />
-            </div>
-            <div className="space-y-2">
-              <Label htmlFor="politician-faction">所属会派</Label>
-              <select
-                id="politician-faction"
-                value={form.faction_id ?? ""}
-                onChange={(event) =>
-                  setForm({ ...form, faction_id: event.target.value || null })
-                }
-                className="h-10 w-full rounded-md border border-input bg-background px-3 text-sm"
-              >
-                <option value="">未設定・無所属</option>
-                {factions.map((faction) => (
-                  <option key={faction.id} value={faction.id}>
-                    {faction.display_name}
-                  </option>
-                ))}
-              </select>
-            </div>
-            <div className="space-y-2">
-              <Label htmlFor="politician-avatar">顔写真URL</Label>
-              <Input
-                id="politician-avatar"
-                type="url"
-                value={form.avatar_url ?? ""}
-                onChange={(event) =>
-                  setForm({ ...form, avatar_url: event.target.value })
-                }
-                placeholder="https://www.city.oita.oita.jp/..."
-              />
-            </div>
-            <div className="space-y-2">
-              <Label htmlFor="politician-source">プロフィール出典URL</Label>
-              <Input
-                id="politician-source"
-                type="url"
-                value={form.profile_source_url ?? ""}
-                onChange={(event) =>
-                  setForm({ ...form, profile_source_url: event.target.value })
-                }
-                placeholder="https://www.city.oita.oita.jp/..."
-                required={form.is_published}
-              />
-            </div>
-            <div className="space-y-2">
-              <Label htmlFor="politician-committees">所属委員会</Label>
-              <Textarea
-                id="politician-committees"
-                value={committeeText}
-                onChange={(event) => setCommitteeText(event.target.value)}
-                placeholder="1行に1つ入力"
-                rows={3}
-              />
-            </div>
-            <div className="space-y-2">
-              <Label htmlFor="politician-bio">一言コメント</Label>
-              <Textarea
-                id="politician-bio"
-                value={form.bio ?? ""}
-                onChange={(event) =>
-                  setForm({ ...form, bio: event.target.value })
-                }
-                rows={3}
-              />
-            </div>
-            <div className="space-y-2">
-              <Label htmlFor="politician-website">関連リンク</Label>
-              <Input
-                id="politician-website"
-                type="url"
-                value={form.website_url ?? ""}
-                onChange={(event) =>
-                  setForm({ ...form, website_url: event.target.value })
-                }
-                placeholder="公式サイトURL"
-              />
-            </div>
-            <div className="space-y-2">
-              <Label htmlFor="politician-social">SNS URL</Label>
-              <Input
-                id="politician-social"
-                type="url"
-                value={form.twitter_url ?? ""}
-                onChange={(event) =>
-                  setForm({ ...form, twitter_url: event.target.value })
-                }
-                placeholder="https://x.com/..."
-              />
-            </div>
-            <div className="space-y-2">
-              <Label htmlFor="politician-contact">公開連絡先</Label>
-              <Input
-                id="politician-contact"
-                value={form.contact_info ?? ""}
-                onChange={(event) =>
-                  setForm({ ...form, contact_info: event.target.value })
-                }
-                placeholder="本人が公開している連絡先のみ"
-              />
-            </div>
+        <Link href="/office-history" className="underline">
+          交代と任期履歴を管理
+        </Link>
+        <p className="text-sm text-muted-foreground">
+          生年月日は「昭和50年4月1日」「1975-04-01」など原資料の表記で入力できます。常任・特別委員会は別々に入力し、役職も含めて記載してください。
+        </p>
+        <p className="text-sm text-muted-foreground">
+          住所・電話番号は議会などが公式に公開している情報のみ入力してください。空欄で保存した項目は公開表示から消えます。年齢は生年月日から計算されます。
+        </p>
+        {editingId && (
+          <div className="flex flex-wrap gap-4 text-sm">
+            <Link href="/politician-speeches" className="underline">
+              議会での発言を管理
+            </Link>
           </div>
-
-          <div className="flex items-center gap-2">
-            <Checkbox
-              id="politician-published"
-              checked={form.is_published}
-              onCheckedChange={(checked) =>
-                setForm({ ...form, is_published: checked === true })
-              }
-            />
-            <Label htmlFor="politician-published">出典を確認して公開する</Label>
-          </div>
-
-          <div className="flex justify-end gap-2">
-            {editingId && (
-              <Button
-                type="button"
-                variant="outline"
-                onClick={resetForm}
-                disabled={isSubmitting}
-              >
-                キャンセル
-              </Button>
-            )}
-            <Button type="submit" disabled={isSubmitting}>
-              {isSubmitting
-                ? "保存中..."
-                : editingId
-                  ? "変更を保存"
-                  : "議員を登録"}
-            </Button>
-          </div>
-        </form>
-      </section>
-
-      <section className="rounded-lg border bg-white p-6">
-        <h2 className="mb-4 text-lg font-semibold">
-          登録済み議員 ({politicians.length}人)
-        </h2>
-        {politicians.length === 0 ? (
-          <p className="text-sm text-gray-500">
-            議員情報はまだ登録されていません。
-          </p>
-        ) : (
-          <ul className="divide-y">
-            {politicians.map((politician) => (
-              <li
-                key={politician.id}
-                className="flex items-center justify-between gap-4 py-3"
-              >
-                <div className="min-w-0">
-                  <p className="font-semibold">{politician.name}</p>
-                  <p className="text-sm text-gray-500">
-                    {politician.name_kana}・
-                    {politician.is_published ? "公開中" : "非公開"}
-                  </p>
+        )}
+        {error && <p role="alert">{error}</p>}
+        {message && <p role="status">{message}</p>}
+        <form onSubmit={handleSubmit}>
+          <fieldset disabled={isSubmitting} className="space-y-5">
+            <div className="grid gap-4 md:grid-cols-2">
+              {fields.map((field) => (
+                <div key={field.key} className="space-y-2">
+                  <Label htmlFor={`politician-${field.key}`}>
+                    {field.label}
+                  </Label>
+                  <Input
+                    id={`politician-${field.key}`}
+                    type={field.type}
+                    min={field.key === "number" ? 1 : 0}
+                    step={field.type === "number" ? 1 : undefined}
+                    required={field.key === "name" || field.key === "number"}
+                    value={form[field.key]}
+                    onChange={(event) => {
+                      setForm({ ...form, [field.key]: event.target.value });
+                      setPreview(null);
+                      setConfirmed(false);
+                      setMessage("");
+                    }}
+                  />
                 </div>
+              ))}
+            </div>
+            <Button type="button" variant="outline" onClick={showPreview}>
+              保存前に表示を確認
+            </Button>
+            {preview && (
+              <section
+                aria-label="保存前の議員情報"
+                className="space-y-3 rounded-lg border p-4"
+              >
+                <h3 className="font-semibold">{preview.name}</h3>
+                <dl className="space-y-2 text-sm">
+                  {fields.map((field) => (
+                    <div key={field.key}>
+                      <dt className="font-medium">{field.label}</dt>
+                      <dd className="break-words whitespace-pre-wrap">
+                        {preview[field.key] ?? "未設定"}
+                      </dd>
+                    </div>
+                  ))}
+                </dl>
+                <p className="text-sm text-muted-foreground">
+                  当選回数が未設定の場合、公開サイトは1回と表示します。写真URLは画像の参照先、公式サイトURLはリンクの参照先に使われます。
+                </p>
+              </section>
+            )}
+            <div className="flex items-start gap-2">
+              <Checkbox
+                id="politician-confirmed"
+                checked={confirmed}
+                disabled={!preview}
+                onCheckedChange={(checked) => setConfirmed(checked === true)}
+              />
+              <Label htmlFor="politician-confirmed">
+                公式資料と入力内容、保存後の公開範囲を確認しました
+              </Label>
+            </div>
+            <div className="flex justify-end gap-2">
+              {editingId && (
                 <Button
                   type="button"
                   variant="outline"
-                  size="sm"
-                  onClick={() => startEditing(politician)}
+                  onClick={() => startEditing()}
                 >
-                  編集
+                  編集をやめる
                 </Button>
-              </li>
-            ))}
-          </ul>
-        )}
+              )}
+              <Button
+                type="submit"
+                disabled={isSubmitting || !preview || !confirmed}
+              >
+                {isSubmitting
+                  ? "保存中..."
+                  : editingId
+                    ? "変更を保存して公開"
+                    : "人物を登録（就任は別途）"}
+              </Button>
+            </div>
+          </fieldset>
+        </form>
+      </section>
+      <section className="rounded-lg border bg-card p-6">
+        <h2 className="mb-4 text-lg font-semibold">
+          登録済み議員 ({politicians.length}人)
+        </h2>
+        <ul className="divide-y">
+          {politicians.map((politician) => (
+            <li
+              key={politician.id}
+              className="flex items-center justify-between gap-4 py-3"
+            >
+              <div className="min-w-0">
+                <p className="font-semibold">{politician.name}</p>
+                <p className="text-sm text-muted-foreground">
+                  議席{politician.number}番・{politician.faction || "無所属"}
+                </p>
+              </div>
+              <Button
+                type="button"
+                variant="outline"
+                size="sm"
+                aria-label={`${politician.name}を編集`}
+                disabled={isSubmitting}
+                onClick={() => startEditing(politician)}
+              >
+                編集
+              </Button>
+            </li>
+          ))}
+        </ul>
       </section>
     </div>
   );

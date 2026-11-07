@@ -1,5 +1,6 @@
 import { CalendarDays, ChevronDown } from "lucide-react";
 import Link from "next/link";
+import { NewPostBadge } from "@/features/new-posts/client/components/new-post-provider";
 import { formatJapaneseDate } from "../utils/format-japanese-date";
 import {
   hasMinutesContent,
@@ -64,6 +65,10 @@ export function PlenaryMeetingSection({
                         {formatJapaneseDate(session.date || meeting.date)}
                       </div>
                       <h3 className="flex flex-wrap items-center gap-2 font-bold text-mirai-text">
+                        <NewPostBadge
+                          contentType="meeting_sessions"
+                          contentId={session.id}
+                        />
                         {session.session_title || meeting.title}
                         {isUpdating && <UpdatingBadge />}
                       </h3>

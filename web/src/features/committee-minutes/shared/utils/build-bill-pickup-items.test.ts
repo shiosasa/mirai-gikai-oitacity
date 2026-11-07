@@ -46,6 +46,7 @@ describe("buildBillPickupItems", () => {
         updatedAt: null,
         status: null,
         categories: [],
+        relatedTopicArticleIds: [],
         relatedTopicTitles: [],
         references: [
           {
@@ -152,6 +153,7 @@ describe("buildBillPickupItems", () => {
     expect(
       addBillPickupCategories(items, [
         {
+          id: "article-1",
           title: "学校給食費無償化",
           category: "childcare_education",
           source_refs: [
@@ -163,6 +165,7 @@ describe("buildBillPickupItems", () => {
           ],
         },
         {
+          id: "article-2",
           title: "別の話題",
           category: "safety_disaster",
           source_refs: [
@@ -174,6 +177,7 @@ describe("buildBillPickupItems", () => {
           ],
         },
         {
+          id: "article-3",
           title: "同じ議案名だが異なる番号",
           category: "safety_disaster",
           source_refs: [
@@ -187,6 +191,7 @@ describe("buildBillPickupItems", () => {
       ])[0]
     ).toMatchObject({
       categories: ["子育て・教育"],
+      relatedTopicArticleIds: ["article-1"],
       relatedTopicTitles: ["学校給食費無償化"],
     });
   });
@@ -243,6 +248,7 @@ describe("buildBillPickupItems", () => {
 
     const withArticleCategories = addBillPickupCategories(items, [
       {
+        id: "article-1",
         title: "学校給食費無償化",
         category: "childcare_education",
         source_refs: [
@@ -261,6 +267,7 @@ describe("buildBillPickupItems", () => {
     )[0];
 
     expect(result.categories).toEqual(["子育て・教育", "安心・安全・防災"]);
+    expect(result.relatedTopicArticleIds).toEqual(["article-1"]);
   });
 
   it("keeps items unchanged when they have no tags", () => {
@@ -299,6 +306,7 @@ describe("buildBillPickupItems", () => {
         updatedAt: null,
         status: null,
         categories: ["安心・安全・防災"],
+        relatedTopicArticleIds: [],
         relatedTopicTitles: [],
         references: [
           {
@@ -321,6 +329,7 @@ describe("buildBillPickupItems", () => {
         updatedAt: null,
         status: null,
         categories: ["子育て・教育"],
+        relatedTopicArticleIds: [],
         relatedTopicTitles: [],
         references: [
           {
@@ -480,6 +489,7 @@ describe("sortBillPickupItemsByUpdatedAt", () => {
     updatedAt,
     status: null,
     categories: [],
+    relatedTopicArticleIds: [],
     relatedTopicTitles: [],
     references: [],
   });

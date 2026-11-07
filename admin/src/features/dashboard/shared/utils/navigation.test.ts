@@ -8,7 +8,9 @@ describe("isNavigationActive", () => {
       group.links.map((link) => link.href)
     );
     for (const href of [
+      "/homepage",
       "/bills",
+      "/update-guide",
       "/topics",
       "/topic-voices",
       "/information",
@@ -17,6 +19,8 @@ describe("isNavigationActive", () => {
       "/factions",
       "/committees",
       "/politicians",
+      "/mayor-profile",
+      "/office-history",
       "/politician-speeches",
       "/ai-collection",
       "/admins",

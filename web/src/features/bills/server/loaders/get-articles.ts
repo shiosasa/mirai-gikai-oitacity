@@ -1,14 +1,20 @@
 import "server-only";
 import { createAdminClient } from "@mirai-gikai/supabase";
 import { unstable_cache, unstable_noStore } from "next/cache";
+import { getAllMeetingsAndCommittees } from "@/features/committee-minutes/server/loaders/get-all-meetings";
+import { buildBillPickupItems } from "@/features/committee-minutes/shared/utils/build-bill-pickup-items";
 import { CACHE_TAGS } from "@/lib/cache-tags";
-import type { BillArticle, TopicVoice } from "../../shared/types";
+import type {
+  BillArticle,
+  TopicSourceRef,
+  TopicVoice,
+} from "../../shared/types";
+import { addTopicBudgetDetailLinks } from "../../shared/utils/add-topic-budget-detail-links";
+import { addTopicSourceBillDetailIds } from "../../shared/utils/add-topic-source-bill-detail-ids";
 import { categoryEnumFromBadge } from "../../shared/utils/article-category";
-import { buildPublishedBillIdByName } from "../../shared/utils/build-published-bill-id-by-name";
 import { groupTopicVoicesByBillId } from "../../shared/utils/group-topic-voices";
 import { loadArticlesWithFreshVoices } from "../../shared/utils/load-articles-with-fresh-voices";
 import { deriveBillSource } from "../../shared/utils/meeting-bill-filter";
-import { resolveTopicBillDetailId } from "../../shared/utils/resolve-topic-bill-detail-id";
 import { resolveTopicInterviewBillId } from "../../shared/utils/resolve-topic-interview-bill-id";
 import { sortTopicsByPublicationDate } from "../../shared/utils/sort-topics-by-publication-date";
 import { findProposalTitles } from "../repositories/meeting-bill-filter";
@@ -53,6 +59,7 @@ const ARTICLE_COLUMNS = `
         cautious_voice,
         link_label,
         link_url,
+        related_links,
         decision_date,
         created_at,
         updated_at,
@@ -114,16 +121,20 @@ async function loadArticles(
   }
 
   // トピックのAIインタビュー受け皿（bills.source = 'topic'）に公開中のインタビューがあれば紐付ける
-  const [bills, { data: configs, error: configsError }] = await Promise.all([
-    fetchBillsWithSource(supabase),
-    supabase.from("interview_configs").select("bill_id").eq("status", "public"),
-  ]);
+  const [bills, { data: configs, error: configsError }, meetings] =
+    await Promise.all([
+      fetchBillsWithSource(supabase),
+      supabase
+        .from("interview_configs")
+        .select("bill_id")
+        .eq("status", "public"),
+      getAllMeetingsAndCommittees(),
+    ]);
   if (configsError) {
     throw new Error(
       `Failed to fetch public interview configs: ${configsError.message}`
     );
   }
-  const publishedBillIdByName = buildPublishedBillIdByName(bills);
   const billsWithInterview = new Set(
     (configs ?? []).map((config) => config.bill_id)
   );
@@ -141,23 +152,11 @@ async function loadArticles(
       bills
     );
     const sourceRefs = Array.isArray(article.source_refs)
-      ? article.source_refs.map(
-          (reference: {
-            session_id: number;
-            session_label: string;
-            date: string;
-            bill_number: string | null;
-            bill_name: string | null;
-          }) => ({
-            ...reference,
-            detail_bill_id: resolveTopicBillDetailId(
-              reference.bill_name,
-              article.title,
-              linkedBillId ?? null,
-              publishedBillIdByName
-            ),
-          })
-        )
+      ? article.source_refs.map((reference: TopicSourceRef) => ({
+          ...reference,
+          detail_bill_id: null,
+          detail_topic_id: null,
+        }))
       : [];
     return {
       ...article,
@@ -201,7 +200,23 @@ async function loadArticles(
     console.log("[DEBUG] First article point_1:", articles[0].point_1);
   }
 
-  return sortTopicsByPublicationDate(articles) as BillArticle[];
+  const billReferences = buildBillPickupItems([
+    ...meetings.plenaryMeetings,
+    ...meetings.committeeMeetings,
+  ]).flatMap((item) =>
+    item.references.map((reference) => ({
+      sessionId: reference.sessionId,
+      billNumber: reference.billNumber,
+      billName: reference.billName,
+      billId: item.billId,
+    }))
+  );
+  return sortTopicsByPublicationDate(
+    addTopicBudgetDetailLinks(
+      addTopicSourceBillDetailIds<BillArticle>(articles, billReferences),
+      bills
+    )
+  );
 }
 
 type BillWithSource = {
@@ -209,6 +224,7 @@ type BillWithSource = {
   name: string;
   publish_status: string;
   source: string;
+  bill_number: string | null;
 };
 
 /**
@@ -221,12 +237,12 @@ async function fetchBillsWithSource(
 ): Promise<BillWithSource[]> {
   const withSource = await supabase
     .from("bills")
-    .select("id, name, publish_status, source");
+    .select("id, name, bill_number, publish_status, source");
   if (!withSource.error) return withSource.data ?? [];
 
   console.warn("Falling back without bills.source:", withSource.error.message);
   const [{ data, error }, proposalTitles] = await Promise.all([
-    supabase.from("bills").select("id, name, publish_status"),
+    supabase.from("bills").select("id, name, bill_number, publish_status"),
     findProposalTitles(),
   ]);
   if (error) {
@@ -282,7 +298,7 @@ async function fetchFeaturedTopicVoices(
 
 const _getCachedArticles = unstable_cache(
   loadArticles,
-  ["published-articles-by-proposal-published-date-v8"],
+  ["published-articles-with-related-links-v10"],
   {
     revalidate: 600, // 10分
     tags: [CACHE_TAGS.BILLS],

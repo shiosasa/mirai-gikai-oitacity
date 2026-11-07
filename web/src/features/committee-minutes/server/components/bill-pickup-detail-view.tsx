@@ -10,10 +10,11 @@ import { BillContent } from "@/features/bills/server/components/bill-detail/bill
 import { getPublishedArticles } from "@/features/bills/server/loaders/get-articles";
 import { getBillContentWithDifficulty } from "@/features/bills/server/loaders/helpers/get-bill-content";
 import type { BillStatusEnum } from "@/features/bills/shared/types";
-import { getPublishedPoliticians } from "@/features/politicians/server/loaders/get-published-politicians";
+import { getRecordedPoliticians } from "@/features/politicians/server/loaders/get-published-politicians";
 import { groupPoliticiansByFaction } from "@/features/politicians/shared/utils/group-politicians-by-faction";
 import { BillVoteSection } from "../../shared/components/bill-vote-section";
 import { BILL_VOTE_SNAPSHOTS } from "../../shared/data/bill-vote-snapshots";
+import { buildTopicBillDetail } from "../../shared/utils/build-topic-bill-detail";
 import { extractMarkdownSection } from "../../shared/utils/extract-markdown-section";
 import { getBillTopicInterviews } from "../../shared/utils/get-bill-topic-interviews";
 import { getBillPickups } from "../loaders/get-bill-pickups";
@@ -21,7 +22,14 @@ import { BillPickupsView } from "./bill-pickups-view";
 
 const DETAIL_HEADING = "取り組みの詳細";
 
-export async function BillPickupDetailView({ id }: { id: string }) {
+export async function BillPickupDetailView({
+  id,
+  topicId,
+}: {
+  id: string;
+  topicId?: string | string[];
+}) {
+  if (Array.isArray(topicId) || topicId === "") notFound();
   const items = await getBillPickups();
   const item = items.find((item) => item.billId === id);
   if (!item) notFound();
@@ -35,16 +43,34 @@ export async function BillPickupDetailView({ id }: { id: string }) {
       ? getBillContentWithDifficulty(id, "hard")
       : Promise.resolve(null),
     getPublishedArticles(),
-    voteSnapshot ? getPublishedPoliticians() : Promise.resolve([]),
+    voteSnapshot ? getRecordedPoliticians() : Promise.resolve([]),
   ]);
   if (!content?.content) {
     throw new Error(`議案の詳細本文が見つかりません: ${id}`);
   }
-  const interviews = getBillTopicInterviews(id, articles);
+  const topicArticle = topicId
+    ? articles.find(
+        (article) =>
+          article.id === topicId &&
+          article.source_refs?.some(
+            (source) =>
+              source.detail_bill_id === id && source.detail_topic_id === topicId
+          )
+      )
+    : null;
+  if (topicId && !topicArticle) notFound();
+  const theme = topicArticle ? buildTopicBillDetail(item, topicArticle) : null;
+  const interviews = getBillTopicInterviews(
+    id,
+    topicArticle ? [topicArticle] : articles
+  );
   const normalSection = extractMarkdownSection(content.content, DETAIL_HEADING);
   // 「詳しく」は難易度 hard の本文の同じ見出しを使う（無ければ準備中）
-  const detailBody =
-    level === "hard"
+  const detailBody = theme
+    ? level === "hard"
+      ? theme.hard
+      : theme.normal
+    : level === "hard"
       ? hardContent?.difficulty_level === "hard"
         ? extractMarkdownSection(hardContent.content, DETAIL_HEADING).body
         : null
@@ -53,11 +79,30 @@ export async function BillPickupDetailView({ id }: { id: string }) {
 
   return (
     <div className="space-y-6">
-      <BillPickupsView items={[item]} detailMode />
+      <BillPickupsView
+        items={[theme?.item ?? item]}
+        detailMode
+        detailTitle={theme?.title}
+      />
       {item.status && (
         <section className="rounded-xl border border-mirai-border bg-white p-6">
-          <BillStatusProgress status={item.status as BillStatusEnum} />
+          <BillStatusProgress
+            status={item.status as BillStatusEnum}
+            decisionDate={voteSnapshot?.decisionDate}
+          />
         </section>
+      )}
+      {topicArticle && (
+        <p className="text-sm text-mirai-text-secondary">
+          このページは同じ議案の「{theme?.title}」に関する説明です。
+          賛否と議決日は議案全体の記録です。
+          <Link
+            href={`/topics#article-${topicArticle.id}`}
+            className="ml-2 text-primary-accent hover:underline"
+          >
+            関連トピックスを見る →
+          </Link>
+        </p>
       )}
       <div className="space-y-4">
         <h2 className="text-[22px] font-bold">{DETAIL_HEADING}</h2>
@@ -85,13 +130,27 @@ export async function BillPickupDetailView({ id }: { id: string }) {
         </section>
       </div>
       <BillContent
-        bill={{ bill_content: { ...content, content: normalSection.rest } }}
+        bill={{
+          bill_content: {
+            ...content,
+            content: theme?.rest ?? normalSection.rest,
+          },
+        }}
         markdownOptions={{
           injectDifficultyCard: false,
           // 先頭の「取り組みの詳細」を外した分、元と同じ見出しの前に置く
           longPressTargetH2Index: hasDetailSection ? 2 : 3,
         }}
       />
+      {theme && (
+        <section className="space-y-2 rounded-xl border border-mirai-border bg-white p-6">
+          <h2 className="text-[22px] font-bold">審議結果・出典</h2>
+          <p className="text-sm text-mirai-text-secondary">
+            議案全体の議決結果は上のステータス、賛否は下の公式資料で確認できます。
+            このテーマの出典は冒頭の関連議事録をご覧ください。
+          </p>
+        </section>
+      )}
       {voteSnapshot && (
         <BillVoteSection
           snapshot={voteSnapshot}
@@ -102,9 +161,9 @@ export async function BillPickupDetailView({ id }: { id: string }) {
           }
           currentFactions={
             new Set(
-              groupPoliticiansByFaction(politicians).map(
-                (group) => group.displayName
-              )
+              groupPoliticiansByFaction(
+                politicians.filter((person) => person.is_current)
+              ).map((group) => group.displayName)
             )
           }
         />

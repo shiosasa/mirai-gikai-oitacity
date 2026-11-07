@@ -2,6 +2,7 @@ import "server-only";
 import { ChevronRight, Landmark } from "lucide-react";
 import Link from "next/link";
 import { OitaPhotoBackground } from "@/components/layouts/oita-photo-background";
+import { NewPostBadge } from "@/features/new-posts/client/components/new-post-provider";
 import type { MeetingArchive } from "../repositories/meeting-repository";
 
 type Props = {
@@ -88,7 +89,15 @@ export function CommitteesView({
                     本会議
                   </span>
                 </div>
-                <div className="font-bold text-mirai-text text-lg">本会議</div>
+                <div className="font-bold text-mirai-text text-lg">
+                  <NewPostBadge
+                    contentType="meeting_sessions"
+                    contentId={plenaryMeetings.flatMap((meeting) =>
+                      meeting.sessions.map((session) => session.id)
+                    )}
+                  />
+                  本会議
+                </div>
                 <div className="mt-1 text-xs text-mirai-text-muted">
                   {plenaryMeetings.length}件の開催記録
                 </div>
@@ -109,6 +118,10 @@ export function CommitteesView({
                   </span>
                 </div>
                 <div className="font-bold text-mirai-text text-lg">
+                  <NewPostBadge
+                    contentType="meeting_sessions"
+                    contentId={meeting.sessions.map((session) => session.id)}
+                  />
                   {meeting.title}
                 </div>
                 <div className="mt-1 text-xs text-mirai-text-muted">
