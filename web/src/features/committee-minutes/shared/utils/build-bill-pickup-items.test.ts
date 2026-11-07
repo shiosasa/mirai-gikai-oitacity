@@ -2,6 +2,7 @@ import { describe, expect, it } from "vitest";
 import {
   addBillPickupCategories,
   addBillPickupTagCategories,
+  addBillPickupTitles,
   addBillPickupUpdatedAt,
   buildBillPickupItems,
   filterBillPickupItems,
@@ -39,6 +40,7 @@ describe("buildBillPickupItems", () => {
     expect(items).toEqual([
       {
         billId: "bill-35",
+        title: null,
         description: "学校給食費の管理方法を改める条例案です。",
         kind: "法案",
         updatedAt: null,
@@ -291,6 +293,7 @@ describe("buildBillPickupItems", () => {
     const items = [
       {
         billId: "bill-2",
+        title: null,
         description: null,
         kind: "法案" as const,
         updatedAt: null,
@@ -312,6 +315,7 @@ describe("buildBillPickupItems", () => {
       },
       {
         billId: "bill-1",
+        title: null,
         description: null,
         kind: "法案" as const,
         updatedAt: null,
@@ -367,6 +371,66 @@ describe("buildBillPickupItems", () => {
     ).toBe("令和8年度予算（イノシシ被害対策）");
   });
 
+  it("prefers the plain-language title over the official name and budget headings", () => {
+    expect(
+      getBillPickupHeading(
+        "大分市学校給食費の管理に関する条例の一部改正について",
+        null,
+        [],
+        "学校給食費のルールを変えます"
+      )
+    ).toBe("学校給食費のルールを変えます");
+    expect(
+      getBillPickupHeading(
+        "令和8年度大分市一般会計予算",
+        "来年度の予算案。",
+        ["【有害鳥獣捕獲事業】イノシシ被害について"],
+        "イノシシ対策のお金を増やします"
+      )
+    ).toBe("イノシシ対策のお金を増やします");
+  });
+
+  it("falls back to the official name when the plain-language title is blank", () => {
+    expect(getBillPickupHeading("市有財産の処分について", null, [], null)).toBe(
+      "市有財産の処分について"
+    );
+    expect(getBillPickupHeading("市有財産の処分について", null, [], "  ")).toBe(
+      "市有財産の処分について"
+    );
+  });
+
+  it("adds plain-language titles to listed bills", () => {
+    const items = buildBillPickupItems([
+      {
+        id: 1,
+        title: "本会議",
+        meetingType: "本会議",
+        sessions: [
+          {
+            id: 10,
+            bills: [
+              {
+                number: "議第35号",
+                name: "学校給食費条例改正",
+                billId: "bill-35",
+              },
+              { number: "議第36号", name: "別の条例改正", billId: "bill-36" },
+            ],
+          },
+        ],
+      },
+    ]);
+
+    const withTitles = addBillPickupTitles(
+      items,
+      new Map([["bill-35", " 学校給食費のルールを変えます "]])
+    );
+    expect(withTitles.map((item) => item.title)).toEqual([
+      "学校給食費のルールを変えます",
+      null,
+    ]);
+  });
+
   it("adds the bill update date to listed detail pages", () => {
     const items = buildBillPickupItems([
       {
@@ -410,6 +474,7 @@ describe("buildBillPickupItems", () => {
 describe("sortBillPickupItemsByUpdatedAt", () => {
   const item = (billId: string, updatedAt: string | null) => ({
     billId,
+    title: null,
     description: null,
     kind: "法案" as const,
     updatedAt,

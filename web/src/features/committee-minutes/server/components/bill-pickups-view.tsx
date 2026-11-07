@@ -3,8 +3,8 @@
 import { ArrowLeft, CalendarDays, Link2 } from "lucide-react";
 import Link from "next/link";
 import { useState } from "react";
-import { Button } from "@/components/ui/button";
 import { OitaPhotoBackground } from "@/components/layouts/oita-photo-background";
+import { Button } from "@/components/ui/button";
 import type { BillPickupItem } from "../../shared/utils/build-bill-pickup-items";
 import {
   filterBillPickupItems,
@@ -213,13 +213,15 @@ export function BillPickupsView({ items, detailMode = false }: Props) {
                         {getBillPickupHeading(
                           firstReference.billName,
                           item.description,
-                          item.relatedTopicTitles
+                          item.relatedTopicTitles,
+                          item.title
                         )}
                       </h2>
                       {getBillPickupHeading(
                         firstReference.billName,
                         item.description,
-                        item.relatedTopicTitles
+                        item.relatedTopicTitles,
+                        item.title
                       ) !== firstReference.billName && (
                         <p className="mt-1 text-xs text-mirai-text-muted">
                           正式名称：{firstReference.billName}
