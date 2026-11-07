@@ -63,7 +63,7 @@ export function SessionForm({
       />
       <EditField
         name="summary"
-        label="やさしい要約"
+        label="かんたんな要約"
         value={session?.summary}
         multiline
       />
@@ -72,7 +72,7 @@ export function SessionForm({
         label="詳細な要約"
         value={session?.detailed_summary}
         multiline
-        hint="未登録なら、公開画面ではやさしい要約を残して準備中と表示します。"
+        hint="未登録なら、公開画面ではかんたんな要約を残して準備中と表示します。"
       />
       <EditField
         name="decisions"

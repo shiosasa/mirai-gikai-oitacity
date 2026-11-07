@@ -67,7 +67,7 @@ export default async function PlenarySessionDetailPage({
               <h2 className="text-lg font-bold text-mirai-text">
                 {currentDifficulty === "hard" && session.detailed_summary
                   ? "📋 詳しい要約"
-                  : "📋 やさしい要約"}
+                  : "📋 かんたんな要約"}
               </h2>
               <DifficultySelector currentLevel={currentDifficulty} />
             </div>
