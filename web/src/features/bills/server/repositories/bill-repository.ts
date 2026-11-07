@@ -197,6 +197,32 @@ export async function findBillContentByDifficulty(
   return data;
 }
 
+/**
+ * 複数のbill_idに紐づく標準版の見出しを一括取得し、bill_idごとにマップで返す
+ */
+export async function findBillContentTitlesByIds(
+  billIds: string[]
+): Promise<Map<string, string>> {
+  if (billIds.length === 0) return new Map();
+
+  const supabase = createAdminClient();
+  const { data, error } = await supabase
+    .from("bill_contents")
+    .select("bill_id, title")
+    .eq("difficulty_level", "normal")
+    .in("bill_id", billIds);
+
+  if (error) {
+    throw new Error(`Failed to fetch bill content titles: ${error.message}`);
+  }
+
+  return new Map(
+    (data ?? []).flatMap((row) =>
+      row.title?.trim() ? [[row.bill_id, row.title.trim()] as const] : []
+    )
+  );
+}
+
 // ============================================================
 // Tags (bulk)
 // ============================================================
