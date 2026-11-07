@@ -36,7 +36,7 @@ describe("管理画面の導線", () => {
     ).toBe("/office-history");
     expect(screen.getByText(/導入前の全任期の復元/)).toBeTruthy();
   });
-  it("手動更新ガイドとよく更新する11機能へ移動でき、公開の注意を表示する", () => {
+  it("手動更新ガイドとよく更新する12機能へ移動でき、公開の注意を表示する", () => {
     render(createElement(DashboardContent));
     const links = screen.getAllByRole("link");
     expect(links.map((link) => link.getAttribute("href"))).toEqual([
@@ -52,6 +52,7 @@ describe("管理画面の導線", () => {
       "/politician-speeches",
       "/information",
       "/topic-voices",
+      "/portal",
     ]);
     expect(screen.getByText(/下書き状態がありません/)).toBeTruthy();
   });

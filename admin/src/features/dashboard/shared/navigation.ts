@@ -3,6 +3,7 @@ import {
   BookOpen,
   CalendarDays,
   FileText,
+  Globe,
   Landmark,
   LayoutDashboard,
   LayoutTemplate,
@@ -81,6 +82,12 @@ export const contentLinks = [
     label: "インタビュー確認・公開",
     description: "回答・チャット履歴を確認し、要約を記事の「生の声」に掲載",
     icon: MessagesSquare,
+  },
+  {
+    href: "/portal",
+    label: "全国リンク集",
+    description: "届いた掲載申請・変更・リンク切れ報告の承認と掲載サイト管理",
+    icon: Globe,
   },
 ];
 

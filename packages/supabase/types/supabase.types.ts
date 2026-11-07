@@ -34,6 +34,129 @@ export type Database = {
   }
   public: {
     Tables: {
+      portal_sites: {
+        Row: {
+          id: string
+          prefecture: string
+          municipality: string
+          site_name: string
+          url: string
+          author_name: string
+          author_social_url: string | null
+          description: string
+          genres: string[]
+          governance_type: string
+          region: string
+          is_official: boolean
+          display_order: number
+          is_active: boolean
+          created_at: string
+          updated_at: string
+        }
+        Insert: {
+          id: string
+          prefecture: string
+          municipality: string
+          site_name: string
+          url: string
+          author_name: string
+          author_social_url?: string | null
+          description: string
+          genres?: string[]
+          governance_type?: string
+          region?: string
+          is_official?: boolean
+          display_order?: number
+          is_active?: boolean
+          created_at?: string
+          updated_at?: string
+        }
+        Update: {
+          id?: string
+          prefecture?: string
+          municipality?: string
+          site_name?: string
+          url?: string
+          author_name?: string
+          author_social_url?: string | null
+          description?: string
+          genres?: string[]
+          governance_type?: string
+          region?: string
+          is_official?: boolean
+          display_order?: number
+          is_active?: boolean
+          created_at?: string
+          updated_at?: string
+        }
+        Relationships: []
+      }
+      portal_submissions: {
+        Row: {
+          id: string
+          report_type: string
+          prefecture: string | null
+          municipality: string | null
+          site_name: string
+          url: string | null
+          author_name: string | null
+          author_social_url: string | null
+          description: string | null
+          genres: string[]
+          governance_type: string
+          region: string
+          reporter_name: string | null
+          reporter_contact: string | null
+          broken_detail: string | null
+          status: string
+          admin_notes: string | null
+          created_at: string
+          updated_at: string
+        }
+        Insert: {
+          id?: string
+          report_type?: string
+          prefecture?: string | null
+          municipality?: string | null
+          site_name: string
+          url?: string | null
+          author_name?: string | null
+          author_social_url?: string | null
+          description?: string | null
+          genres?: string[]
+          governance_type?: string
+          region?: string
+          reporter_name?: string | null
+          reporter_contact?: string | null
+          broken_detail?: string | null
+          status?: string
+          admin_notes?: string | null
+          created_at?: string
+          updated_at?: string
+        }
+        Update: {
+          id?: string
+          report_type?: string
+          prefecture?: string | null
+          municipality?: string | null
+          site_name?: string
+          url?: string | null
+          author_name?: string | null
+          author_social_url?: string | null
+          description?: string | null
+          genres?: string[]
+          governance_type?: string
+          region?: string
+          reporter_name?: string | null
+          reporter_contact?: string | null
+          broken_detail?: string | null
+          status?: string
+          admin_notes?: string | null
+          created_at?: string
+          updated_at?: string
+        }
+        Relationships: []
+      }
       homepage_content: {
         Row: {
           content: Json
