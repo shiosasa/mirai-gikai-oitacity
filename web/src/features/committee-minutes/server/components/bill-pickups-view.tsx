@@ -5,6 +5,7 @@ import Link from "next/link";
 import { useState } from "react";
 import { OitaPhotoBackground } from "@/components/layouts/oita-photo-background";
 import { Button } from "@/components/ui/button";
+import { NewPostBadge } from "@/features/new-posts/client/components/new-post-provider";
 import type { BillPickupItem } from "../../shared/utils/build-bill-pickup-items";
 import {
   filterBillPickupItems,
@@ -15,6 +16,7 @@ import {
 type Props = {
   items: BillPickupItem[];
   detailMode?: boolean;
+  detailTitle?: string;
 };
 
 function formatDate(date: string): string {
@@ -100,7 +102,11 @@ function getSessionHref(
   return `/committees/${meetingPath}/${meetingId}/${sessionId}`;
 }
 
-export function BillPickupsView({ items, detailMode = false }: Props) {
+export function BillPickupsView({
+  items,
+  detailMode = false,
+  detailTitle,
+}: Props) {
   const [activeCategory, setActiveCategory] = useState("すべて");
   const categories = [
     "子育て・教育",
@@ -187,6 +193,16 @@ export function BillPickupsView({ items, detailMode = false }: Props) {
                   >
                     <div className="p-6">
                       <div className="flex flex-wrap items-center gap-2">
+                        <NewPostBadge
+                          contentType="bills"
+                          contentId={item.billId}
+                          relatedPublications={item.relatedTopicArticleIds.map(
+                            (id) => ({
+                              contentType: "bill_articles",
+                              contentId: id,
+                            })
+                          )}
+                        />
                         <span className="rounded-full bg-primary/10 px-3 py-1 text-xs font-semibold text-primary-accent">
                           {item.kind}
                         </span>
@@ -210,12 +226,14 @@ export function BillPickupsView({ items, detailMode = false }: Props) {
                         )}
                       </div>
                       <h2 className="mt-2 text-xl font-bold leading-snug text-mirai-text group-hover:text-primary-accent">
-                        {getBillPickupHeading(
-                          firstReference.billName,
-                          item.description,
-                          item.relatedTopicTitles,
-                          item.title
-                        )}
+                        {detailMode && detailTitle
+                          ? detailTitle
+                          : getBillPickupHeading(
+                              firstReference.billName,
+                              item.description,
+                              item.relatedTopicTitles,
+                              item.title
+                            )}
                       </h2>
                       {getBillPickupHeading(
                         firstReference.billName,

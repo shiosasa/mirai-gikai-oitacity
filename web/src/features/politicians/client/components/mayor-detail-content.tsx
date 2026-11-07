@@ -1,9 +1,12 @@
+import type { OfficeTerm } from "@mirai-gikai/shared/politicians/office-history";
 import { ArrowLeft, ChevronDown, ExternalLink } from "lucide-react";
 import Link from "next/link";
 import { OitaPhotoBackground } from "@/components/layouts/oita-photo-background";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
+import { NewPostBadge } from "@/features/new-posts/client/components/new-post-provider";
 import { formatDateJST } from "@/lib/utils/date";
 import { getHttpUrl } from "@/lib/utils/external-url";
+import { OfficeTermList } from "../../shared/components/office-term-list";
 import type {
   MayorConference,
   MayorProfile,
@@ -17,6 +20,8 @@ type Props = {
   proposals: MayorProposal[];
   conferences: MayorConference[];
   localPreview: boolean;
+  former?: boolean;
+  terms?: OfficeTerm[];
 };
 
 export function MayorDetailContent({
@@ -24,6 +29,8 @@ export function MayorDetailContent({
   proposals,
   conferences,
   localPreview,
+  former = false,
+  terms = [],
 }: Props) {
   const officialUrl = getHttpUrl(mayor?.official_url);
   const imageUrl = getHttpUrl(mayor?.image_url);
@@ -54,9 +61,13 @@ export function MayorDetailContent({
         <p className="text-sm font-semibold text-mirai-text-secondary">
           大分市
         </p>
-        <h1 className="mt-2 text-2xl font-bold text-mirai-text">市長紹介</h1>
+        <h1 className="mt-2 text-2xl font-bold text-mirai-text">
+          {former ? "歴代市長紹介" : "市長紹介"}
+        </h1>
         <p className="mt-3 text-sm leading-6 text-mirai-text-secondary">
-          市長のプロフィール、議会への提案理由、記者会見を紹介します。
+          {former
+            ? "退任した市長のプロフィールと在任中の資料を紹介します。プロフィールは退任時点の記録です。"
+            : "市長のプロフィール、議会への提案理由、記者会見を紹介します。"}
         </p>
         <nav aria-label="市長紹介の目次" className="mt-5">
           <ul className="flex flex-wrap gap-2 text-sm">
@@ -95,7 +106,9 @@ export function MayorDetailContent({
                 </AvatarFallback>
               </Avatar>
               <div className="min-w-0">
-                <p className="text-sm text-mirai-text-secondary">大分市長</p>
+                <p className="text-sm text-mirai-text-secondary">
+                  {former ? "元大分市長" : "大分市長"}
+                </p>
                 {mayor?.name_kana && (
                   <p className="mt-1 text-xs text-mirai-text-secondary">
                     {mayor.name_kana}
@@ -151,7 +164,9 @@ export function MayorDetailContent({
                 rel="noopener noreferrer"
                 className="mt-5 inline-flex items-center gap-1 text-sm font-semibold text-primary-accent hover:underline"
               >
-                大分市公式サイトの市長室を見る
+                {former
+                  ? "登録されていた公式リンクを見る（現在の内容と異なる場合があります）"
+                  : "大分市公式サイトの市長室を見る"}
                 <ExternalLink aria-hidden="true" className="size-4" />
               </a>
             ) : (
@@ -163,6 +178,16 @@ export function MayorDetailContent({
             )}
           </div>
         </section>
+        {terms.length > 0 && <OfficeTermList terms={terms} />}
+        <p className="text-sm text-mirai-text-secondary">
+          提案理由・記者会見は確認済みの在任期間に開催された資料を表示します。日付・任期が未確認の資料は人物に割り当てていません。
+          <Link
+            href="/politicians/history"
+            className="ml-1 text-primary underline"
+          >
+            歴代市長・元議員を見る
+          </Link>
+        </p>
 
         <section id="proposals" aria-labelledby="mayor-proposals-heading">
           <div className="border-l-4 border-oita-pink pl-3">
@@ -191,11 +216,13 @@ export function MayorDetailContent({
                     <details className="group rounded-lg border border-mirai-border bg-card">
                       <summary className="flex cursor-pointer list-none items-center justify-between gap-4 p-5 outline-offset-4 focus-visible:outline focus-visible:outline-2 focus-visible:outline-primary">
                         <h3 className="min-w-0 font-bold text-mirai-text">
-                          {proposal.date && (
-                            <span className="block text-xs font-normal text-mirai-text-secondary">
-                              {formatDateJST(proposal.date)}
-                            </span>
-                          )}
+                          <span className="block text-xs font-normal text-mirai-text-secondary">
+                            <NewPostBadge
+                              contentType="meetings"
+                              contentId={proposal.id}
+                            />
+                            {proposal.date && formatDateJST(proposal.date)}
+                          </span>
                           <span className="mt-1 block">
                             {proposal.title || "会議名は準備中です"}
                           </span>

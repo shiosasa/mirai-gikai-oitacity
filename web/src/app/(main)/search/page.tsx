@@ -1,5 +1,4 @@
 import type { Metadata } from "next";
-import { Suspense } from "react";
 import { Container } from "@/components/layouts/container";
 import { SearchForm } from "@/features/search/client/components/search-form";
 import { SearchResultTabs } from "@/features/search/client/components/search-result-tabs";
@@ -26,9 +25,7 @@ export default async function SearchPage({ searchParams }: Props) {
   return (
     <Container className="py-10">
       <h1 className="text-2xl font-bold text-mirai-text mb-6">検索</h1>
-      <Suspense>
-        <SearchForm />
-      </Suspense>
+      <SearchForm query={query} category={category} />
       <div className="mt-8">
         <SearchResultTabs
           key={`${query}:${category}`}

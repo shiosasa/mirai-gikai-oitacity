@@ -1,9 +1,11 @@
 "use client";
 
+import { getRelatedLinks } from "@mirai-gikai/shared/bills/related-links";
 import { ChevronDown, ChevronUp } from "lucide-react";
 import Link from "next/link";
 import { useState } from "react";
 import { Button } from "@/components/ui/button";
+import { NewPostBadge } from "@/features/new-posts/client/components/new-post-provider";
 import type { BillArticle, TopicSourceRef } from "../../../shared/types";
 import { getCategoryLabel } from "../../../shared/utils/article-category";
 import { buildSessionPath } from "../../../shared/utils/build-session-path";
@@ -16,6 +18,7 @@ interface ArticleAccordionCardProps {
 
 export function ArticleAccordionCard({ article }: ArticleAccordionCardProps) {
   const [isOpen, setIsOpen] = useState(false);
+  const relatedLinks = getRelatedLinks(article);
 
   return (
     <div
@@ -26,16 +29,22 @@ export function ArticleAccordionCard({ article }: ArticleAccordionCardProps) {
       <div className="p-4 sm:p-6 grid grid-cols-[minmax(0,1fr)_auto] items-start gap-x-3">
         <div className="min-w-0">
           {/* カテゴリバッジ */}
-          <div className="mb-2">
-            <span className="inline-flex items-center rounded-full bg-oita-pink-light px-3 py-1 text-xs font-medium text-oita-pink">
-              {getCategoryLabel(article.category)}
-            </span>
+          <div className="mb-2 flex flex-wrap items-center gap-x-2 gap-y-1">
+            <div className="inline-flex items-center">
+              <NewPostBadge
+                contentType="bill_articles"
+                contentId={article.id}
+              />
+              <span className="inline-flex items-center rounded-full bg-oita-pink-light px-3 py-1 text-xs font-medium text-oita-pink">
+                {getCategoryLabel(article.category)}
+              </span>
+            </div>
             {article.decision_date && (
-              <span className="text-xs text-mirai-text-secondary ml-2">
+              <span className="text-xs text-mirai-text-secondary">
                 議決日: {formatDate(article.decision_date)}
               </span>
             )}
-            <span className="text-xs text-mirai-text-secondary ml-2">
+            <span className="text-xs text-mirai-text-secondary">
               {article.decision_date && "| "}サイト公開日:{" "}
               {article.published_date
                 ? formatDate(article.published_date)
@@ -199,20 +208,26 @@ export function ArticleAccordionCard({ article }: ArticleAccordionCardProps) {
           )}
 
           {/* 正確な根拠と関連リンク */}
-          {article.link_url && (
+          {relatedLinks.length > 0 && (
             <div className="border-l-4 border-green-400 bg-green-50 rounded p-3">
               <p className="text-xs font-bold text-green-700 mb-2">
                 🔗 正確な根拠と関連リンク
               </p>
-              <a
-                href={article.link_url}
-                target="_blank"
-                rel="noopener noreferrer"
-                className="inline-flex items-center gap-1 text-sm font-medium text-green-600 hover:underline"
-              >
-                {article.link_label || "詳しく見る"}
-                <span>→</span>
-              </a>
+              <ul className="space-y-2">
+                {relatedLinks.map((link, index) => (
+                  <li key={`${link.url}-${index}`}>
+                    <a
+                      href={link.url}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="inline-flex items-center gap-1 text-sm font-medium text-green-600 hover:underline"
+                    >
+                      {link.label || "詳しく見る"}
+                      <span>→</span>
+                    </a>
+                  </li>
+                ))}
+              </ul>
             </div>
           )}
 
@@ -232,7 +247,9 @@ export function ArticleAccordionCard({ article }: ArticleAccordionCardProps) {
                       href={buildSessionPath(ref)}
                       className="inline-flex items-center gap-1 font-medium text-indigo-600 hover:underline"
                     >
-                      {ref.session_label}
+                      {ref.meeting_title || ref.meeting_type}
+                      {"・"}
+                      {ref.date ? formatDate(ref.date) : ref.session_label}
                       {ref.bill_number ? ` ${ref.bill_number}` : ""}
                       <span>→</span>
                     </Link>
@@ -243,7 +260,12 @@ export function ArticleAccordionCard({ article }: ArticleAccordionCardProps) {
                     )}
                     {ref.detail_bill_id && (
                       <Link
-                        href={`/committees/bill-pickups/${ref.detail_bill_id}`}
+                        href={{
+                          pathname: `/committees/bill-pickups/${ref.detail_bill_id}`,
+                          query: ref.detail_topic_id
+                            ? { topic: ref.detail_topic_id }
+                            : undefined,
+                        }}
                         className="mt-1 inline-flex items-center gap-1 text-xs font-semibold text-oita-pink hover:underline"
                       >
                         {ref.bill_number ?? "議案"}の詳細ページを見る →
@@ -276,7 +298,10 @@ export function ArticleAccordionCard({ article }: ArticleAccordionCardProps) {
       )}
 
       {/* 管理者が採用したAIインタビューの「生の声」 */}
-      <TopicVoicesSection voices={article.voices ?? []} />
+      <TopicVoicesSection
+        articleId={article.id}
+        voices={article.voices ?? []}
+      />
 
       {/* AI インタビューボタン（公開中のインタビューがある場合のみ表示） */}
       {article.interview_bill_id && (

@@ -1,6 +1,7 @@
 import "server-only";
 import { ArrowLeft, CalendarDays, ChevronRight } from "lucide-react";
 import Link from "next/link";
+import { NewPostBadge } from "@/features/new-posts/client/components/new-post-provider";
 import type { CommitteeMeetingSummary } from "../../shared/types";
 import { getCommitteeTypeLabel } from "../../shared/utils/committee-type";
 import { formatJapaneseDate } from "../../shared/utils/format-japanese-date";
@@ -49,7 +50,11 @@ export function CommitteeArchiveView({ meetings }: Props) {
                 href={`/committees/${m.committeeSlug}/${m.sourceDocumentId}`}
                 className="block rounded-2xl border border-mirai-border bg-white p-5 hover:border-primary/50 hover:shadow-md transition-all duration-200"
               >
-                <div className="flex items-center gap-2 text-sm font-bold text-mirai-text">
+                <div className="flex flex-wrap items-center gap-2 text-sm font-bold text-mirai-text">
+                  <NewPostBadge
+                    contentType="committee_meetings"
+                    contentId={m.id}
+                  />
                   <CalendarDays className="w-4 h-4 text-primary-accent" />
                   {m.meetingDate ? formatJapaneseDate(m.meetingDate) : ""}
                   {m.committeeName !== committeeName && (

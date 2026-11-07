@@ -1,25 +1,26 @@
 import {
-  Baby,
-  Shield,
-  Heart,
-  Leaf,
-  Circle,
   ArrowRight,
-  Stethoscope,
+  Baby,
   Building2,
-  Trophy,
+  Circle,
   Globe,
-  Sprout,
-  Scale,
+  Heart,
   Landmark,
+  Leaf,
+  Scale,
+  Shield,
+  Sprout,
+  Stethoscope,
+  Trophy,
 } from "lucide-react";
 import Link from "next/link";
+import { NewPostBadge } from "@/features/new-posts/client/components/new-post-provider";
 import type { GeneralQuestion } from "../../shared/types";
-import { buildTopicGroups } from "../../shared/utils/build-topic-groups";
 import type {
   TopicEntry,
   TopicGroup,
 } from "../../shared/utils/build-topic-groups";
+import { buildTopicGroups } from "../../shared/utils/build-topic-groups";
 
 const ICON_MAP: Record<string, React.ComponentType<{ className?: string }>> = {
   Baby,
@@ -133,6 +134,10 @@ function TopicCard({
       <div className="px-4 pt-4 pb-3">
         <div className="flex items-start gap-2 mb-2">
           <h3 className={`text-base font-bold ${style.text} flex-1`}>
+            <NewPostBadge
+              contentType="general_questions"
+              contentId={entry.questioner.id}
+            />
             {entry.title}
           </h3>
           {entry.topicCount > 1 && (

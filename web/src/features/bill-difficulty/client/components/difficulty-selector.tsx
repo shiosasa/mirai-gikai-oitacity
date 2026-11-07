@@ -1,14 +1,16 @@
 "use client";
 
+import { useSearchParams } from "next/navigation";
 import type { CSSProperties } from "react";
-import { useId, useState } from "react";
+import { Suspense, useId, useState } from "react";
 import { Switch } from "@/components/ui/switch";
-import { setDifficultyLevel } from "../../server/actions/set-difficulty-level";
+import type { DifficultyLevelEnum } from "../../shared/types";
+import { buildDifficultyUrl } from "../../shared/utils/build-difficulty-url";
+import { parseDifficultyLevel } from "../../shared/utils/parse-difficulty-level";
 import {
   saveScrollDistanceFromBottom,
   useRestoreScrollFromBottom,
 } from "../hooks/use-scroll-from-bottom";
-import type { DifficultyLevelEnum } from "../../shared/types";
 
 interface DifficultySelectorProps {
   currentLevel: DifficultyLevelEnum;
@@ -18,58 +20,55 @@ interface DifficultySelectorProps {
   maintainScrollFromBottom?: boolean;
 }
 
-export function DifficultySelector({
-  currentLevel,
+function PageDifficultySelector({
   label,
   labelStyle,
   scrollToTop,
   maintainScrollFromBottom,
 }: DifficultySelectorProps) {
-  const [selectedLevel, setSelectedLevel] =
-    useState<DifficultyLevelEnum>(currentLevel);
-  const uniqueId = useId();
+  const searchParams = useSearchParams();
+  const selectedLevel = parseDifficultyLevel(searchParams.get("difficulty"));
   const [isChanging, setIsChanging] = useState(false);
 
   // ページロード時にスクロール位置を復元
   useRestoreScrollFromBottom(maintainScrollFromBottom ?? false);
 
-  const handleToggle = async (checked: boolean) => {
+  const handleToggle = (checked: boolean) => {
     const newLevel = checked ? "hard" : "normal";
     setIsChanging(true);
-    setSelectedLevel(newLevel);
-
-    try {
-      await setDifficultyLevel(newLevel);
-
-      if (scrollToTop) {
-        // スクロール位置をトップに戻す
-        window.scrollTo(0, 0);
-      } else if (maintainScrollFromBottom) {
-        // 画面下端からの距離を保存
-        saveScrollDistanceFromBottom();
-      }
-
-      // URLから ?difficulty パラメータを削除
-      const url = new URL(window.location.href);
-      if (url.searchParams.get("difficulty") !== null) {
-        url.searchParams.delete("difficulty");
-        // パラメータを削除したURLでリロード
-        // ただし、スクロール位置は維持されない
-        window.location.replace(url.toString());
-      } else {
-        // パラメータがない場合は通常のリロード
-        // この場合はスクロール位置は維持される
-        window.location.reload();
-      }
-    } catch (error) {
-      console.error("Failed to update difficulty level:", error);
-      // エラーの場合は元に戻す
-      setSelectedLevel(currentLevel);
-    } finally {
-      setIsChanging(false);
+    if (scrollToTop) {
+      // スクロール位置をトップに戻す
+      window.scrollTo(0, 0);
+    } else if (maintainScrollFromBottom) {
+      // 画面下端からの距離を保存
+      saveScrollDistanceFromBottom();
     }
+
+    window.location.replace(buildDifficultyUrl(window.location.href, newLevel));
   };
 
+  return (
+    <DifficultyControl
+      currentLevel={selectedLevel}
+      label={label}
+      labelStyle={labelStyle}
+      disabled={isChanging}
+      onToggle={handleToggle}
+    />
+  );
+}
+
+function DifficultyControl({
+  currentLevel,
+  label,
+  labelStyle,
+  disabled,
+  onToggle,
+}: Pick<DifficultySelectorProps, "currentLevel" | "label" | "labelStyle"> & {
+  disabled: boolean;
+  onToggle?: (checked: boolean) => void;
+}) {
+  const uniqueId = useId();
   return (
     <div className="flex items-center gap-2">
       <span className="text-xs font-bold" style={labelStyle}>
@@ -83,11 +82,19 @@ export function DifficultySelector({
       </span>
       <Switch
         id={`${uniqueId}-difficulty-toggle`}
-        checked={selectedLevel === "hard"}
-        onCheckedChange={handleToggle}
-        disabled={isChanging}
+        checked={currentLevel === "hard"}
+        onCheckedChange={onToggle}
+        disabled={disabled}
         aria-label="難易度を切り替え"
       />
     </div>
+  );
+}
+
+export function DifficultySelector(props: DifficultySelectorProps) {
+  return (
+    <Suspense fallback={<DifficultyControl {...props} disabled />}>
+      <PageDifficultySelector {...props} />
+    </Suspense>
   );
 }

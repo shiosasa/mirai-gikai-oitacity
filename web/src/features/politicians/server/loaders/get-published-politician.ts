@@ -1,5 +1,6 @@
 import "server-only";
 import { unstable_cache } from "next/cache";
+import { CACHE_TAGS } from "@/lib/cache-tags";
 import {
   findPoliticianDiscussions,
   findPublishedPoliticianById,
@@ -8,7 +9,7 @@ import {
 export const getPublishedPolitician = unstable_cache(
   findPublishedPoliticianById,
   ["published-politician"],
-  { revalidate: 3600 }
+  { revalidate: 3600, tags: [CACHE_TAGS.POLITICIANS] }
 );
 
 export const getPoliticianDiscussions = unstable_cache(

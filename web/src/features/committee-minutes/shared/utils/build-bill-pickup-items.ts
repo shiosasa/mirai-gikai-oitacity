@@ -37,6 +37,7 @@ export type BillPickupItem = {
   updatedAt: string | null;
   status: string | null;
   categories: string[];
+  relatedTopicArticleIds: string[];
   relatedTopicTitles: string[];
   references: BillPickupReference[];
 };
@@ -50,6 +51,7 @@ type PickupArticleReference = {
 };
 
 type PickupArticleCategory = {
+  id: string;
   title: string;
   category: string | null;
   source_refs?: PickupArticleReference[] | null;
@@ -86,6 +88,7 @@ export function buildBillPickupItems(
             updatedAt: null,
             status: null,
             categories: [],
+            relatedTopicArticleIds: [],
             relatedTopicTitles: [],
             references: [],
           };
@@ -192,6 +195,9 @@ export function addBillPickupCategories(
             .map((article) => getCategoryLabel(article.category))
             .filter((category) => BILL_PICKUP_CATEGORIES.has(category))
         ),
+      ],
+      relatedTopicArticleIds: [
+        ...new Set(relatedArticles.map((article) => article.id)),
       ],
       relatedTopicTitles: [
         ...new Set(relatedArticles.map((article) => article.title)),

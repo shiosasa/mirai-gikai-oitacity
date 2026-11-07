@@ -1,5 +1,6 @@
 import Image from "next/image";
 import { Card } from "@/components/ui/card";
+import { NewPostBadge } from "@/features/new-posts/client/components/new-post-provider";
 import { formatDateJST } from "@/lib/utils/date";
 import type { BillWithContent } from "../../../shared/types";
 import { BillStatusBadge } from "./bill-status-badge";
@@ -25,9 +26,10 @@ export function CompactBillCard({ bill, className }: CompactBillCardProps) {
         {/* コンテンツエリア */}
         <div className="flex-1 p-4 flex flex-col gap-2">
           <h3 className="font-bold text-[15px] leading-[1.6] line-clamp-2">
+            <NewPostBadge contentType="bills" contentId={bill.id} />
             {displayTitle}
           </h3>
-          <div className="flex items-center gap-3">
+          <div className="flex flex-wrap items-center gap-3">
             <BillStatusBadge status={bill.status} className="w-fit" />
             {bill.published_at && (
               <span className="text-xs text-muted-foreground">

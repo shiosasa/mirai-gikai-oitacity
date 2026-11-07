@@ -6,12 +6,11 @@ import {
 import { parseDifficultyLevel } from "../../shared/utils/parse-difficulty-level";
 
 /**
- * 現在の難易度設定をCookieから取得
+ * Middlewareが現在のURLから設定したリクエスト内の難易度を取得
  * Server Componentsから呼び出される読み取り専用の関数
  *
- * Note: URLパラメータ ?difficulty=hard がある場合、
- * Middlewareで自動的にCookieにセットされるため、
- * この関数は常にCookieから取得するだけでOK
+ * URLに ?difficulty=hard があるページだけ詳しく表示する。
+ * ブラウザに保存された旧CookieはMiddlewareで上書きされる。
  */
 export async function getDifficultyLevel(): Promise<DifficultyLevelEnum> {
   const cookieStore = await cookies();

@@ -1,5 +1,6 @@
 import { ChevronDown, ExternalLink, FileText } from "lucide-react";
 import Link from "next/link";
+import { NewPostBadge } from "@/features/new-posts/client/components/new-post-provider";
 import { formatDateJST } from "@/lib/utils/date";
 import { getHttpUrl } from "@/lib/utils/external-url";
 import { extractYouTubeId } from "@/lib/utils/extract-youtube-id";
@@ -51,6 +52,12 @@ export function MayorConferenceArchive({ conferences }: Props) {
                   <summary className="flex cursor-pointer list-none items-center justify-between gap-4 p-5 outline-offset-4 focus-visible:outline focus-visible:outline-2 focus-visible:outline-primary">
                     <span className="min-w-0">
                       <span className="block text-xs text-mirai-text-secondary">
+                        {conference.status === "published" && (
+                          <NewPostBadge
+                            contentType="press_conferences"
+                            contentId={conference.id}
+                          />
+                        )}
                         {formatDateJST(conference.held_at)} 開催
                         {conference.status === "draft" && "・下書き"}
                       </span>

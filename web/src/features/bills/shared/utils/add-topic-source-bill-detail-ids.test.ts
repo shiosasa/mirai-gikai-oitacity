@@ -2,6 +2,46 @@ import { describe, expect, it } from "vitest";
 import { addTopicSourceBillDetailIds } from "./add-topic-source-bill-detail-ids";
 
 describe("addTopicSourceBillDetailIds", () => {
+  it("preserves article fields and links repeated names by their source session", () => {
+    const reference = {
+      session_id: 10,
+      meeting_id: 1,
+      meeting_type: "本会議",
+      meeting_title: "令和8年第1回定例会",
+      session_label: "本会議",
+      date: "2026-03-26",
+      bill_number: "議第35号",
+      bill_name: "学校給食費条例",
+      evidence_quote: "原案を承認",
+      detail_bill_id: null,
+    };
+    const articles = [
+      {
+        id: "topic-1",
+        title: "給食費の無償化",
+        source_refs: [reference],
+      },
+    ];
+    const result = addTopicSourceBillDetailIds(articles, [
+      {
+        sessionId: 10,
+        billNumber: "議第35号",
+        billName: "学校給食費条例",
+        billId: "correct-bill",
+      },
+      {
+        sessionId: 20,
+        billNumber: "議第35号",
+        billName: "学校給食費条例",
+        billId: "different-session-bill",
+      },
+    ]);
+    expect(result[0]).toEqual({
+      ...articles[0],
+      source_refs: [{ ...reference, detail_bill_id: "correct-bill" }],
+    });
+    expect(articles[0].source_refs[0].detail_bill_id).toBeNull();
+  });
   it("links a source reference to the matching bill from that session", () => {
     const articles = [
       {

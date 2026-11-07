@@ -1,10 +1,10 @@
 import { type NextRequest, NextResponse } from "next/server";
 import {
   DIFFICULTY_COOKIE_NAME,
-  DIFFICULTY_COOKIE_OPTIONS,
   type DifficultyLevelEnum,
   VALID_DIFFICULTY_LEVELS,
 } from "./features/bill-difficulty/shared/types";
+import { parseDifficultyLevel } from "./features/bill-difficulty/shared/utils/parse-difficulty-level";
 import {
   createUnauthorizedResponse,
   getBasicAuthConfig,
@@ -57,24 +57,14 @@ export function isValidDifficultyLevel(
 }
 
 /**
- * URLパラメータからdifficultyを取得し、Cookieにセット
+ * 現在のページの難易度だけをServer Componentsへ渡す。
+ * ブラウザに残っている旧Cookieは使わず、URL指定がなければnormal。
  */
 function _handleDifficultyCookie(request: NextRequest): NextResponse {
   const { searchParams } = new URL(request.url);
-  const difficulty = searchParams.get("difficulty");
-
-  const response = NextResponse.next();
-
-  // 有効なdifficulty値の場合、Cookieにセット
-  if (isValidDifficultyLevel(difficulty)) {
-    response.cookies.set(
-      DIFFICULTY_COOKIE_NAME,
-      difficulty,
-      DIFFICULTY_COOKIE_OPTIONS
-    );
-  }
-
-  return response;
+  const difficulty = parseDifficultyLevel(searchParams.get("difficulty"));
+  request.cookies.set(DIFFICULTY_COOKIE_NAME, difficulty);
+  return NextResponse.next({ request: { headers: request.headers } });
 }
 
 export function isHtmlAcceptHeader(accept: string): boolean {

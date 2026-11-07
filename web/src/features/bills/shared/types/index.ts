@@ -1,3 +1,4 @@
+import type { RelatedLink } from "@mirai-gikai/shared/bills/related-links";
 import type { Database, Json } from "@mirai-gikai/supabase";
 
 // Database types
@@ -31,12 +32,14 @@ export type TopicSourceRef = {
   bill_name: string | null;
   evidence_quote: string | null;
   detail_bill_id?: string | null;
+  detail_topic_id?: string | null;
 };
 
 export type BillArticle = Omit<
   Database["public"]["Tables"]["bill_articles"]["Row"],
-  "source_refs"
+  "source_refs" | "interview_bill_id" | "related_links"
 > & {
+  related_links?: RelatedLink[] | null;
   published_date: string | null;
   source_refs?: TopicSourceRef[] | null;
   /** 記事タイトルと同名の公開済み議案の bills.id */

@@ -5,11 +5,11 @@ import {
 } from "../types/index";
 
 /**
- * Cookie値から難易度レベルをパースする純粋関数
- * 無効な値やundefinedの場合はデフォルト値を返す
+ * URL・リクエスト内の値を難易度として解釈する。
+ * 未指定や無効な値は簡単な説明を表示する。
  */
 export function parseDifficultyLevel(
-  cookieValue: string | undefined
+  cookieValue: string | null | undefined
 ): DifficultyLevelEnum {
   if (!cookieValue) {
     return DEFAULT_DIFFICULTY;
