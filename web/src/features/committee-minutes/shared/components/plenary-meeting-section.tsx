@@ -75,7 +75,7 @@ export function PlenaryMeetingSection({
                   {session.summary?.trim() && (
                     <div>
                       <h4 className="text-sm font-semibold text-mirai-text mb-2">
-                        📋 要約
+                        📋 かんたんな要約
                       </h4>
                       <p className="text-sm text-mirai-text-secondary">
                         {session.summary}
