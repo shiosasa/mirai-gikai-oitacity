@@ -29,7 +29,7 @@ export function Hero({
           <div className="inline-flex items-center rounded-full border border-home-hero-border bg-home-hero-surface/80 px-3 py-1 text-[10px] font-bold tracking-[0.12em] text-home-hero-badge md:text-[11px]">
             {content.heroBadge}
           </div>
-          <p className="mt-4 max-w-4xl font-bold text-2xl leading-[1.15] text-home-hero-title drop-shadow-[0_2px_8px_rgba(255,255,255,0.7)] md:text-4xl md:leading-[1.1]">
+          <p className="mt-4 max-w-4xl text-balance font-bold text-lg leading-snug text-home-hero-title drop-shadow-[0_2px_8px_rgba(255,255,255,0.7)] sm:text-2xl md:text-4xl md:leading-[1.1]">
             {content.heroTitle}
           </p>
           <p className="mt-2 text-lg font-semibold leading-relaxed text-home-hero-subtitle md:text-xl text-center">
