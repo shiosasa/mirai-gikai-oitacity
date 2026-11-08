@@ -66,6 +66,11 @@ export async function updateSiteAction(
     description?: string;
     is_active?: boolean;
     author_name?: string;
+    author_social_url?: string | null;
+    prefecture?: string;
+    municipality?: string;
+    governance_type?: string;
+    region?: string;
   }
 ) {
   await updatePortalSite(siteId, updates);

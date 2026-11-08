@@ -6,9 +6,11 @@ import {
   Clock,
   ExternalLink,
   FileEdit,
+  Pencil,
   Sparkles,
   Trash2,
 } from "lucide-react";
+import { useRouter } from "next/navigation";
 import { useState } from "react";
 import { Button } from "@/components/ui/button";
 import {
@@ -27,7 +29,45 @@ type Props = {
   sites: PortalSite[];
 };
 
+type SiteEditForm = {
+  siteName: string;
+  url: string;
+  prefecture: string;
+  municipality: string;
+  governanceType: string;
+  region: string;
+  authorName: string;
+  authorSocialUrl: string;
+  description: string;
+};
+
+const GOVERNANCE_TYPES = ["本家・全国", "都道府県", "市区", "町村"];
+const REGIONS = [
+  "全国",
+  "北海道・東北",
+  "関東",
+  "中部",
+  "近畿",
+  "中国・四国",
+  "九州・沖縄",
+];
+
+function toSiteEditForm(site: PortalSite): SiteEditForm {
+  return {
+    siteName: site.site_name,
+    url: site.url,
+    prefecture: site.prefecture,
+    municipality: site.municipality,
+    governanceType: site.governance_type,
+    region: site.region,
+    authorName: site.author_name,
+    authorSocialUrl: site.author_social_url ?? "",
+    description: site.description,
+  };
+}
+
 export function PortalManager({ submissions, sites }: Props) {
+  const router = useRouter();
   const [activeTab, setActiveTab] = useState<"submissions" | "sites">(
     "submissions"
   );
@@ -49,6 +89,8 @@ export function PortalManager({ submissions, sites }: Props) {
     description: "",
     genres: "Webアプリ",
   });
+  const [editingSite, setEditingSite] = useState<PortalSite | null>(null);
+  const [siteForm, setSiteForm] = useState<SiteEditForm | null>(null);
 
   const pendingCount = submissions.filter((s) => s.status === "pending").length;
 
@@ -118,8 +160,44 @@ export function PortalManager({ submissions, sites }: Props) {
   const handleToggleActive = async (site: PortalSite) => {
     try {
       await updateSiteAction(site.id, { is_active: !site.is_active });
+      router.refresh();
     } catch (err) {
       alert(`エラー: ${err instanceof Error ? err.message : String(err)}`);
+    }
+  };
+
+  const handleOpenSiteEdit = (site: PortalSite) => {
+    setEditingSite(site);
+    setSiteForm(toSiteEditForm(site));
+  };
+
+  const handleSaveSite = async (event: React.FormEvent) => {
+    event.preventDefault();
+    if (!editingSite || !siteForm) return;
+    if (!siteForm.siteName.trim() || !siteForm.url.trim()) {
+      alert("サイト名とURLは必須です");
+      return;
+    }
+    setIsProcessing(true);
+    try {
+      await updateSiteAction(editingSite.id, {
+        site_name: siteForm.siteName.trim(),
+        url: siteForm.url.trim(),
+        prefecture: siteForm.prefecture.trim(),
+        municipality: siteForm.municipality.trim(),
+        governance_type: siteForm.governanceType,
+        region: siteForm.region,
+        author_name: siteForm.authorName.trim(),
+        author_social_url: siteForm.authorSocialUrl.trim() || null,
+        description: siteForm.description.trim(),
+      });
+      setEditingSite(null);
+      setSiteForm(null);
+      router.refresh();
+    } catch (err) {
+      alert(`エラー: ${err instanceof Error ? err.message : String(err)}`);
+    } finally {
+      setIsProcessing(false);
     }
   };
 
@@ -339,6 +417,7 @@ export function PortalManager({ submissions, sites }: Props) {
         <div className="bg-white rounded-xl border border-gray-200 overflow-hidden shadow-sm">
           <div className="p-4 bg-gray-50 border-b border-gray-200 flex justify-between items-center text-xs font-bold text-gray-500">
             <span>掲載サイト（全{sites.length}件）</span>
+            <span>内容の修正と公開・非公開を切り替えられます</span>
           </div>
 
           <div className="divide-y divide-gray-100">
@@ -382,6 +461,16 @@ export function PortalManager({ submissions, sites }: Props) {
                   <Button
                     type="button"
                     size="sm"
+                    variant="outline"
+                    onClick={() => handleOpenSiteEdit(site)}
+                    className="text-xs"
+                  >
+                    <Pencil className="w-3.5 h-3.5" />
+                    内容を編集
+                  </Button>
+                  <Button
+                    type="button"
+                    size="sm"
                     variant={site.is_active ? "outline" : "secondary"}
                     onClick={() => handleToggleActive(site)}
                     className="text-xs"
@@ -401,6 +490,230 @@ export function PortalManager({ submissions, sites }: Props) {
                 </div>
               </div>
             ))}
+          </div>
+        </div>
+      )}
+
+      {editingSite && siteForm && (
+        <div className="fixed inset-0 bg-black/50 z-50 flex items-center justify-center p-4">
+          <div className="bg-white rounded-2xl max-w-xl w-full p-6 space-y-4 max-h-[90vh] overflow-y-auto shadow-2xl">
+            <h3 className="text-lg font-bold text-gray-900 flex items-center gap-2">
+              <Pencil className="w-5 h-5 text-emerald-600" />
+              掲載内容を編集
+            </h3>
+            <p className="text-xs text-gray-500">
+              サイト名、URL、紹介文、地域、区分を直せます。公開・非公開は一覧のボタンで切り替えます。
+            </p>
+            <form onSubmit={handleSaveSite} className="space-y-3 text-sm">
+              <div className="grid grid-cols-2 gap-3">
+                <div>
+                  <label
+                    htmlFor="edit-pref"
+                    className="block font-bold text-gray-700 mb-1"
+                  >
+                    都道府県
+                  </label>
+                  <input
+                    id="edit-pref"
+                    type="text"
+                    required
+                    value={siteForm.prefecture}
+                    onChange={(event) =>
+                      setSiteForm({
+                        ...siteForm,
+                        prefecture: event.target.value,
+                      })
+                    }
+                    className="w-full px-3 py-2 border rounded-lg"
+                  />
+                </div>
+                <div>
+                  <label
+                    htmlFor="edit-muni"
+                    className="block font-bold text-gray-700 mb-1"
+                  >
+                    市区町村
+                  </label>
+                  <input
+                    id="edit-muni"
+                    type="text"
+                    required
+                    value={siteForm.municipality}
+                    onChange={(event) =>
+                      setSiteForm({
+                        ...siteForm,
+                        municipality: event.target.value,
+                      })
+                    }
+                    className="w-full px-3 py-2 border rounded-lg"
+                  />
+                </div>
+              </div>
+              <div>
+                <label
+                  htmlFor="edit-sitename"
+                  className="block font-bold text-gray-700 mb-1"
+                >
+                  サイト名
+                </label>
+                <input
+                  id="edit-sitename"
+                  type="text"
+                  required
+                  value={siteForm.siteName}
+                  onChange={(event) =>
+                    setSiteForm({ ...siteForm, siteName: event.target.value })
+                  }
+                  className="w-full px-3 py-2 border rounded-lg"
+                />
+              </div>
+              <div>
+                <label
+                  htmlFor="edit-url"
+                  className="block font-bold text-gray-700 mb-1"
+                >
+                  公開URL
+                </label>
+                <input
+                  id="edit-url"
+                  type="url"
+                  required
+                  value={siteForm.url}
+                  onChange={(event) =>
+                    setSiteForm({ ...siteForm, url: event.target.value })
+                  }
+                  className="w-full px-3 py-2 border rounded-lg"
+                />
+              </div>
+              <div className="grid grid-cols-2 gap-3">
+                <div>
+                  <label
+                    htmlFor="edit-governance"
+                    className="block font-bold text-gray-700 mb-1"
+                  >
+                    議会の単位
+                  </label>
+                  <select
+                    id="edit-governance"
+                    value={siteForm.governanceType}
+                    onChange={(event) =>
+                      setSiteForm({
+                        ...siteForm,
+                        governanceType: event.target.value,
+                      })
+                    }
+                    className="w-full px-3 py-2 border rounded-lg"
+                  >
+                    {GOVERNANCE_TYPES.map((type) => (
+                      <option key={type} value={type}>
+                        {type}
+                      </option>
+                    ))}
+                  </select>
+                </div>
+                <div>
+                  <label
+                    htmlFor="edit-region"
+                    className="block font-bold text-gray-700 mb-1"
+                  >
+                    地図の地域
+                  </label>
+                  <select
+                    id="edit-region"
+                    value={siteForm.region}
+                    onChange={(event) =>
+                      setSiteForm({ ...siteForm, region: event.target.value })
+                    }
+                    className="w-full px-3 py-2 border rounded-lg"
+                  >
+                    {REGIONS.map((region) => (
+                      <option key={region} value={region}>
+                        {region}
+                      </option>
+                    ))}
+                  </select>
+                </div>
+              </div>
+              <div className="grid grid-cols-2 gap-3">
+                <div>
+                  <label
+                    htmlFor="edit-author"
+                    className="block font-bold text-gray-700 mb-1"
+                  >
+                    製作者名
+                  </label>
+                  <input
+                    id="edit-author"
+                    type="text"
+                    required
+                    value={siteForm.authorName}
+                    onChange={(event) =>
+                      setSiteForm({
+                        ...siteForm,
+                        authorName: event.target.value,
+                      })
+                    }
+                    className="w-full px-3 py-2 border rounded-lg"
+                  />
+                </div>
+                <div>
+                  <label
+                    htmlFor="edit-social"
+                    className="block font-bold text-gray-700 mb-1"
+                  >
+                    SNS・URL（任意）
+                  </label>
+                  <input
+                    id="edit-social"
+                    type="url"
+                    value={siteForm.authorSocialUrl}
+                    onChange={(event) =>
+                      setSiteForm({
+                        ...siteForm,
+                        authorSocialUrl: event.target.value,
+                      })
+                    }
+                    className="w-full px-3 py-2 border rounded-lg"
+                  />
+                </div>
+              </div>
+              <div>
+                <label
+                  htmlFor="edit-desc"
+                  className="block font-bold text-gray-700 mb-1"
+                >
+                  紹介文
+                </label>
+                <textarea
+                  id="edit-desc"
+                  rows={4}
+                  required
+                  value={siteForm.description}
+                  onChange={(event) =>
+                    setSiteForm({
+                      ...siteForm,
+                      description: event.target.value,
+                    })
+                  }
+                  className="w-full px-3 py-2 border rounded-lg leading-relaxed"
+                />
+              </div>
+              <div className="flex justify-end gap-3 pt-3 border-t">
+                <Button
+                  type="button"
+                  variant="outline"
+                  onClick={() => {
+                    setEditingSite(null);
+                    setSiteForm(null);
+                  }}
+                >
+                  キャンセル
+                </Button>
+                <Button type="submit" disabled={isProcessing}>
+                  {isProcessing ? "保存中..." : "掲載内容を保存"}
+                </Button>
+              </div>
+            </form>
           </div>
         </div>
       )}
