@@ -42,6 +42,7 @@ export const siteConfig = {
     terms: "/terms",
     privacy: "/privacy",
     faq: "/faq",
+    localPortal: "https://mirai-gikai-portal.vercel.app/",
   },
   /**
    * ページを管理する政党名（空文字列の場合は政党名を省略した汎用表現を使用）

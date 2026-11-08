@@ -2,7 +2,9 @@ import {
   type HomepageContent,
   homepageDefaults,
 } from "@mirai-gikai/shared/homepage/content";
+import { ExternalLink } from "lucide-react";
 import Link from "next/link";
+import { Button } from "@/components/ui/button";
 import { siteConfig } from "@/config/site.config";
 import { LinkButton } from "./link-button";
 
@@ -16,7 +18,7 @@ export function About({
       <div className="flex flex-col gap-4">
         {/* ヘッダー */}
         <div className="flex flex-col gap-4">
-          <h2 className="text-3xl font-bold text-home-about-title">
+          <h2 className="text-balance text-2xl font-bold text-home-about-title sm:text-3xl">
             {content.aboutTitle}
           </h2>
           <p className="text-sm font-bold text-primary-accent">
@@ -36,8 +38,11 @@ export function About({
           </div>
 
           <details className="group rounded-xl border border-pink-300 bg-pink-100 p-4 text-sm text-mirai-text-secondary">
-            <summary className="cursor-pointer list-none font-bold text-home-about-title">
-              みらいぎかいっちの目的とポリシー（押したら見れるで！）
+            <summary className="cursor-pointer list-none text-sm font-bold leading-snug text-home-about-title">
+              みらいぎかいっちの目的とポリシー
+              <span className="mt-0.5 block text-xs sm:text-sm">
+                （押したら見れるで！）
+              </span>
             </summary>
             <div className="mt-4 space-y-4 border-t border-gray-200 pt-4 text-[13px] leading-relaxed">
               <p>
@@ -67,6 +72,26 @@ export function About({
               </ul>
             </div>
           </details>
+
+          <div className="space-y-2">
+            <p className="text-sm leading-relaxed text-mirai-text-secondary">
+              ほかの地域の地方版も、全国のリンク集から見られます。
+            </p>
+            <Button
+              asChild
+              variant="outline"
+              className="h-auto w-fit rounded-full px-5 py-2.5"
+            >
+              <a
+                href={siteConfig.externalLinks.localPortal}
+                target="_blank"
+                rel="noopener noreferrer"
+              >
+                全国「地方版みらい議会」リンク集
+                <ExternalLink aria-hidden="true" className="size-4" />
+              </a>
+            </Button>
+          </div>
 
           {/* もっと詳しく知るボタン */}
           {siteConfig.externalLinks.aboutNote && (

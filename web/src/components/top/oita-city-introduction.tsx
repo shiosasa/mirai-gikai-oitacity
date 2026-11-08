@@ -33,7 +33,7 @@ export function OitaCityIntroduction({
         </p>
         <h2
           id="oita-city-heading"
-          className="text-2xl font-bold text-mirai-text sm:text-3xl"
+          className="text-balance text-xl font-bold text-mirai-text sm:text-3xl"
         >
           {content.cityTitle}
         </h2>
