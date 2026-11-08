@@ -55,8 +55,9 @@ describe("editable homepage rendering", () => {
     expect(html).toContain(
       "本サイトは政党チームみらいや大分市議会が運営しているものではありません"
     );
-    expect(html).toContain("みらいぎかいっちの目的とポリシー");
-    expect(html).toContain("（押したら見れるで！）");
+    expect(html).toContain(
+      "みらいぎかいっちの目的とポリシー（押したら見れるで！）"
+    );
     expect(html).toContain("https://mirai-gikai-portal.vercel.app/");
     expect(html).toContain("AIを使って情報を整理しています");
     expect(html).toContain("各施設の最新情報をご確認ください");

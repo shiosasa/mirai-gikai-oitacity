@@ -38,11 +38,8 @@ export function About({
           </div>
 
           <details className="group rounded-xl border border-pink-300 bg-pink-100 p-4 text-sm text-mirai-text-secondary">
-            <summary className="cursor-pointer list-none text-sm font-bold leading-snug text-home-about-title">
-              みらいぎかいっちの目的とポリシー
-              <span className="mt-0.5 block text-xs sm:text-sm">
-                （押したら見れるで！）
-              </span>
+            <summary className="cursor-pointer list-none text-xs font-bold leading-snug text-home-about-title sm:text-sm">
+              みらいぎかいっちの目的とポリシー（押したら見れるで！）
             </summary>
             <div className="mt-4 space-y-4 border-t border-gray-200 pt-4 text-[13px] leading-relaxed">
               <p>
