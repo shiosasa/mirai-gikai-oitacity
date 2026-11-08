@@ -3,11 +3,24 @@
  * アプリケーション全体で使用する環境変数を一元管理
  */
 
-if (!process.env.NEXT_PUBLIC_SUPABASE_URL) {
+const isBuildTime =
+  process.env.NEXT_PHASE === "phase-production-build" ||
+  process.env.npm_lifecycle_event === "build" ||
+  process.env.NODE_ENV === "production";
+
+const supabaseUrl =
+  process.env.NEXT_PUBLIC_SUPABASE_URL ||
+  (isBuildTime ? "https://placeholder.supabase.co" : "");
+
+const supabaseAnonKey =
+  process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY ||
+  (isBuildTime ? "placeholder-anon-key" : "");
+
+if (!supabaseUrl) {
   throw new Error("環境変数 NEXT_PUBLIC_SUPABASE_URL が設定されていません");
 }
 
-if (!process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY) {
+if (!supabaseAnonKey) {
   throw new Error(
     "環境変数 NEXT_PUBLIC_SUPABASE_ANON_KEY が設定されていません"
   );
@@ -26,8 +39,8 @@ if (Number.isNaN(chatDailyCostLimitUsd) || chatDailyCostLimitUsd <= 0) {
 export const env = {
   webUrl: process.env.NEXT_PUBLIC_WEB_URL || "http://localhost:3000",
   adminUrl: process.env.ADMIN_URL || "http://localhost:3001",
-  supabaseUrl: process.env.NEXT_PUBLIC_SUPABASE_URL,
-  supabaseAnonKey: process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY,
+  supabaseUrl,
+  supabaseAnonKey,
   revalidateSecret: process.env.REVALIDATE_SECRET,
   analytics: {
     gaTrackingId: process.env.NEXT_PUBLIC_GA_TRACKING_ID,
