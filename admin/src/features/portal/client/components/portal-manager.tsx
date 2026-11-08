@@ -502,7 +502,9 @@ export function PortalManager({ submissions, sites }: Props) {
               掲載内容を編集
             </h3>
             <p className="text-xs text-gray-500">
-              サイト名、URL、紹介文、地域、区分を直せます。公開・非公開は一覧のボタンで切り替えます。
+              サイト名、URL、紹介文、県、区市町村を直せます。県と区市町村は
+              リンク集の検索に使います。国会版の本家はリンク集に出しません。
+              公開・非公開は一覧のボタンで切り替えます。
             </p>
             <form onSubmit={handleSaveSite} className="space-y-3 text-sm">
               <div className="grid grid-cols-2 gap-3">
@@ -511,7 +513,7 @@ export function PortalManager({ submissions, sites }: Props) {
                     htmlFor="edit-pref"
                     className="block font-bold text-gray-700 mb-1"
                   >
-                    都道府県
+                    県
                   </label>
                   <input
                     id="edit-pref"
@@ -532,7 +534,7 @@ export function PortalManager({ submissions, sites }: Props) {
                     htmlFor="edit-muni"
                     className="block font-bold text-gray-700 mb-1"
                   >
-                    市区町村
+                    区市町村
                   </label>
                   <input
                     id="edit-muni"
@@ -727,7 +729,9 @@ export function PortalManager({ submissions, sites }: Props) {
               掲載内容の確認・編集して承認
             </h3>
             <p className="text-xs text-gray-500">
-              内容に問題がなければ「承認して公開リストに追加」を押してください。誤字等の修正も可能です。
+              内容に問題がなければ「承認して公開リストに追加」を押してください。
+              県と区市町村はリンク集の検索に使います。国会版の本家は
+              リンク集に出しません。
             </p>
 
             <form
@@ -740,7 +744,7 @@ export function PortalManager({ submissions, sites }: Props) {
                     htmlFor="approve-pref"
                     className="block font-bold text-gray-700 mb-1"
                   >
-                    都道府県
+                    県
                   </label>
                   <input
                     id="approve-pref"
@@ -761,7 +765,7 @@ export function PortalManager({ submissions, sites }: Props) {
                     htmlFor="approve-muni"
                     className="block font-bold text-gray-700 mb-1"
                   >
-                    市区町村
+                    区市町村
                   </label>
                   <input
                     id="approve-muni"
