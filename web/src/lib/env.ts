@@ -3,18 +3,13 @@
  * アプリケーション全体で使用する環境変数を一元管理
  */
 
-const isBuildTime =
-  process.env.NEXT_PHASE === "phase-production-build" ||
-  process.env.npm_lifecycle_event === "build" ||
-  process.env.NODE_ENV === "production";
-
 const supabaseUrl =
   process.env.NEXT_PUBLIC_SUPABASE_URL ||
-  (isBuildTime ? "https://placeholder.supabase.co" : "");
+  "https://ombopirqedzbhuqpsvkw.supabase.co";
 
 const supabaseAnonKey =
   process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY ||
-  (isBuildTime ? "placeholder-anon-key" : "");
+  "sb_publishable_wm5BWeEPVTdjr3JF5hg06A_2QwFiMkX";
 
 if (!supabaseUrl) {
   throw new Error("環境変数 NEXT_PUBLIC_SUPABASE_URL が設定されていません");

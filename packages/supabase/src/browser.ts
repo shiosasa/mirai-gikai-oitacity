@@ -7,7 +7,9 @@ import type { Database } from "../types/supabase.types";
  */
 export function createClient() {
   return createBrowserClient<Database>(
-    process.env.NEXT_PUBLIC_SUPABASE_URL || "https://placeholder.supabase.co",
-    process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY || "placeholder-anon-key"
+    process.env.NEXT_PUBLIC_SUPABASE_URL ||
+      "https://ombopirqedzbhuqpsvkw.supabase.co",
+    process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY ||
+      "sb_publishable_wm5BWeEPVTdjr3JF5hg06A_2QwFiMkX"
   );
 }
