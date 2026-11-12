@@ -11,7 +11,7 @@ import {
   Trash2,
 } from "lucide-react";
 import { useRouter } from "next/navigation";
-import { useState } from "react";
+import { useMemo, useState } from "react";
 import { Button } from "@/components/ui/button";
 import {
   approveSubmissionAction,
@@ -23,6 +23,7 @@ import type {
   PortalSite,
   PortalSubmission,
 } from "../../server/repositories/portal-repository";
+import { sortPortalSubmissions } from "../../shared/utils/sort-portal-submissions";
 
 type Props = {
   submissions: PortalSubmission[];
@@ -93,6 +94,10 @@ export function PortalManager({ submissions, sites }: Props) {
   const [siteForm, setSiteForm] = useState<SiteEditForm | null>(null);
 
   const pendingCount = submissions.filter((s) => s.status === "pending").length;
+  const sortedSubmissions = useMemo(
+    () => sortPortalSubmissions(submissions),
+    [submissions]
+  );
 
   const handleOpenApproveModal = (sub: PortalSubmission) => {
     setSelectedSubmission(sub);
@@ -244,12 +249,12 @@ export function PortalManager({ submissions, sites }: Props) {
       {/* 1. 届いた申請一覧 */}
       {activeTab === "submissions" && (
         <div className="space-y-4">
-          {submissions.length === 0 ? (
+          {sortedSubmissions.length === 0 ? (
             <div className="bg-white rounded-xl p-12 text-center text-gray-400 border border-gray-200">
               現在、届いている申請・報告はありません。
             </div>
           ) : (
-            submissions.map((sub) => {
+            sortedSubmissions.map((sub) => {
               const isPending = sub.status === "pending";
 
               return (

@@ -1,5 +1,6 @@
 import "server-only";
 import { createAdminClient } from "@mirai-gikai/supabase";
+import { sortPortalSubmissions } from "../../shared/utils/sort-portal-submissions";
 
 export type PortalSubmission = {
   id: string;
@@ -56,7 +57,7 @@ export async function getPortalSubmissions() {
     console.error("Failed to fetch portal submissions:", error);
     return [];
   }
-  return (data ?? []) as unknown as PortalSubmission[];
+  return sortPortalSubmissions((data ?? []) as unknown as PortalSubmission[]);
 }
 
 /**
