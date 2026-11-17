@@ -1,8 +1,5 @@
 "use client";
 
-import { useState } from "react";
-import Image from "next/image";
-import Link from "next/link";
 import {
   AlertCircle,
   ChevronDown,
@@ -13,8 +10,10 @@ import {
   Sparkles,
   ThumbsUp,
 } from "lucide-react";
+import Image from "next/image";
+import Link from "next/link";
+import { useState } from "react";
 import { Button } from "@/components/ui/button";
-import { NewPostBadge } from "@/features/new-posts/client/components/new-post-provider";
 import {
   Card,
   CardContent,
@@ -22,6 +21,7 @@ import {
   CardHeader,
   CardTitle,
 } from "@/components/ui/card";
+import { NewPostBadge } from "@/features/new-posts/client/components/new-post-provider";
 import { formatDateJST } from "@/lib/utils/date";
 import type { BillWithContent } from "../../../shared/types";
 import {
@@ -104,8 +104,8 @@ export function BillCard({ bill, onOpenAiModal }: BillCardProps) {
       <CardHeader className="space-y-3 p-5 pb-3">
         <div className="flex flex-wrap items-center justify-between gap-2">
           <div className="flex flex-wrap items-center gap-2">
-            <BillStatusBadge status={bill.status} className="w-fit" />
             <NewPostBadge contentType="bills" contentId={bill.id} />
+            <BillStatusBadge status={bill.status} className="w-fit" />
             {bill.tags.map((tag) => (
               <BillTag key={tag.id} tag={tag} />
             ))}

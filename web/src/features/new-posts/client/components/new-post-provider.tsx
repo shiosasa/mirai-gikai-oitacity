@@ -100,13 +100,23 @@ export function NewPostProvider({ children }: { children: ReactNode }) {
 export function NewPostBadge({
   contentType,
   contentId,
+  relatedPublications = [],
 }: {
   contentType: PublicationType;
   contentId: string | number | readonly (string | number)[];
+  relatedPublications?: readonly {
+    contentType: PublicationType;
+    contentId: string | number;
+  }[];
 }) {
   const activeKeys = useContext(NewPostContext);
   const ids = typeof contentId === "object" ? contentId : [contentId];
-  if (!ids.some((id) => activeKeys.has(publicationKey(contentType, id)))) {
+  if (
+    !ids.some((id) => activeKeys.has(publicationKey(contentType, id))) &&
+    !relatedPublications.some((entry) =>
+      activeKeys.has(publicationKey(entry.contentType, entry.contentId))
+    )
+  ) {
     return null;
   }
   const description =
@@ -116,7 +126,7 @@ export function NewPostBadge({
 
   return (
     <span
-      className="ml-2 inline-flex shrink-0 items-center rounded-full bg-oita-pink-light px-2 py-0.5 align-middle text-xs font-bold leading-4 text-mirai-text"
+      className="mr-2 inline-flex shrink-0 items-center rounded-full bg-oita-pink-light px-2 py-0.5 align-middle text-xs font-bold leading-4 text-mirai-text"
       title={`${description}の投稿です`}
     >
       NEW<span className="sr-only">（{description}）</span>

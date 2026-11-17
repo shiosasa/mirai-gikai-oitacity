@@ -56,6 +56,15 @@
   --color-gray-300: #c7c7cc;
 
   /* 大分版 Pink Theme Tokens */
+  --color-home-hero-base: #f7dfe8;
+  --color-home-hero-middle: #f9e8ee;
+  --color-home-hero-surface: #fffafc;
+  --color-home-hero-border: #f3bfd3;
+  --color-home-hero-badge: #8a496b;
+  --color-home-hero-title: #5a2d3f;
+  --color-home-hero-subtitle: #7f3d5a;
+  --color-home-hero-scroll: #7a4f62;
+  --color-home-about-title: #2d231f;
   --color-oita-pink: #d97792;
   --color-oita-pink-light: #fff5f7;
   --color-oita-pink-accent: #ebdbe0;

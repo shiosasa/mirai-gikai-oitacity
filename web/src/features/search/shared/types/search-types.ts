@@ -19,11 +19,10 @@ export type TopicSearchResult = {
 export type CommitteeSearchResult = {
   id: string;
   committeeName: string;
-  committeeSlug: string;
+  href: string;
   title: string;
   summary: string | null;
   meetingDate: string;
-  sourceDocumentId: number;
   matchedTopics: string[];
 };
 

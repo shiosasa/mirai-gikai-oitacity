@@ -27,6 +27,15 @@ export const primaryLinks: FooterLink[] = [
         },
       ]
     : []),
+  ...(siteConfig.externalLinks.github
+    ? [
+        {
+          label: "GitHub（オープンソース）",
+          href: siteConfig.externalLinks.github,
+          external: true,
+        },
+      ]
+    : []),
   ...(siteConfig.features.showTeamMiraiSection
     ? ([
         {

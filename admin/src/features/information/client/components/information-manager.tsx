@@ -10,6 +10,10 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { saveInformation } from "../../server/actions/save-information";
+import {
+  resolveInformationPublishedAt,
+  toInputDateValue,
+} from "../../shared/utils/information-date";
 
 type Information = Database["public"]["Tables"]["site_information"]["Row"];
 
@@ -25,7 +29,12 @@ export function InformationManager({ entries }: { entries: Information[] }) {
     const form = new FormData(formElement);
     const title = form.get("title");
     const body = form.get("body");
-    if (typeof title !== "string" || typeof body !== "string") {
+    const publishedDate = form.get("publishedDate");
+    if (
+      typeof title !== "string" ||
+      typeof body !== "string" ||
+      typeof publishedDate !== "string"
+    ) {
       toast.error("入力を読み取れませんでした");
       return;
     }
@@ -37,7 +46,10 @@ export function InformationManager({ entries }: { entries: Information[] }) {
         id: editing?.id,
         title,
         body,
-        publishedAt: editing?.published_at ?? new Date().toISOString(),
+        publishedAt: resolveInformationPublishedAt(
+          publishedDate,
+          editing?.published_at
+        ),
         isPublished: published,
       });
       toast.success("お知らせを保存しました");
@@ -84,6 +96,18 @@ export function InformationManager({ entries }: { entries: Information[] }) {
             defaultValue={editing?.body ?? ""}
           />
         </div>
+        <div className="space-y-2">
+          <Label htmlFor="information-date">表示する日付</Label>
+          <Input
+            id="information-date"
+            name="publishedDate"
+            type="date"
+            defaultValue={toInputDateValue(editing?.published_at)}
+          />
+          <p className="text-sm">
+            空欄のまま保存すると、新規は今日、編集中のものは初めに投稿した日のままです。
+          </p>
+        </div>
         <div className="flex items-center gap-2">
           <Checkbox
             id="information-published"
@@ -92,9 +116,6 @@ export function InformationManager({ entries }: { entries: Information[] }) {
           />
           <Label htmlFor="information-published">TOPに公開する</Label>
         </div>
-        <p className="text-sm">
-          新規登録時の日時で並びます。編集しても元の日付を維持します。
-        </p>
         <div className="flex gap-2">
           <Button type="submit" disabled={pending}>
             {pending ? "保存中…" : "保存"}
@@ -120,7 +141,7 @@ export function InformationManager({ entries }: { entries: Information[] }) {
             <h2 className="font-semibold">{entry.title}</h2>
             <p>
               {entry.is_published ? "公開" : "下書き"} /{" "}
-              {new Date(entry.published_at).toLocaleString("ja-JP", {
+              {new Date(entry.published_at).toLocaleDateString("ja-JP", {
                 timeZone: "Asia/Tokyo",
               })}
             </p>

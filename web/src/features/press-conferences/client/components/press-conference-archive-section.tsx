@@ -37,11 +37,11 @@ export function PressConferenceArchiveSection({ pressConferences }: Props) {
                 className="flex items-center justify-between py-4 px-2 hover:bg-mirai-surface-grouped rounded-lg transition-colors group"
               >
                 <span className="font-bold text-mirai-text text-base">
-                  {formattedDate} 定例記者会見
                   <NewPostBadge
                     contentType="press_conferences"
                     contentId={pc.id}
                   />
+                  {formattedDate} 定例記者会見
                 </span>
                 <ChevronRight className="h-5 w-5 text-mirai-text-muted group-hover:translate-x-0.5 transition-transform flex-shrink-0" />
               </Link>

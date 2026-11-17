@@ -31,6 +31,7 @@ export type BillPickupReference = {
 
 export type BillPickupItem = {
   billId: string;
+  title: string | null;
   description: string | null;
   kind: BillPickupKind;
   updatedAt: string | null;
@@ -81,6 +82,7 @@ export function buildBillPickupItems(
         if (!item) {
           item = {
             billId: bill.billId,
+            title: null,
             description: bill.description?.trim() || null,
             kind: getBillPickupKind(bill.number, bill.name),
             updatedAt: null,
@@ -118,6 +120,16 @@ export function buildBillPickupItems(
   }
 
   return Array.from(items.values());
+}
+
+export function addBillPickupTitles(
+  items: BillPickupItem[],
+  titleByBillId: Map<string, string>
+): BillPickupItem[] {
+  return items.map((item) => ({
+    ...item,
+    title: titleByBillId.get(item.billId)?.trim() || null,
+  }));
 }
 
 export function addBillPickupUpdatedAt(
@@ -227,8 +239,12 @@ export function getBillPickupKind(
 export function getBillPickupHeading(
   billName: string,
   description: string | null,
-  relatedTopicTitles: string[] = []
+  relatedTopicTitles: string[] = [],
+  simpleTitle: string | null = null
 ): string {
+  const title = simpleTitle?.trim();
+  if (title) return title;
+
   if (!billName.includes("一般会計予算")) return billName;
 
   const fiscalYear = billName.match(/令和\d+年度/)?.[0];

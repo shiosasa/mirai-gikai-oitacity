@@ -2,12 +2,14 @@ import "server-only";
 import { createAdminClient } from "@mirai-gikai/supabase";
 import type { MayorProfile, MayorProposal } from "../../shared/types/mayor";
 
-export async function findCurrentMayor(): Promise<MayorProfile | null> {
+export async function findCurrentMayor(): Promise<
+  (MayorProfile & { id: number }) | null
+> {
   const supabase = createAdminClient();
   const { data, error } = await supabase
     .from("mayor_profile")
     .select(
-      "name, name_kana, birth_date, image_url, official_url, start_date, term_number, bio"
+      "id, name, name_kana, birth_date, image_url, official_url, start_date, term_number, bio"
     )
     .eq("is_current", true)
     .maybeSingle();

@@ -7,6 +7,26 @@
     "test:watch": "vitest"
   },
   "exports": {
+    "./homepage/content": {
+      "types": "./src/homepage/content.ts",
+      "default": "./src/homepage/content.ts"
+    },
+    "./bills/related-links": {
+      "types": "./src/bills/related-links.ts",
+      "default": "./src/bills/related-links.ts"
+    },
+    "./politicians/office-history": {
+      "types": "./src/politicians/office-history.ts",
+      "default": "./src/politicians/office-history.ts"
+    },
+    "./politicians/mayor-policy": {
+      "types": "./src/politicians/mayor-policy.ts",
+      "default": "./src/politicians/mayor-policy.ts"
+    },
+    "./politicians/birth-date": {
+      "types": "./src/politicians/birth-date.ts",
+      "default": "./src/politicians/birth-date.ts"
+    },
     "./bills/meeting-bill-filter": {
       "types": "./src/bills/meeting-bill-filter.ts",
       "default": "./src/bills/meeting-bill-filter.ts"

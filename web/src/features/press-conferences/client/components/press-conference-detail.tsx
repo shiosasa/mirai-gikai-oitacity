@@ -30,11 +30,11 @@ export function PressConferenceDetail({ pressConference }: Props) {
           📅 {formattedDate}
         </span>
         <h1 className="text-lg font-bold text-mirai-text leading-snug">
-          {pressConference.title}
           <NewPostBadge
             contentType="press_conferences"
             contentId={pressConference.id}
           />
+          {pressConference.title}
         </h1>
         <p className="text-sm text-mirai-text-secondary leading-relaxed">
           大分市長と記者のやりとりを紹介します。

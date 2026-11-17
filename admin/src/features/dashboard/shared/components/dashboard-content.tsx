@@ -11,6 +11,11 @@ export function DashboardContent() {
         <p className="text-muted-foreground">
           公開サイトの内容から、更新したいものを選んでください。
         </p>
+        <p className="text-sm">
+          <Link href="/update-guide" className="text-primary underline">
+            AIなしで更新できる範囲・操作手順・未対応の項目を見る
+          </Link>
+        </p>
       </header>
       <div className="grid gap-4 sm:grid-cols-2 xl:grid-cols-3">
         {contentLinks.map(({ href, label, description, icon: Icon }) => (

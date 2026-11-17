@@ -58,6 +58,65 @@ describe("TopicEditFields", () => {
     ).toBeTruthy();
     expect(within(preview).getByText("新しい本文")).toBeTruthy();
     expect(screen.getByLabelText("議論の争点：慎重・懸念の声")).toBeTruthy();
-    expect(screen.getByLabelText("関連リンクURL")).toBeTruthy();
+    expect(
+      screen.getByRole("button", { name: "関連リンクを追加" })
+    ).toBeTruthy();
+  });
+  it("adds, edits, reorders, previews and removes links without retaining a stale preview", () => {
+    render(
+      <form>
+        <TopicEditFields
+          initial={{
+            ...initial,
+            related_links: [
+              { label: "旧資料", url: "https://example.com/old" },
+            ],
+          }}
+        />
+      </form>
+    );
+    fireEvent.click(screen.getByRole("button", { name: "関連リンクを追加" }));
+    fireEvent.change(screen.getByLabelText("関連リンク 2 の表示名"), {
+      target: { value: "新資料" },
+    });
+    fireEvent.change(screen.getByLabelText("関連リンク 2 のURL"), {
+      target: { value: "https://example.com/new" },
+    });
+    fireEvent.click(
+      screen.getByRole("button", { name: "関連リンク 2 を上へ" })
+    );
+    fireEvent.click(
+      screen.getByRole("button", { name: "保存前に内容を確認する" })
+    );
+    let preview = screen.getByRole("region", {
+      name: "保存前の記事プレビュー",
+    });
+    expect(
+      within(preview)
+        .getAllByRole("link")
+        .map((link) => link.textContent)
+    ).toEqual(["新資料", "旧資料"]);
+    fireEvent.click(
+      screen.getByRole("button", { name: "関連リンク 1 を削除" })
+    );
+    expect(
+      screen.queryByRole("region", { name: "保存前の記事プレビュー" })
+    ).toBeNull();
+    fireEvent.click(
+      screen.getByRole("button", { name: "保存前に内容を確認する" })
+    );
+    preview = screen.getByRole("region", { name: "保存前の記事プレビュー" });
+    expect(
+      within(preview)
+        .getAllByRole("link")
+        .map((link) => link.textContent)
+    ).toEqual(["旧資料"]);
+    fireEvent.click(
+      screen.getByRole("button", { name: "関連リンク 1 を削除" })
+    );
+    const form = screen
+      .getByRole("button", { name: "保存前に内容を確認する" })
+      .closest("form");
+    expect(form && new FormData(form).get("related_links")).toBe("[]");
   });
 });

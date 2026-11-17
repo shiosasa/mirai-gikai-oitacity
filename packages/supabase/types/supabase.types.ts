@@ -34,6 +34,150 @@ export type Database = {
   }
   public: {
     Tables: {
+      portal_sites: {
+        Row: {
+          id: string
+          prefecture: string
+          municipality: string
+          site_name: string
+          url: string
+          author_name: string
+          author_social_url: string | null
+          description: string
+          genres: string[]
+          governance_type: string
+          region: string
+          is_official: boolean
+          display_order: number
+          is_active: boolean
+          created_at: string
+          updated_at: string
+        }
+        Insert: {
+          id: string
+          prefecture: string
+          municipality: string
+          site_name: string
+          url: string
+          author_name: string
+          author_social_url?: string | null
+          description: string
+          genres?: string[]
+          governance_type?: string
+          region?: string
+          is_official?: boolean
+          display_order?: number
+          is_active?: boolean
+          created_at?: string
+          updated_at?: string
+        }
+        Update: {
+          id?: string
+          prefecture?: string
+          municipality?: string
+          site_name?: string
+          url?: string
+          author_name?: string
+          author_social_url?: string | null
+          description?: string
+          genres?: string[]
+          governance_type?: string
+          region?: string
+          is_official?: boolean
+          display_order?: number
+          is_active?: boolean
+          created_at?: string
+          updated_at?: string
+        }
+        Relationships: []
+      }
+      portal_submissions: {
+        Row: {
+          id: string
+          report_type: string
+          prefecture: string | null
+          municipality: string | null
+          site_name: string
+          url: string | null
+          author_name: string | null
+          author_social_url: string | null
+          description: string | null
+          genres: string[]
+          governance_type: string
+          region: string
+          reporter_name: string | null
+          reporter_contact: string | null
+          broken_detail: string | null
+          status: string
+          admin_notes: string | null
+          created_at: string
+          updated_at: string
+        }
+        Insert: {
+          id?: string
+          report_type?: string
+          prefecture?: string | null
+          municipality?: string | null
+          site_name: string
+          url?: string | null
+          author_name?: string | null
+          author_social_url?: string | null
+          description?: string | null
+          genres?: string[]
+          governance_type?: string
+          region?: string
+          reporter_name?: string | null
+          reporter_contact?: string | null
+          broken_detail?: string | null
+          status?: string
+          admin_notes?: string | null
+          created_at?: string
+          updated_at?: string
+        }
+        Update: {
+          id?: string
+          report_type?: string
+          prefecture?: string | null
+          municipality?: string | null
+          site_name?: string
+          url?: string | null
+          author_name?: string | null
+          author_social_url?: string | null
+          description?: string | null
+          genres?: string[]
+          governance_type?: string
+          region?: string
+          reporter_name?: string | null
+          reporter_contact?: string | null
+          broken_detail?: string | null
+          status?: string
+          admin_notes?: string | null
+          created_at?: string
+          updated_at?: string
+        }
+        Relationships: []
+      }
+      homepage_content: {
+        Row: {
+          content: Json
+          id: boolean
+          revision: number
+          updated_at: string
+        }
+        Insert: {
+          content: Json
+          id?: boolean
+          revision: number
+          updated_at?: string
+        }
+        Update: {
+          content?: Json
+          id?: boolean
+          revision?: number
+          updated_at?: string
+        }
+        Relationships: []
+      }
       content_publications: {
         Row: {
           content_type: string
@@ -219,15 +363,15 @@ export type Database = {
       }
       bill_articles: {
         Row: {
-          publish_status: "draft" | "published"
-          first_published_at: string | null
           bill_id: number
           category: Database["public"]["Enums"]["article_category_enum"]
           cautious_voice: string
           created_at: string
           decision_date: string | null
           details: string
+          first_published_at: string | null
           id: string
+          interview_bill_id: string | null
           link_label: string | null
           link_url: string | null
           point_1: string
@@ -235,7 +379,9 @@ export type Database = {
           point_3: string
           positive_voice: string
           proposal_id: number | null
+          publish_status: string
           reason: string
+          related_links: Json | null
           source_refs: Json | null
           status_class: string
           status_label: string
@@ -247,15 +393,15 @@ export type Database = {
           updated_at: string
         }
         Insert: {
-          publish_status?: "draft" | "published"
-          first_published_at?: string | null
           bill_id: number
           category: Database["public"]["Enums"]["article_category_enum"]
           cautious_voice: string
           created_at?: string
           decision_date?: string | null
           details: string
+          first_published_at?: string | null
           id?: string
+          interview_bill_id?: string | null
           link_label?: string | null
           link_url?: string | null
           point_1: string
@@ -263,7 +409,9 @@ export type Database = {
           point_3: string
           positive_voice: string
           proposal_id?: number | null
+          publish_status?: string
           reason: string
+          related_links?: Json | null
           source_refs?: Json | null
           status_class: string
           status_label: string
@@ -275,15 +423,15 @@ export type Database = {
           updated_at?: string
         }
         Update: {
-          publish_status?: "draft" | "published"
-          first_published_at?: string | null
           bill_id?: number
           category?: Database["public"]["Enums"]["article_category_enum"]
           cautious_voice?: string
           created_at?: string
           decision_date?: string | null
           details?: string
+          first_published_at?: string | null
           id?: string
+          interview_bill_id?: string | null
           link_label?: string | null
           link_url?: string | null
           point_1?: string
@@ -291,7 +439,9 @@ export type Database = {
           point_3?: string
           positive_voice?: string
           proposal_id?: number | null
+          publish_status?: string
           reason?: string
+          related_links?: Json | null
           source_refs?: Json | null
           status_class?: string
           status_label?: string
@@ -308,6 +458,27 @@ export type Database = {
             columns: ["bill_id"]
             isOneToOne: true
             referencedRelation: "proposals"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "bill_articles_interview_bill_id_fkey"
+            columns: ["interview_bill_id"]
+            isOneToOne: false
+            referencedRelation: "bills"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "bill_articles_interview_bill_id_fkey"
+            columns: ["interview_bill_id"]
+            isOneToOne: false
+            referencedRelation: "meeting_bills"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "bill_articles_interview_bill_id_fkey"
+            columns: ["interview_bill_id"]
+            isOneToOne: false
+            referencedRelation: "topic_interview_bills"
             referencedColumns: ["id"]
           },
         ]
@@ -363,73 +534,131 @@ export type Database = {
           },
         ]
       }
-      politicians: {
+      office_terms: {
         Row: {
-          id: string
-          name: string
-          name_kana: string
-          avatar_url: string | null
-          terms_count: number
-          seat_number: number | null
-          faction_id: string | null
-          committee_names: string[]
-          is_published: boolean
-          data_verified_at: string | null
-          profile_source_url: string | null
-          website_url: string | null
-          twitter_url: string | null
-          contact_info: string | null
-          bio: string | null
           created_at: string
-          updated_at: string
+          ended_on: string | null
+          ended_source_url: string | null
+          faction: string | null
+          id: number
+          mayor_id: number | null
+          politician_id: string | null
+          role: string
+          seat_number: number | null
+          source_url: string | null
+          special_committee: string | null
+          standing_committee: string | null
+          started_on: string | null
+          term_number: number | null
         }
         Insert: {
-          id?: string
-          name: string
-          name_kana: string
-          avatar_url?: string | null
-          terms_count?: number
-          seat_number?: number | null
-          faction_id?: string | null
-          committee_names?: string[]
-          is_published?: boolean
-          data_verified_at?: string | null
-          profile_source_url?: string | null
-          website_url?: string | null
-          twitter_url?: string | null
-          contact_info?: string | null
-          bio?: string | null
           created_at?: string
-          updated_at?: string
+          ended_on?: string | null
+          ended_source_url?: string | null
+          faction?: string | null
+          id?: never
+          mayor_id?: number | null
+          politician_id?: string | null
+          role: string
+          seat_number?: number | null
+          source_url?: string | null
+          special_committee?: string | null
+          standing_committee?: string | null
+          started_on?: string | null
+          term_number?: number | null
         }
         Update: {
-          id?: string
-          name?: string
-          name_kana?: string
-          avatar_url?: string | null
-          terms_count?: number
-          seat_number?: number | null
-          faction_id?: string | null
-          committee_names?: string[]
-          is_published?: boolean
-          data_verified_at?: string | null
-          profile_source_url?: string | null
-          website_url?: string | null
-          twitter_url?: string | null
-          contact_info?: string | null
-          bio?: string | null
           created_at?: string
-          updated_at?: string
+          ended_on?: string | null
+          ended_source_url?: string | null
+          faction?: string | null
+          id?: never
+          mayor_id?: number | null
+          politician_id?: string | null
+          role?: string
+          seat_number?: number | null
+          source_url?: string | null
+          special_committee?: string | null
+          standing_committee?: string | null
+          started_on?: string | null
+          term_number?: number | null
         }
         Relationships: [
           {
-            foreignKeyName: "politicians_faction_id_fkey"
-            columns: ["faction_id"]
+            foreignKeyName: "office_terms_mayor_id_fkey"
+            columns: ["mayor_id"]
             isOneToOne: false
-            referencedRelation: "factions"
+            referencedRelation: "mayor_profile"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "office_terms_politician_id_fkey"
+            columns: ["politician_id"]
+            isOneToOne: false
+            referencedRelation: "politicians"
             referencedColumns: ["id"]
           },
         ]
+      }
+      politicians: {
+        Row: {
+          address: string | null
+          birth_date: string | null
+          contact: string | null
+          created_at: string
+          election_count: number | null
+          faction: string | null
+          homepage: string | null
+          id: string
+          image_url: string | null
+          is_current: boolean
+          name: string
+          name_kana: string | null
+          number: number
+          seat_number: number | null
+          slug: string | null
+          special_committee: string | null
+          standing_committee: string | null
+        }
+        Insert: {
+          address?: string | null
+          birth_date?: string | null
+          contact?: string | null
+          created_at?: string
+          election_count?: number | null
+          faction?: string | null
+          homepage?: string | null
+          id?: string
+          image_url?: string | null
+          is_current?: boolean
+          name: string
+          name_kana?: string | null
+          number?: number
+          seat_number?: number | null
+          slug?: string | null
+          special_committee?: string | null
+          standing_committee?: string | null
+        }
+        Update: {
+          address?: string | null
+          birth_date?: string | null
+          contact?: string | null
+          created_at?: string
+          election_count?: number | null
+          faction?: string | null
+          homepage?: string | null
+          id?: string
+          image_url?: string | null
+          is_current?: boolean
+          name?: string
+          name_kana?: string | null
+          number?: number
+          seat_number?: number | null
+          slug?: string | null
+          special_committee?: string | null
+          standing_committee?: string | null
+        }
+        Relationships: []
       }
       politician_factions: {
         Row: {
@@ -1492,6 +1721,7 @@ export type Database = {
           stance: Database["public"]["Enums"]["stance_type_enum"] | null
           summary: string | null
           topic_voice_featured_at: string | null
+          topic_voice_first_featured_at: string | null
           total_score: number | null
           updated_at: string
         }
@@ -1512,6 +1742,7 @@ export type Database = {
           stance?: Database["public"]["Enums"]["stance_type_enum"] | null
           summary?: string | null
           topic_voice_featured_at?: string | null
+          topic_voice_first_featured_at?: string | null
           total_score?: number | null
           updated_at?: string
         }
@@ -1532,6 +1763,7 @@ export type Database = {
           stance?: Database["public"]["Enums"]["stance_type_enum"] | null
           summary?: string | null
           topic_voice_featured_at?: string | null
+          topic_voice_first_featured_at?: string | null
           total_score?: number | null
           updated_at?: string
         }
@@ -2154,6 +2386,38 @@ export type Database = {
       [_ in never]: never
     }
     Functions: {
+      save_admin_homepage_content: {
+        Args: { content_input: Json; expected_revision: number }
+        Returns: number
+      }
+      create_admin_topic_content: {
+        Args: { content_input: Json }
+        Returns: string
+      }
+      change_office_term: {
+        // postgres-meta omits NULL support for the six action-dependent inputs.
+        Args: {
+          p_action: string
+          p_ended_on: string | null
+          p_expected_term: number | null
+          p_person_id: string
+          p_role: string
+          p_seat_number: number | null
+          p_source_url: string
+          p_started_on: string | null
+          p_successor_id: string | null
+          p_term_number: number | null
+        }
+        Returns: number
+      }
+      save_admin_topic_with_sources: {
+        Args: {
+          article_id: string
+          expected_updated_at: string
+          content_input: Json
+        }
+        Returns: undefined
+      }
       is_content_public: {
         Args: { content_type: string; content: Json }
         Returns: boolean
@@ -2161,8 +2425,16 @@ export type Database = {
       save_admin_topic_content: {
         Args: {
           article_id: string
-          expected_updated_at: string
           content_input: Json
+          expected_updated_at: string
+        }
+        Returns: undefined
+      }
+      save_admin_topic_content_legacy: {
+        Args: {
+          article_id: string
+          content_input: Json
+          expected_updated_at: string
         }
         Returns: undefined
       }

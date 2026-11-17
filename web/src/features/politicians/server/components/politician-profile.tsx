@@ -3,6 +3,7 @@ import Link from "next/link";
 import { notFound } from "next/navigation";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { findCommitteeList } from "@/features/committee-minutes/server/repositories/meeting-repository";
+import { OfficeTermList } from "../../shared/components/office-term-list";
 import { PoliticianSpeechSection } from "../../shared/components/politician-speech-section";
 import { parseCommitteeAssignments } from "../../shared/utils/parse-committee-assignments";
 import { getPoliticianSpeechHighlights } from "../loaders/get-politician-speech-highlights";
@@ -10,6 +11,7 @@ import {
   getPoliticianDiscussions,
   getPublishedPolitician,
 } from "../loaders/get-published-politician";
+import { findOfficeTerms } from "../repositories/office-history-repository";
 
 type PoliticianProfileProps = {
   id: string;
@@ -51,6 +53,10 @@ function CommitteeAssignments({
 export async function PoliticianProfile({ id }: PoliticianProfileProps) {
   const politician = await getPublishedPolitician(id);
   if (!politician) notFound();
+  const terms = (await findOfficeTerms()).filter(
+    (term) => term.politician_id === id
+  );
+  if (!politician.is_current && terms.length === 0) notFound();
 
   const [discussions, committees, speechData] = await Promise.all([
     getPoliticianDiscussions(id),
@@ -72,6 +78,11 @@ export async function PoliticianProfile({ id }: PoliticianProfileProps) {
       </Link>
 
       <section className="mt-6 border-b border-oita-pink-accent pb-7">
+        {!politician.is_current && (
+          <p className="mb-4 font-semibold text-mirai-text">
+            元大分市議会議員（以下は退任時点の紹介情報です）
+          </p>
+        )}
         <div className="flex items-center gap-5">
           <Avatar className="size-20 shrink-0">
             <AvatarImage src={politician.image_url ?? undefined} alt="" />
@@ -117,7 +128,7 @@ export async function PoliticianProfile({ id }: PoliticianProfileProps) {
           </div>
         )}
 
-        {politician.address && (
+        {politician.is_current && politician.address && (
           <div className="mt-5">
             <h2 className="text-sm font-semibold text-mirai-text">住所</h2>
             <p className="mt-2 text-sm text-mirai-text-secondary">
@@ -140,13 +151,14 @@ export async function PoliticianProfile({ id }: PoliticianProfileProps) {
               </a>
             </li>
           )}
-          {politician.contact && (
+          {politician.is_current && politician.contact && (
             <li className="text-mirai-text-secondary font-mono">
               TEL: {politician.contact}
             </li>
           )}
         </ul>
       </section>
+      <OfficeTermList terms={terms} />
 
       <PoliticianSpeechSection
         highlights={speechData.highlights}

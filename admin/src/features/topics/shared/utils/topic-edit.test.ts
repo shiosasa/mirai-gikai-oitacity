@@ -1,6 +1,12 @@
-import { describe, expect, it } from "vitest";
 import type { Database } from "@mirai-gikai/supabase";
-import { getTopicEditValues, topicEditSchema } from "./topic-edit";
+import { describe, expect, it } from "vitest";
+import {
+  getEmptyTopicValues,
+  getTopicEditValues,
+  topicContentSchema,
+  topicEditSchema,
+  topicFormData,
+} from "./topic-edit";
 
 const input = {
   id: "00000000-0000-4000-8000-000000000001",
@@ -34,6 +40,7 @@ const article: Database["public"]["Tables"]["bill_articles"]["Row"] = {
   first_published_at: null,
   publish_status: "draft",
   source_refs: null,
+  interview_bill_id: null,
   details: "記事の詳細",
   summary_line_1: "記事の要点",
 };
@@ -89,6 +96,63 @@ describe("getTopicEditValues", () => {
 });
 
 describe("topicEditSchema", () => {
+  it("validates every related URL and preserves list order", () => {
+    const related_links = [
+      { label: "資料2", url: "https://example.com/2" },
+      { label: "", url: "https://example.com/1" },
+    ];
+    expect(
+      topicEditSchema.parse({ ...input, related_links }).related_links
+    ).toEqual(related_links);
+    for (const url of [
+      "",
+      "javascript:alert(1)",
+      "https://user:pass@example.com",
+      "/local",
+    ]) {
+      expect(
+        topicEditSchema.safeParse({
+          ...input,
+          related_links: [{ label: "資料", url }],
+        }).success
+      ).toBe(false);
+    }
+    const form = new FormData();
+    form.set("related_links", JSON.stringify(related_links));
+    expect(topicFormData(form).related_links).toEqual(related_links);
+    form.set("related_links", "broken");
+    expect(() => topicFormData(form)).toThrow();
+  });
+  it("loads an existing single link for editing without changing it", () => {
+    expect(
+      getTopicEditValues(
+        {
+          ...article,
+          related_links: null,
+          link_label: "旧資料",
+          link_url: "https://example.com/old",
+        },
+        proposal
+      ).related_links
+    ).toEqual([{ label: "旧資料", url: "https://example.com/old" }]);
+  });
+  it("starts a new topic with blank text and validates it before creation", () => {
+    const initial = getEmptyTopicValues();
+    expect(initial.title).toBe("");
+    expect(initial.source_refs).toEqual([]);
+    expect(topicContentSchema.safeParse(initial).success).toBe(false);
+    expect(
+      topicContentSchema.safeParse({ ...initial, title: "手入力の記事" })
+        .success
+    ).toBe(true);
+  });
+  it("parses structured sources from the form and does not swallow malformed JSON", () => {
+    const form = new FormData();
+    form.set("source_refs", "[]");
+    expect(topicFormData(form).source_refs).toEqual([]);
+    form.set("source_refs", "not-json");
+    expect(() => topicFormData(form)).toThrow();
+  });
   it("allows clearing optional text and preserves unpublished content", () => {
     expect(topicEditSchema.parse(input).details).toBe("");
   });

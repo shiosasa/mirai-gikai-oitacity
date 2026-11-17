@@ -26,11 +26,11 @@ export function CompactBillCard({ bill, className }: CompactBillCardProps) {
         {/* コンテンツエリア */}
         <div className="flex-1 p-4 flex flex-col gap-2">
           <h3 className="font-bold text-[15px] leading-[1.6] line-clamp-2">
+            <NewPostBadge contentType="bills" contentId={bill.id} />
             {displayTitle}
           </h3>
           <div className="flex flex-wrap items-center gap-3">
             <BillStatusBadge status={bill.status} className="w-fit" />
-            <NewPostBadge contentType="bills" contentId={bill.id} />
             {bill.published_at && (
               <span className="text-xs text-muted-foreground">
                 {formatDateJST(bill.published_at)} {statusLabel}

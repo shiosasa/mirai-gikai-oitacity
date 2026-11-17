@@ -12,9 +12,11 @@ type OitaPhoto =
 export function OitaPhotoBackground({
   photo,
   tone = "white",
+  imageUrl,
 }: {
   photo: OitaPhoto;
   tone?: "white" | "pink";
+  imageUrl?: string;
 }) {
   return (
     <div
@@ -37,7 +39,8 @@ export function OitaPhotoBackground({
         }
       >
         <Image
-          src={`/img/oita/${photo}.webp`}
+          src={imageUrl ?? `/img/oita/${photo}.webp`}
+          unoptimized={imageUrl?.startsWith("https:")}
           alt=""
           fill
           sizes={

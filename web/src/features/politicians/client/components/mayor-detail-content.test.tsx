@@ -60,6 +60,21 @@ const conferences: MayorConference[] = [
 ];
 
 describe("MayorDetailContent", () => {
+  it("clearly labels a former mayor and warns that their old official link may have changed", () => {
+    const html = renderToStaticMarkup(
+      <MayorDetailContent
+        mayor={mayor}
+        proposals={proposals}
+        conferences={conferences}
+        localPreview={false}
+        former
+      />
+    );
+    expect(html).toContain("歴代市長紹介");
+    expect(html).toContain("元大分市長");
+    expect(html).toContain("退任時点の記録");
+    expect(html).toContain("現在の内容と異なる場合があります");
+  });
   afterEach(() => {
     vi.useRealTimers();
     document.body.innerHTML = "";

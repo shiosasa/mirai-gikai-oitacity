@@ -1,38 +1,48 @@
+import {
+  type HomepageContent,
+  homepageDefaults,
+} from "@mirai-gikai/shared/homepage/content";
+import { ExternalLink, Github } from "lucide-react";
 import Link from "next/link";
+import { Button } from "@/components/ui/button";
 import { siteConfig } from "@/config/site.config";
 import { LinkButton } from "./link-button";
 
-export function About() {
+export function About({
+  content = homepageDefaults,
+}: {
+  content?: HomepageContent;
+}) {
   return (
     <div className="py-10">
       <div className="flex flex-col gap-4">
         {/* ヘッダー */}
         <div className="flex flex-col gap-4">
-          <h2 className="text-3xl font-bold text-[#2d231f]">
-            みらいぎかいっちなんなん
+          <h2 className="text-balance text-2xl font-bold text-home-about-title sm:text-3xl">
+            {content.aboutTitle}
           </h2>
           <p className="text-sm font-bold text-primary-accent">
-            {siteConfig.siteName}とは
+            {content.aboutBadge}
           </p>
         </div>
 
         {/* コンテンツ */}
         <div className="flex flex-col gap-6">
           <div className="flex flex-col gap-3">
-            <h3 className="text-2xl font-bold leading-[43.2px]">
-              大分の暮らしと
-              <br />
-              議会の話を、やさしくつなぐ
+            <h3 className="whitespace-pre-line text-2xl font-bold leading-[43.2px]">
+              {content.aboutHeadline}
             </h3>
-            <p className="text-[15px] leading-[28px] text-black">
-              {siteConfig.siteName}は、{siteConfig.siteDescription}
-              。市民の暮らしと政治が近づくように、わかりやすく整えて発信していくけん。
+            <p className="whitespace-pre-wrap text-[15px] leading-[28px] text-black">
+              {content.aboutDescription}
             </p>
           </div>
 
-          <details className="group rounded-xl border border-pink-300 bg-pink-100 p-4 text-sm text-[#404040]">
-            <summary className="cursor-pointer list-none font-bold text-[#2d231f]">
-              みらいぎかいっちの目的とポリシー（押したら見れるで！）
+          <details className="group rounded-xl border border-pink-300 bg-pink-100 p-4 text-sm text-mirai-text-secondary">
+            <summary className="cursor-pointer list-none text-sm font-bold leading-snug text-home-about-title">
+              みらいぎかいっちの目的とポリシー
+              <span className="mt-0.5 block text-xs sm:text-sm">
+                （押したら見れるで！）
+              </span>
             </summary>
             <div className="mt-4 space-y-4 border-t border-gray-200 pt-4 text-[13px] leading-relaxed">
               <p>
@@ -59,9 +69,60 @@ export function About() {
                   <strong>情報の正確性：</strong>
                   AIを使って情報を整理しています。正確な情報は大分市議会の公式資料をご確認ください。
                 </li>
+                <li>
+                  <strong>オープンソース：</strong>
+                  本サイトのソースコードはGitHub（github.com/shiosasa/mirai-gikai-oitacity）にてオープンソース（AGPL-3.0）として公開しています。他自治体への展開（Fork）や改善の提案・Issueを歓迎しています。
+                </li>
               </ul>
             </div>
           </details>
+
+          <div className="space-y-2">
+            <p className="text-sm leading-relaxed text-mirai-text-secondary">
+              ほかの地域の地方版も、全国のリンク集から見られます。
+            </p>
+            <Button
+              asChild
+              variant="outline"
+              className="h-auto w-fit rounded-full px-5 py-2.5"
+            >
+              <a
+                href={siteConfig.externalLinks.localPortal}
+                target="_blank"
+                rel="noopener noreferrer"
+              >
+                全国「地方版みらい議会」リンク集
+                <ExternalLink aria-hidden="true" className="size-4" />
+              </a>
+            </Button>
+          </div>
+
+          {siteConfig.externalLinks.github && (
+            <div className="space-y-2">
+              <p className="text-sm leading-relaxed text-mirai-text-secondary">
+                みらいぎかいっちのソースコードは、オープンソース（AGPL-3.0）としてGitHubで公開しています。
+              </p>
+              <Button
+                asChild
+                variant="outline"
+                className="h-auto w-fit rounded-full px-5 py-2.5"
+              >
+                <a
+                  href={siteConfig.externalLinks.github}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="inline-flex items-center gap-2"
+                >
+                  <Github aria-hidden="true" className="size-4" />
+                  GitHubでソースコードを見る
+                  <ExternalLink
+                    aria-hidden="true"
+                    className="size-3.5 text-gray-400"
+                  />
+                </a>
+              </Button>
+            </div>
+          )}
 
           {/* もっと詳しく知るボタン */}
           {siteConfig.externalLinks.aboutNote && (
@@ -81,7 +142,7 @@ export function About() {
           {/* 非公式運営時: 帰属・免責表記 */}
           {!siteConfig.features.showTeamMiraiSection && (
             <div className="flex flex-col gap-4 pt-2 border-t border-gray-200">
-              <div className="flex flex-col gap-2 text-[13px] leading-relaxed text-[#404040]">
+              <div className="flex flex-col gap-2 text-[13px] leading-relaxed text-mirai-text-secondary">
                 <p>
                   このサイトは「チームみらい」開発の「みらい議会」をベースに作成しています。
                 </p>
@@ -113,7 +174,7 @@ export function About() {
                 </div>
               </div>
 
-              <div className="flex flex-col gap-1 text-[13px] leading-relaxed text-[#404040]">
+              <div className="flex flex-col gap-1 text-[13px] leading-relaxed text-mirai-text-secondary">
                 <p>
                   このサイトは「チームみらい」の公式ではない、非公式のサイトです。
                   <br />

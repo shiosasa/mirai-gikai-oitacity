@@ -1,6 +1,7 @@
 import "server-only";
 import { getPublishedArticles } from "@/features/bills/server/loaders/get-articles";
 import {
+  findBillContentTitlesByIds,
   findBillStatusByIds,
   findBillUpdatedAtByIds,
   findTagsByBillIds,
@@ -9,6 +10,7 @@ import {
   addBillPickupCategories,
   addBillPickupStatuses,
   addBillPickupTagCategories,
+  addBillPickupTitles,
   addBillPickupUpdatedAt,
   buildBillPickupItems,
   sortBillPickupItemsByUpdatedAt,
@@ -23,11 +25,12 @@ export async function getBillPickups() {
     ...committeeMeetings,
   ]);
   const billIds = items.map((item) => item.billId);
-  const [articles, dates, statuses, tagsByBillId] = await Promise.all([
+  const [articles, dates, statuses, tagsByBillId, titles] = await Promise.all([
     getPublishedArticles(),
     findBillUpdatedAtByIds(billIds),
     findBillStatusByIds(billIds),
     findTagsByBillIds(billIds),
+    findBillContentTitlesByIds(billIds),
   ]);
   const tagLabelsByBillId = new Map<string, string[]>();
   for (const [billId, tags] of tagsByBillId) {
@@ -39,9 +42,12 @@ export async function getBillPickups() {
   return sortBillPickupItemsByUpdatedAt(
     addBillPickupStatuses(
       addBillPickupUpdatedAt(
-        addBillPickupTagCategories(
-          addBillPickupCategories(items, articles),
-          tagLabelsByBillId
+        addBillPickupTitles(
+          addBillPickupTagCategories(
+            addBillPickupCategories(items, articles),
+            tagLabelsByBillId
+          ),
+          titles
         ),
         dates
       ),

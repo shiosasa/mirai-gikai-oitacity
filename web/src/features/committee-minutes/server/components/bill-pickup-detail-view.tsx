@@ -10,12 +10,12 @@ import { BillContent } from "@/features/bills/server/components/bill-detail/bill
 import { getPublishedArticles } from "@/features/bills/server/loaders/get-articles";
 import { getBillContentWithDifficulty } from "@/features/bills/server/loaders/helpers/get-bill-content";
 import type { BillStatusEnum } from "@/features/bills/shared/types";
-import { getPublishedPoliticians } from "@/features/politicians/server/loaders/get-published-politicians";
+import { getRecordedPoliticians } from "@/features/politicians/server/loaders/get-published-politicians";
 import { groupPoliticiansByFaction } from "@/features/politicians/shared/utils/group-politicians-by-faction";
 import { BillVoteSection } from "../../shared/components/bill-vote-section";
 import { BILL_VOTE_SNAPSHOTS } from "../../shared/data/bill-vote-snapshots";
-import { extractMarkdownSection } from "../../shared/utils/extract-markdown-section";
 import { buildTopicBillDetail } from "../../shared/utils/build-topic-bill-detail";
+import { extractMarkdownSection } from "../../shared/utils/extract-markdown-section";
 import { getBillTopicInterviews } from "../../shared/utils/get-bill-topic-interviews";
 import { getBillPickups } from "../loaders/get-bill-pickups";
 import { BillPickupsView } from "./bill-pickups-view";
@@ -43,7 +43,7 @@ export async function BillPickupDetailView({
       ? getBillContentWithDifficulty(id, "hard")
       : Promise.resolve(null),
     getPublishedArticles(),
-    voteSnapshot ? getPublishedPoliticians() : Promise.resolve([]),
+    voteSnapshot ? getRecordedPoliticians() : Promise.resolve([]),
   ]);
   if (!content?.content) {
     throw new Error(`議案の詳細本文が見つかりません: ${id}`);
@@ -161,9 +161,9 @@ export async function BillPickupDetailView({
           }
           currentFactions={
             new Set(
-              groupPoliticiansByFaction(politicians).map(
-                (group) => group.displayName
-              )
+              groupPoliticiansByFaction(
+                politicians.filter((person) => person.is_current)
+              ).map((group) => group.displayName)
             )
           }
         />

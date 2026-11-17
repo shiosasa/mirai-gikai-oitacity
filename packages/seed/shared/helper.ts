@@ -36,6 +36,12 @@ export async function clearAllData(supabase: AdminClient) {
   );
 
   console.log("🧹 Clearing existing data...");
+  const { error: officeError } = await supabase
+    .from("office_terms")
+    .delete()
+    .not("id", "is", null);
+  if (officeError)
+    throw new Error(`Failed to clear office terms: ${officeError.message}`);
 
   for (const table of TABLES_TO_CLEAR) {
     await supabase

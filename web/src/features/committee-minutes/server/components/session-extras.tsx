@@ -1,6 +1,7 @@
 import { Link2 } from "lucide-react";
 import Link from "next/link";
-import { getPublishedPoliticians } from "@/features/politicians/server/loaders/get-published-politicians";
+import { getRecordedPoliticians } from "@/features/politicians/server/loaders/get-published-politicians";
+import { uniqueProfileLinks } from "@/features/politicians/shared/utils/unique-profile-links";
 import type { SessionBill } from "../../shared/types";
 import type { SessionAttendees } from "../repositories/meeting-repository";
 
@@ -45,10 +46,8 @@ export async function AttendeesSection({
   attendees: SessionAttendees;
   meetingType: "本会議" | "委員会";
 }) {
-  const politicians = await getPublishedPoliticians();
-  const hrefByName = new Map(
-    politicians.map((p) => [p.name, `/politicians/${p.id}`])
-  );
+  const politicians = await getRecordedPoliticians();
+  const hrefByName = uniqueProfileLinks(politicians);
   const hrefOf = (name: string) => hrefByName.get(name) ?? null;
 
   const chairLabel = meetingType === "委員会" ? "委員長" : "議長";

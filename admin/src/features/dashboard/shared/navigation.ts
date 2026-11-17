@@ -3,8 +3,10 @@ import {
   BookOpen,
   CalendarDays,
   FileText,
+  Globe,
   Landmark,
   LayoutDashboard,
+  LayoutTemplate,
   MessagesSquare,
   Mic,
   Newspaper,
@@ -15,6 +17,12 @@ import {
 } from "lucide-react";
 
 export const contentLinks = [
+  {
+    href: "/homepage",
+    label: "トップページ",
+    description: "トップの文章・画像・リンクをプレビューして更新",
+    icon: LayoutTemplate,
+  },
   {
     href: "/minutes",
     label: "議事録要約",
@@ -46,6 +54,18 @@ export const contentLinks = [
     icon: Landmark,
   },
   {
+    href: "/office-history",
+    label: "交代と任期履歴",
+    description: "市長・議員の退任・後任登録・再選・再就任を管理",
+    icon: Users,
+  },
+  {
+    href: "/mayor-profile",
+    label: "市長プロフィール",
+    description: "市長の氏名・写真・経歴・公式リンクを更新",
+    icon: UserRound,
+  },
+  {
     href: "/politician-speeches",
     label: "議員の発言",
     description: "議事録に基づく発言紹介を確認・公開",
@@ -63,6 +83,12 @@ export const contentLinks = [
     description: "回答・チャット履歴を確認し、要約を記事の「生の声」に掲載",
     icon: MessagesSquare,
   },
+  {
+    href: "/portal",
+    label: "全国リンク集",
+    description: "届いた掲載申請・変更・リンク切れ報告の承認と掲載サイト管理",
+    icon: Globe,
+  },
 ];
 
 export const navigationGroups = [
@@ -70,6 +96,7 @@ export const navigationGroups = [
     label: "ホーム",
     links: [
       { href: "/dashboard", label: "ダッシュボード", icon: LayoutDashboard },
+      { href: "/update-guide", label: "手動更新ガイド", icon: BookOpen },
     ],
   },
   {

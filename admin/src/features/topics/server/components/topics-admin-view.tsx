@@ -3,6 +3,7 @@ import Link from "next/link";
 import { Button } from "@/components/ui/button";
 import { requireAdmin } from "@/features/auth/server/lib/auth-server";
 import { TopicPublicationButton } from "../../client/components/topic-publication-button";
+import { parseTopicPublicationStatus } from "../../shared/utils/topic-publication";
 import { findTopicsForAdmin } from "../repositories/topic-repository";
 
 export async function TopicsAdminView() {
@@ -22,6 +23,9 @@ export async function TopicsAdminView() {
   return (
     <section className="space-y-6">
       <h1 className="text-2xl font-bold">トピックス管理</h1>
+      <Button asChild>
+        <Link href="/topics/new">記事を手入力で追加</Link>
+      </Button>
       <p>
         初めて公開した日をサイト公開日として記録します。下書きに戻して再公開しても、元の公開日は変わりません。
       </p>
@@ -39,7 +43,7 @@ export async function TopicsAdminView() {
             </p>
             <TopicPublicationButton
               id={topic.id}
-              status={topic.publish_status}
+              status={parseTopicPublicationStatus(topic.publish_status)}
             />
           </li>
         ))}
