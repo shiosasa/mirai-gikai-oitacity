@@ -114,6 +114,7 @@ export function PortalManager({ submissions, sites }: Props) {
   });
   const [editingSite, setEditingSite] = useState<PortalSite | null>(null);
   const [siteForm, setSiteForm] = useState<SiteEditForm | null>(null);
+  const [updatingTagKey, setUpdatingTagKey] = useState<string | null>(null);
 
   const pendingCount = submissions.filter((s) => s.status === "pending").length;
   const sortedSubmissions = useMemo(
@@ -247,11 +248,16 @@ export function PortalManager({ submissions, sites }: Props) {
   };
 
   const handleToggleFeatureTag = async (site: PortalSite, tag: string) => {
+    const key = `${site.id}:${tag}`;
+    if (updatingTagKey) return;
+    setUpdatingTagKey(key);
     try {
       await toggleSiteFeatureTagAction(site.id, site.genres ?? [], tag);
       router.refresh();
     } catch (err) {
       alert(`エラー: ${err instanceof Error ? err.message : String(err)}`);
+    } finally {
+      setUpdatingTagKey(null);
     }
   };
 
@@ -520,8 +526,8 @@ export function PortalManager({ submissions, sites }: Props) {
                   <p className="text-xs text-gray-600 line-clamp-1">
                     {site.description}
                   </p>
-                  {/* 特徴タグ ボタン（紹介カード上で直接ON/OFF切り替え可能） */}
-                  <div className="flex flex-wrap items-center gap-1.5 pt-1">
+                  {/* 特徴タグ ボタン（紹介カード上で直接タグを付与・解除可能） */}
+                  <div className="flex flex-wrap items-center gap-1.5 pt-1.5">
                     <span className="text-[11px] font-bold text-gray-500 mr-0.5">
                       特徴タグ:
                     </span>
@@ -530,19 +536,24 @@ export function PortalManager({ submissions, sites }: Props) {
                         site.genres?.includes(tag) ||
                         (tag === "簡単・難しいの切り替え" &&
                           site.genres?.includes("簡単難しい切り替え"));
+                      const isThisUpdating =
+                        updatingTagKey === `${site.id}:${tag}`;
                       return (
                         <button
                           key={tag}
                           type="button"
+                          disabled={Boolean(updatingTagKey)}
                           onClick={() => handleToggleFeatureTag(site, tag)}
-                          className={`inline-flex items-center gap-1 px-2.5 py-1 rounded-md text-xs font-medium border transition-colors ${
+                          className={`inline-flex items-center gap-1 px-2.5 py-1 rounded-md text-xs transition-all border ${
                             isActive
-                              ? "bg-emerald-600 text-white border-emerald-600 shadow-2xs font-bold hover:bg-emerald-700"
-                              : "bg-white text-gray-600 border-gray-200 hover:border-gray-300 hover:bg-gray-100"
-                          }`}
-                          title={`${tag}を${isActive ? "解除" : "追加"}`}
+                              ? "bg-emerald-600 text-white border-emerald-600 font-bold shadow-2xs hover:bg-emerald-700 active:scale-95 cursor-pointer"
+                              : "bg-slate-50 text-slate-600 border-slate-200 hover:border-emerald-400 hover:text-emerald-700 hover:bg-emerald-50 active:scale-95 cursor-pointer"
+                          } ${isThisUpdating ? "opacity-50 animate-pulse" : ""}`}
+                          title={`クリックして${tag}を${isActive ? "外す" : "つける"}`}
                         >
-                          <span>{isActive ? "✓" : "+"}</span>
+                          <span className="text-[10px]">
+                            {isActive ? "✓" : "+"}
+                          </span>
                           <span>{tag}</span>
                         </button>
                       );
