@@ -16,6 +16,7 @@ import { Button } from "@/components/ui/button";
 import {
   approveSubmissionAction,
   deleteSiteAction,
+  toggleSiteFeatureTagAction,
   updateSiteAction,
   updateSubmissionStatusAction,
 } from "../../server/actions/portal-actions";
@@ -126,6 +127,10 @@ export function PortalManager({ submissions, sites }: Props) {
       Array.isArray(sub.genres) && sub.genres.length > 0
         ? [...sub.genres]
         : ["Webアプリ"];
+    let cleanDesc = sub.description || "";
+    if (cleanDesc.includes("特徴:")) {
+      cleanDesc = cleanDesc.replace(/【(?:自薦|他薦)】特徴:.*$/, "").trim();
+    }
     setApproveForm({
       siteId: sub.site_name ? `site-${Date.now()}` : "",
       siteName: sub.site_name || "",
@@ -136,7 +141,7 @@ export function PortalManager({ submissions, sites }: Props) {
       region: sub.region || "関東",
       authorName: sub.author_name || "",
       authorSocialUrl: sub.author_social_url || "",
-      description: sub.description || "",
+      description: cleanDesc,
       genres: initialGenres,
     });
   };
@@ -236,6 +241,15 @@ export function PortalManager({ submissions, sites }: Props) {
     if (!confirm(`「${site.site_name}」を掲載リストから削除しますか？`)) return;
     try {
       await deleteSiteAction(site.id);
+    } catch (err) {
+      alert(`エラー: ${err instanceof Error ? err.message : String(err)}`);
+    }
+  };
+
+  const handleToggleFeatureTag = async (site: PortalSite, tag: string) => {
+    try {
+      await toggleSiteFeatureTagAction(site.id, site.genres ?? [], tag);
+      router.refresh();
     } catch (err) {
       alert(`エラー: ${err instanceof Error ? err.message : String(err)}`);
     }
@@ -378,10 +392,30 @@ export function PortalManager({ submissions, sites }: Props) {
                       </div>
                     )}
 
-                    {sub.description && (
-                      <p className="text-xs text-gray-700 bg-gray-50 p-3 rounded-lg leading-relaxed">
-                        {sub.description}
-                      </p>
+                    {sub.description &&
+                      !sub.description.startsWith("【自薦】特徴:") &&
+                      !sub.description.startsWith("【他薦】特徴:") && (
+                        <p className="text-xs text-gray-700 bg-gray-50 p-3 rounded-lg leading-relaxed">
+                          {sub.description}
+                        </p>
+                      )}
+
+                    {sub.genres && sub.genres.length > 0 && (
+                      <div className="flex flex-wrap items-center gap-1.5 pt-1">
+                        <span className="text-[11px] font-bold text-gray-500">
+                          特徴タグ:
+                        </span>
+                        {sub.genres
+                          .filter((g) => g !== "Webアプリ")
+                          .map((g) => (
+                            <span
+                              key={g}
+                              className="text-[11px] font-bold bg-emerald-100 text-emerald-800 px-2 py-0.5 rounded border border-emerald-300"
+                            >
+                              ✓ {g}
+                            </span>
+                          ))}
+                      </div>
                     )}
 
                     {sub.broken_detail && (
@@ -486,20 +520,34 @@ export function PortalManager({ submissions, sites }: Props) {
                   <p className="text-xs text-gray-600 line-clamp-1">
                     {site.description}
                   </p>
-                  {site.genres && site.genres.length > 0 && (
-                    <div className="flex flex-wrap gap-1 mt-1">
-                      {site.genres
-                        .filter((g) => g !== "Webアプリ")
-                        .map((g) => (
-                          <span
-                            key={g}
-                            className="text-[10px] font-medium bg-emerald-50 text-emerald-800 px-1.5 py-0.5 rounded border border-emerald-200"
-                          >
-                            {g}
-                          </span>
-                        ))}
-                    </div>
-                  )}
+                  {/* 特徴タグ ボタン（紹介カード上で直接ON/OFF切り替え可能） */}
+                  <div className="flex flex-wrap items-center gap-1.5 pt-1">
+                    <span className="text-[11px] font-bold text-gray-500 mr-0.5">
+                      特徴タグ:
+                    </span>
+                    {EDITABLE_PORTAL_TAGS.map((tag) => {
+                      const isActive =
+                        site.genres?.includes(tag) ||
+                        (tag === "簡単・難しいの切り替え" &&
+                          site.genres?.includes("簡単難しい切り替え"));
+                      return (
+                        <button
+                          key={tag}
+                          type="button"
+                          onClick={() => handleToggleFeatureTag(site, tag)}
+                          className={`inline-flex items-center gap-1 px-2.5 py-1 rounded-md text-xs font-medium border transition-colors ${
+                            isActive
+                              ? "bg-emerald-600 text-white border-emerald-600 shadow-2xs font-bold hover:bg-emerald-700"
+                              : "bg-white text-gray-600 border-gray-200 hover:border-gray-300 hover:bg-gray-100"
+                          }`}
+                          title={`${tag}を${isActive ? "解除" : "追加"}`}
+                        >
+                          <span>{isActive ? "✓" : "+"}</span>
+                          <span>{tag}</span>
+                        </button>
+                      );
+                    })}
+                  </div>
                 </div>
 
                 <div className="flex items-center gap-2 shrink-0">
