@@ -4,6 +4,7 @@ import { revalidatePath } from "next/cache";
 import {
   approvePortalSubmission,
   deletePortalSite,
+  deletePortalSubmission,
   updatePortalSite,
   updatePortalSubmissionStatus,
 } from "../repositories/portal-repository";
@@ -102,5 +103,10 @@ export async function toggleSiteFeatureTagAction(
 
 export async function deleteSiteAction(siteId: string) {
   await deletePortalSite(siteId);
+  revalidatePath("/portal");
+}
+
+export async function deleteSubmissionAction(submissionId: string) {
+  await deletePortalSubmission(submissionId);
   revalidatePath("/portal");
 }

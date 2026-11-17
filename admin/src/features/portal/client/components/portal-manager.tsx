@@ -16,6 +16,7 @@ import { Button } from "@/components/ui/button";
 import {
   approveSubmissionAction,
   deleteSiteAction,
+  deleteSubmissionAction,
   toggleSiteFeatureTagAction,
   updateSiteAction,
   updateSubmissionStatusAction,
@@ -248,6 +249,25 @@ export function PortalManager({ submissions, sites }: Props) {
     }
   };
 
+  const handleDeleteSubmission = async (sub: PortalSubmission) => {
+    if (
+      !confirm(
+        `「${sub.site_name}」の申請・報告を削除しますか？この操作は取り消せません。`
+      )
+    ) {
+      return;
+    }
+    setIsProcessing(true);
+    try {
+      await deleteSubmissionAction(sub.id);
+      router.refresh();
+    } catch (err) {
+      alert(`エラー: ${err instanceof Error ? err.message : String(err)}`);
+    } finally {
+      setIsProcessing(false);
+    }
+  };
+
   const handleToggleFeatureTag = async (site: PortalSite, tag: string) => {
     const key = `${site.id}:${tag}`;
     if (updatingTagKey) return;
@@ -442,40 +462,54 @@ export function PortalManager({ submissions, sites }: Props) {
                   </div>
 
                   {/* アクションボタン */}
-                  <div className="pt-2 flex flex-wrap gap-2 text-xs">
-                    {sub.report_type !== "broken" ? (
-                      <Button
-                        type="button"
-                        size="sm"
-                        onClick={() => handleOpenApproveModal(sub)}
-                        className="bg-emerald-600 hover:bg-emerald-700 text-white font-bold flex items-center gap-1.5 shadow-sm"
-                      >
-                        <CheckCircle2 className="w-4 h-4" />
-                        確認して掲載承認（サイトに追加）
-                      </Button>
-                    ) : (
-                      <Button
-                        type="button"
-                        size="sm"
-                        variant="secondary"
-                        onClick={() => handleStatusChange(sub.id, "approved")}
-                        className="font-bold"
-                      >
-                        確認済みにする
-                      </Button>
-                    )}
+                  <div className="pt-2 flex flex-wrap justify-between items-center gap-2 text-xs">
+                    <div className="flex flex-wrap items-center gap-2">
+                      {sub.report_type !== "broken" ? (
+                        <Button
+                          type="button"
+                          size="sm"
+                          onClick={() => handleOpenApproveModal(sub)}
+                          className="bg-emerald-600 hover:bg-emerald-700 text-white font-bold flex items-center gap-1.5 shadow-sm"
+                        >
+                          <CheckCircle2 className="w-4 h-4" />
+                          確認して掲載承認（サイトに追加）
+                        </Button>
+                      ) : (
+                        <Button
+                          type="button"
+                          size="sm"
+                          variant="secondary"
+                          onClick={() => handleStatusChange(sub.id, "approved")}
+                          className="font-bold"
+                        >
+                          確認済みにする
+                        </Button>
+                      )}
 
-                    {isPending && (
-                      <Button
-                        type="button"
-                        size="sm"
-                        variant="outline"
-                        onClick={() => handleStatusChange(sub.id, "rejected")}
-                        className="text-gray-600 font-medium"
-                      >
-                        対応済みにする
-                      </Button>
-                    )}
+                      {isPending && (
+                        <Button
+                          type="button"
+                          size="sm"
+                          variant="outline"
+                          onClick={() => handleStatusChange(sub.id, "rejected")}
+                          className="text-gray-600 font-medium"
+                        >
+                          対応済みにする
+                        </Button>
+                      )}
+                    </div>
+
+                    <Button
+                      type="button"
+                      size="sm"
+                      variant="ghost"
+                      onClick={() => handleDeleteSubmission(sub)}
+                      className="text-xs text-red-600 hover:bg-red-50 p-1.5 ml-auto"
+                      title="申請・報告を削除"
+                    >
+                      <Trash2 className="w-4 h-4" />
+                      <span className="sr-only">削除</span>
+                    </Button>
                   </div>
                 </div>
               );
