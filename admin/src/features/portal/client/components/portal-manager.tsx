@@ -49,6 +49,7 @@ export const EDITABLE_PORTAL_TAGS = [
   "簡単・難しいの切り替え",
   "AIアシスタント",
   "AIインタビュー",
+  "オープンソース",
 ] as const;
 
 const GOVERNANCE_TYPES = ["本家・全国", "都道府県", "市区", "町村"];
