@@ -70,8 +70,8 @@ export function About({
                   AIを使って情報を整理しています。正確な情報は大分市議会の公式資料をご確認ください。
                 </li>
                 <li>
-                  <strong>オープンソース：</strong>
-                  本サイトのソースコードはGitHub（github.com/shiosasa/mirai-gikai-oitacity）にてオープンソース（AGPL-3.0）として公開しています。他自治体への展開（Fork）や改善の提案・Issueを歓迎しています。
+                  <strong>GitHub：</strong>
+                  本サイトのソースコードはGitHub（github.com/shiosasa/mirai-gikai-oitacity）にて公開しています。
                 </li>
               </ul>
             </div>
@@ -81,48 +81,45 @@ export function About({
             <p className="text-sm leading-relaxed text-mirai-text-secondary">
               ほかの地域の地方版も、全国のリンク集から見られます。
             </p>
-            <Button
-              asChild
-              variant="outline"
-              className="h-auto w-fit rounded-full px-5 py-2.5"
-            >
-              <a
-                href={siteConfig.externalLinks.localPortal}
-                target="_blank"
-                rel="noopener noreferrer"
-              >
-                全国「地方版みらい議会」リンク集
-                <ExternalLink aria-hidden="true" className="size-4" />
-              </a>
-            </Button>
-          </div>
-
-          {siteConfig.externalLinks.github && (
-            <div className="space-y-2">
-              <p className="text-sm leading-relaxed text-mirai-text-secondary">
-                みらいぎかいっちのソースコードは、オープンソース（AGPL-3.0）としてGitHubで公開しています。
-              </p>
+            <div className="flex flex-wrap gap-2">
               <Button
                 asChild
                 variant="outline"
                 className="h-auto w-fit rounded-full px-5 py-2.5"
               >
                 <a
-                  href={siteConfig.externalLinks.github}
+                  href={siteConfig.externalLinks.localPortal}
                   target="_blank"
                   rel="noopener noreferrer"
-                  className="inline-flex items-center gap-2"
                 >
-                  <Github aria-hidden="true" className="size-4" />
-                  GitHubでソースコードを見る
-                  <ExternalLink
-                    aria-hidden="true"
-                    className="size-3.5 text-gray-400"
-                  />
+                  全国「地方版みらい議会」リンク集
+                  <ExternalLink aria-hidden="true" className="size-4" />
                 </a>
               </Button>
+
+              {siteConfig.externalLinks.github && (
+                <Button
+                  asChild
+                  variant="outline"
+                  className="h-auto w-fit rounded-full px-5 py-2.5"
+                >
+                  <a
+                    href={siteConfig.externalLinks.github}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="inline-flex items-center gap-2"
+                  >
+                    <Github aria-hidden="true" className="size-4" />
+                    GitHub
+                    <ExternalLink
+                      aria-hidden="true"
+                      className="size-3.5 text-gray-400"
+                    />
+                  </a>
+                </Button>
+              )}
             </div>
-          )}
+          </div>
 
           {/* もっと詳しく知るボタン */}
           {siteConfig.externalLinks.aboutNote && (

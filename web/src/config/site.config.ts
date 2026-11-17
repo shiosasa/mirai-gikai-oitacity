@@ -43,7 +43,7 @@ export const siteConfig = {
     privacy: "/privacy",
     faq: "/faq",
     localPortal: "https://mirai-gikai-portal.vercel.app/",
-    /** オープンソース（GitHubリポジトリ） */
+    /** GitHubリポジトリ */
     github: "https://github.com/shiosasa/mirai-gikai-oitacity",
   },
   /**

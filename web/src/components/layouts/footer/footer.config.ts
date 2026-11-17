@@ -30,7 +30,7 @@ export const primaryLinks: FooterLink[] = [
   ...(siteConfig.externalLinks.github
     ? [
         {
-          label: "GitHub（オープンソース）",
+          label: "GitHub",
           href: siteConfig.externalLinks.github,
           external: true,
         },
