@@ -2,7 +2,7 @@ import {
   type HomepageContent,
   homepageDefaults,
 } from "@mirai-gikai/shared/homepage/content";
-import { ExternalLink } from "lucide-react";
+import { ExternalLink, Github } from "lucide-react";
 import Link from "next/link";
 import { Button } from "@/components/ui/button";
 import { siteConfig } from "@/config/site.config";
@@ -69,6 +69,10 @@ export function About({
                   <strong>情報の正確性：</strong>
                   AIを使って情報を整理しています。正確な情報は大分市議会の公式資料をご確認ください。
                 </li>
+                <li>
+                  <strong>オープンソース：</strong>
+                  本サイトのソースコードはGitHub（github.com/shiosasa/mirai-gikai-oitacity）にてオープンソース（AGPL-3.0）として公開しています。他自治体への展開（Fork）や改善の提案・Issueを歓迎しています。
+                </li>
               </ul>
             </div>
           </details>
@@ -92,6 +96,33 @@ export function About({
               </a>
             </Button>
           </div>
+
+          {siteConfig.externalLinks.github && (
+            <div className="space-y-2">
+              <p className="text-sm leading-relaxed text-mirai-text-secondary">
+                みらいぎかいっちのソースコードは、オープンソース（AGPL-3.0）としてGitHubで公開しています。
+              </p>
+              <Button
+                asChild
+                variant="outline"
+                className="h-auto w-fit rounded-full px-5 py-2.5"
+              >
+                <a
+                  href={siteConfig.externalLinks.github}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="inline-flex items-center gap-2"
+                >
+                  <Github aria-hidden="true" className="size-4" />
+                  GitHubでソースコードを見る
+                  <ExternalLink
+                    aria-hidden="true"
+                    className="size-3.5 text-gray-400"
+                  />
+                </a>
+              </Button>
+            </div>
+          )}
 
           {/* もっと詳しく知るボタン */}
           {siteConfig.externalLinks.aboutNote && (
