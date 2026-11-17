@@ -71,6 +71,7 @@ export async function updateSiteAction(
     municipality?: string;
     governance_type?: string;
     region?: string;
+    genres?: string[];
   }
 ) {
   await updatePortalSite(siteId, updates);

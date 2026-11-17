@@ -40,7 +40,15 @@ type SiteEditForm = {
   authorName: string;
   authorSocialUrl: string;
   description: string;
+  genres: string[];
 };
+
+export const EDITABLE_PORTAL_TAGS = [
+  "ルビ機能",
+  "簡単・難しいの切り替え",
+  "AIアシスタント",
+  "AIインタビュー",
+] as const;
 
 const GOVERNANCE_TYPES = ["本家・全国", "都道府県", "市区", "町村"];
 const REGIONS = [
@@ -64,6 +72,7 @@ function toSiteEditForm(site: PortalSite): SiteEditForm {
     authorName: site.author_name,
     authorSocialUrl: site.author_social_url ?? "",
     description: site.description,
+    genres: Array.isArray(site.genres) ? [...site.genres] : [],
   };
 }
 
@@ -77,7 +86,19 @@ export function PortalManager({ submissions, sites }: Props) {
   const [isProcessing, setIsProcessing] = useState(false);
 
   // 編集・承認用のフォームステート
-  const [approveForm, setApproveForm] = useState({
+  const [approveForm, setApproveForm] = useState<{
+    siteId: string;
+    siteName: string;
+    url: string;
+    prefecture: string;
+    municipality: string;
+    governanceType: string;
+    region: string;
+    authorName: string;
+    authorSocialUrl: string;
+    description: string;
+    genres: string[];
+  }>({
     siteId: "",
     siteName: "",
     url: "",
@@ -88,7 +109,7 @@ export function PortalManager({ submissions, sites }: Props) {
     authorName: "",
     authorSocialUrl: "",
     description: "",
-    genres: "Webアプリ",
+    genres: ["Webアプリ"],
   });
   const [editingSite, setEditingSite] = useState<PortalSite | null>(null);
   const [siteForm, setSiteForm] = useState<SiteEditForm | null>(null);
@@ -101,6 +122,10 @@ export function PortalManager({ submissions, sites }: Props) {
 
   const handleOpenApproveModal = (sub: PortalSubmission) => {
     setSelectedSubmission(sub);
+    const initialGenres =
+      Array.isArray(sub.genres) && sub.genres.length > 0
+        ? [...sub.genres]
+        : ["Webアプリ"];
     setApproveForm({
       siteId: sub.site_name ? `site-${Date.now()}` : "",
       siteName: sub.site_name || "",
@@ -112,7 +137,7 @@ export function PortalManager({ submissions, sites }: Props) {
       authorName: sub.author_name || "",
       authorSocialUrl: sub.author_social_url || "",
       description: sub.description || "",
-      genres: sub.genres.length ? sub.genres.join(", ") : "Webアプリ",
+      genres: initialGenres,
     });
   };
 
@@ -134,7 +159,7 @@ export function PortalManager({ submissions, sites }: Props) {
       formData.set("authorName", approveForm.authorName);
       formData.set("authorSocialUrl", approveForm.authorSocialUrl);
       formData.set("description", approveForm.description);
-      formData.set("genres", approveForm.genres);
+      formData.set("genres", approveForm.genres.join(", "));
 
       await approveSubmissionAction(formData);
       setSelectedSubmission(null);
@@ -195,6 +220,7 @@ export function PortalManager({ submissions, sites }: Props) {
         author_name: siteForm.authorName.trim(),
         author_social_url: siteForm.authorSocialUrl.trim() || null,
         description: siteForm.description.trim(),
+        genres: siteForm.genres,
       });
       setEditingSite(null);
       setSiteForm(null);
@@ -460,6 +486,20 @@ export function PortalManager({ submissions, sites }: Props) {
                   <p className="text-xs text-gray-600 line-clamp-1">
                     {site.description}
                   </p>
+                  {site.genres && site.genres.length > 0 && (
+                    <div className="flex flex-wrap gap-1 mt-1">
+                      {site.genres
+                        .filter((g) => g !== "Webアプリ")
+                        .map((g) => (
+                          <span
+                            key={g}
+                            className="text-[10px] font-medium bg-emerald-50 text-emerald-800 px-1.5 py-0.5 rounded border border-emerald-200"
+                          >
+                            {g}
+                          </span>
+                        ))}
+                    </div>
+                  )}
                 </div>
 
                 <div className="flex items-center gap-2 shrink-0">
@@ -703,6 +743,45 @@ export function PortalManager({ submissions, sites }: Props) {
                   className="w-full px-3 py-2 border rounded-lg leading-relaxed"
                 />
               </div>
+              <div>
+                <div className="block font-bold text-gray-700 mb-1.5">
+                  特徴タグ（選択して編集）
+                </div>
+                <div className="grid grid-cols-2 gap-2 p-3 bg-gray-50 border rounded-lg">
+                  {EDITABLE_PORTAL_TAGS.map((tag) => {
+                    const isChecked =
+                      siteForm.genres.includes(tag) ||
+                      (tag === "簡単・難しいの切り替え" &&
+                        siteForm.genres.includes("簡単難しい切り替え"));
+                    return (
+                      <label
+                        key={tag}
+                        className={`flex items-center gap-2 p-2 rounded-md text-xs font-medium cursor-pointer border transition-colors ${
+                          isChecked
+                            ? "bg-emerald-50 border-emerald-300 text-emerald-900 font-bold"
+                            : "bg-white border-gray-200 text-gray-700 hover:bg-gray-100"
+                        }`}
+                      >
+                        <input
+                          type="checkbox"
+                          checked={isChecked}
+                          onChange={(e) => {
+                            const newGenres = siteForm.genres.filter(
+                              (g) => g !== tag && g !== "簡単難しい切り替え"
+                            );
+                            if (e.target.checked) {
+                              newGenres.push(tag);
+                            }
+                            setSiteForm({ ...siteForm, genres: newGenres });
+                          }}
+                          className="rounded text-emerald-600 focus:ring-emerald-500 h-4 w-4"
+                        />
+                        <span>{tag}</span>
+                      </label>
+                    );
+                  })}
+                </div>
+              </div>
               <div className="flex justify-end gap-3 pt-3 border-t">
                 <Button
                   type="button"
@@ -886,6 +965,49 @@ export function PortalManager({ submissions, sites }: Props) {
                   }
                   className="w-full px-3 py-2 border rounded-lg leading-relaxed"
                 />
+              </div>
+
+              <div>
+                <div className="block font-bold text-gray-700 mb-1.5">
+                  特徴タグ（選択して承認）
+                </div>
+                <div className="grid grid-cols-2 gap-2 p-3 bg-gray-50 border rounded-lg">
+                  {EDITABLE_PORTAL_TAGS.map((tag) => {
+                    const isChecked =
+                      approveForm.genres.includes(tag) ||
+                      (tag === "簡単・難しいの切り替え" &&
+                        approveForm.genres.includes("簡単難しい切り替え"));
+                    return (
+                      <label
+                        key={tag}
+                        className={`flex items-center gap-2 p-2 rounded-md text-xs font-medium cursor-pointer border transition-colors ${
+                          isChecked
+                            ? "bg-emerald-50 border-emerald-300 text-emerald-900 font-bold"
+                            : "bg-white border-gray-200 text-gray-700 hover:bg-gray-100"
+                        }`}
+                      >
+                        <input
+                          type="checkbox"
+                          checked={isChecked}
+                          onChange={(e) => {
+                            const newGenres = approveForm.genres.filter(
+                              (g) => g !== tag && g !== "簡単難しい切り替え"
+                            );
+                            if (e.target.checked) {
+                              newGenres.push(tag);
+                            }
+                            setApproveForm({
+                              ...approveForm,
+                              genres: newGenres,
+                            });
+                          }}
+                          className="rounded text-emerald-600 focus:ring-emerald-500 h-4 w-4"
+                        />
+                        <span>{tag}</span>
+                      </label>
+                    );
+                  })}
+                </div>
               </div>
 
               <div className="flex justify-end gap-3 pt-3 border-t">
