@@ -1,9 +1,9 @@
 import { simulateReadableStream, type UIMessage } from "ai";
-import { getChatSupabaseUser } from "@/features/chat/server/utils/supabase-server";
 import {
   type ChatMessageMetadata,
   handleChatRequest,
 } from "@/features/chat/server/services/handle-chat-request";
+import { getChatSupabaseUser } from "@/features/chat/server/utils/supabase-server";
 import { ChatError, ChatErrorCode } from "@/features/chat/shared/types/errors";
 import { registerNodeTelemetry } from "@/lib/telemetry/register";
 
@@ -60,17 +60,30 @@ export async function POST(req: Request) {
     error: getUserError,
   } = await getChatSupabaseUser();
 
-  if (getUserError || !user) {
+  // 認証済みユーザー、またはCookie確立前の一時セッションIDをuserIdとして利用
+  const contextSessionId = messages[0]?.metadata?.sessionId;
+  const userId =
+    user?.id ?? (contextSessionId ? `anon-${contextSessionId}` : undefined);
+
+  if (!userId) {
+    console.warn(
+      "[Chat Route] Neither authenticated user nor sessionId was found in request:",
+      getUserError
+    );
     return new Response(
       JSON.stringify({
-        error: "Anonymous session required",
+        error:
+          "セッションが初期化されていません。ページを再読み込みしてください。",
       }),
-      { status: 401, headers: { "Content-Type": "application/json" } }
+      {
+        status: 401,
+        headers: { "Content-Type": "application/json; charset=utf-8" },
+      }
     );
   }
 
   try {
-    return await handleChatRequest({ messages, userId: user.id });
+    return await handleChatRequest({ messages, userId });
   } catch (error) {
     console.error("Chat request error:", error);
 
@@ -88,20 +101,12 @@ export async function POST(req: Request) {
       );
     }
 
-    // その他のChatError
-    if (error instanceof ChatError) {
-      return new Response(
-        "エラーが発生しました。しばらく待ってから再度お試しください。",
-        {
-          status: 500,
-          headers: { "Content-Type": "text/plain; charset=utf-8" },
-        }
-      );
-    }
+    const errorMessage =
+      error instanceof Error ? error.message : "AI応答の生成に失敗しました";
 
-    // 予期しないエラー
+    // クライアントにも原因がわかるようにメッセージを返す
     return new Response(
-      "エラーが発生しました。しばらく待ってから再度お試しください。",
+      `AIアシスタントでエラーが発生しました（${errorMessage}）。しばらく待ってから再度お試しください。`,
       {
         status: 500,
         headers: { "Content-Type": "text/plain; charset=utf-8" },

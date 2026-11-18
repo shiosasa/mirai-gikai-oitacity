@@ -2,9 +2,9 @@ import { openai } from "@ai-sdk/openai";
 import type { Database } from "@mirai-gikai/supabase";
 import {
   convertToModelMessages,
+  type LanguageModel,
   streamText,
   tool,
-  type LanguageModel,
   type UIMessage,
 } from "ai";
 import { z } from "zod";
@@ -23,7 +23,8 @@ import {
   createPromptProvider,
   type PromptProvider,
 } from "@/lib/prompt";
-import { AI_MODELS } from "@/lib/ai/models";
+import { getDefaultPrompt } from "@/lib/prompt/default-prompts";
+import { resolveChatModel } from "../utils/resolve-chat-model";
 import { getUsageCostUsd, recordChatUsage } from "./cost-tracker";
 
 export type BudgetChatContext = {
@@ -97,9 +98,7 @@ export async function handleChatRequest({
     promptProvider
   );
   // Model configuration
-  const model = deps?.model ?? AI_MODELS.gpt4o;
-  const modelName =
-    typeof model === "string" ? model : (model.modelId ?? "unknown");
+  const { model, modelName } = resolveChatModel(deps?.model);
 
   // Determine if interview suggestion should be enabled
   const shouldSuggestInterview = await determineShouldSuggestInterview(
@@ -219,16 +218,17 @@ async function buildPrompt(
           billContent: context.billContext?.bill_content?.content ?? "",
         };
 
-  // Fetch prompt from Langfuse
+  // Fetch prompt from Langfuse (with fallback to default built-in prompt)
   try {
     const promptResult = await promptProvider.getPrompt(promptName, variables);
     return { promptName, promptResult };
   } catch (error) {
-    console.error("Prompt fetch error:", error);
-    throw new ChatError(
-      ChatErrorCode.PROMPT_FETCH_FAILED,
-      error instanceof Error ? error.message : String(error)
+    console.warn(
+      `[Chat Prompt] Prompt fetch failed for "${promptName}", using built-in default:`,
+      error
     );
+    const fallbackResult = getDefaultPrompt(promptName, variables);
+    return { promptName, promptResult: fallbackResult };
   }
 }
 

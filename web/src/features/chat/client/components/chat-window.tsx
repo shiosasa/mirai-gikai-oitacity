@@ -1,6 +1,6 @@
 "use client";
 
-import { X } from "lucide-react";
+import { AlertCircle, Loader2, X } from "lucide-react";
 import Image from "next/image";
 import type { ChangeEvent } from "react";
 import { useEffect, useRef, useState } from "react";
@@ -19,6 +19,7 @@ import {
   type PromptInputMessage,
   PromptInputTextarea,
 } from "@/components/ai-elements/prompt-input";
+import { Button } from "@/components/ui/button";
 import { siteConfig } from "@/config/site.config";
 import type { BillWithContent } from "@/features/bills/shared/types";
 import type { BudgetChatContext } from "@/features/chat/server/services/handle-chat-request";
@@ -26,6 +27,7 @@ import { useIsDesktop } from "@/hooks/use-is-desktop";
 import { useViewportHeight } from "@/hooks/use-viewport-height";
 import { SystemMessage } from "./system-message";
 import { UserMessage } from "./user-message";
+
 interface ChatWindowProps {
   billContext?: BillWithContent;
   hasInterviewConfig?: boolean;
@@ -58,6 +60,7 @@ function ChatMessages({
   messages,
   sendMessage,
   status,
+  error,
   pageContext,
   sessionId,
 }: {
@@ -67,6 +70,7 @@ function ChatMessages({
   messages: ChatWindowProps["chatState"]["messages"];
   sendMessage: ChatWindowProps["chatState"]["sendMessage"];
   status: ChatWindowProps["chatState"]["status"];
+  error?: Error | null;
   pageContext?: ChatWindowProps["pageContext"];
   sessionId: string;
 }) {
@@ -148,7 +152,22 @@ function ChatMessages({
         );
       })}
       {status === "submitted" && (
-        <span className="text-sm text-gray-500">考え中...</span>
+        <div className="flex items-center gap-2.5 p-3.5 bg-emerald-50/70 border border-emerald-200/60 rounded-2xl w-fit text-sm text-emerald-950 animate-pulse">
+          <Loader2 className="w-4 h-4 text-emerald-600 animate-spin shrink-0" />
+          <span>AIが回答を考えちょるよ（回答を生成中）...</span>
+        </div>
+      )}
+      {status === "error" && (
+        <div className="flex items-start gap-2.5 p-3.5 bg-rose-50 border border-rose-200 rounded-2xl text-sm text-rose-900">
+          <AlertCircle className="w-5 h-5 text-rose-600 shrink-0 mt-0.5" />
+          <div className="space-y-1">
+            <p className="font-bold">回答の取得中にエラーが発生しました</p>
+            <p className="text-xs text-rose-700 leading-relaxed">
+              {error?.message ||
+                "通信エラーまたはアクセス集中により応答を取得できませんでした。しばらく時間をおいて再度お試しください。"}
+            </p>
+          </div>
+        </div>
       )}
     </>
   );
@@ -265,6 +284,7 @@ export function ChatWindow({
               messages={messages}
               sendMessage={sendMessage}
               status={status}
+              error={error}
               pageContext={pageContext}
               sessionId={sessionId}
             />
@@ -290,19 +310,25 @@ export function ChatWindow({
                 className={`!min-h-0 min-w-0 wrap-anywhere text-sm font-medium leading-[1.5em] tracking-[0.01em] placeholder:text-mirai-text-placeholder placeholder:font-medium placeholder:leading-[1.5em] placeholder:tracking-[0.01em] placeholder:no-underline border-none focus:ring-0 bg-transparent shadow-none !py-2 !px-0`}
               />
             </PromptInputBody>
-            <button
+            <Button
               type="submit"
               disabled={!input || isResponding}
-              className="flex-shrink-0 w-10 h-10 disabled:opacity-50"
+              size="icon"
+              className="flex-shrink-0 w-10 h-10 rounded-full p-0 bg-transparent hover:bg-black/5 disabled:opacity-50"
+              aria-label="送信"
             >
-              <Image
-                src="/icons/send-button-icon.svg"
-                alt="送信"
-                width={40}
-                height={40}
-                className="w-full h-full"
-              />
-            </button>
+              {isResponding ? (
+                <Loader2 className="w-6 h-6 animate-spin text-primary" />
+              ) : (
+                <Image
+                  src="/icons/send-button-icon.svg"
+                  alt="送信"
+                  width={40}
+                  height={40}
+                  className="w-full h-full"
+                />
+              )}
+            </Button>
           </PromptInput>
           <PromptInputError status={status} error={error} />
           {messages.length > 0 && <PromptInputHint />}
