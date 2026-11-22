@@ -7,11 +7,29 @@ import { describe, expect, it } from "vitest";
 import { About } from "@/components/top/about";
 import { Hero } from "@/components/top/hero";
 import { OitaCityIntroduction } from "@/components/top/oita-city-introduction";
+import { CurrentCouncilSession } from "@/features/council-sessions/client/components/current-council-session";
 import { HomeCouncilHeading, HomeGuideBanner } from "./home-guide-banner";
 
 describe("editable homepage rendering", () => {
   it("uses every editable field on its intended public surface", () => {
     for (const key of homepageKeys) {
+      if (key === "sessionStatusStartDate" || key === "sessionStatusEndDate") {
+        const sessionContent = {
+          ...homepageDefaults,
+          sessionStatusStartDate: "2026-11-30",
+          sessionStatusEndDate: "2026-12-14",
+        };
+        const sessionHtml = renderToStaticMarkup(
+          <CurrentCouncilSession
+            currentSession={null}
+            nextSession={null}
+            content={sessionContent}
+          />
+        );
+        expect(sessionHtml).toContain("11/30〜12/14");
+        continue;
+      }
+
       const marker = `homepage-test-${key}`;
       const value =
         key.endsWith("Url") || key.endsWith("Image")
@@ -21,6 +39,11 @@ describe("editable homepage rendering", () => {
       const html = renderToStaticMarkup(
         <>
           <Hero content={content} />
+          <CurrentCouncilSession
+            currentSession={null}
+            nextSession={null}
+            content={content}
+          />
           <HomeCouncilHeading content={content} />
           {(["questions", "topics", "committees", "politicians"] as const).map(
             (kind) => (

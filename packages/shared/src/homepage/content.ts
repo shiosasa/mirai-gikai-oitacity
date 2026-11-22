@@ -1,7 +1,7 @@
 type Field = {
   section: string;
   label: string;
-  kind: "text" | "body" | "image" | "link" | "optional-link";
+  kind: "text" | "body" | "image" | "link" | "optional-link" | "optional-text" | "date";
   value: string;
 };
 
@@ -285,6 +285,30 @@ export const homepageFields = {
     value:
       "みらいぎかいっち＠大分市は、「おおいたん市議会っち何しよん？」「今、どんな議論しちょるん？」…そういう思いから作った、大分市議会を暮らしの視点でやさしく伝えるプラットフォームなんよ。市民の暮らしと政治が近づくように、わかりやすく整えて発信していくけん。",
   },
+  sessionStatusName: {
+    section: "議会の活動ステータス",
+    label: "会期名（例: 令和8年第4回定例会、令和8年第1回臨時会）",
+    kind: "text",
+    value: "令和8年第4回定例会",
+  },
+  sessionStatusStartDate: {
+    section: "議会の活動ステータス",
+    label: "会期開始日（YYYY-MM-DD）",
+    kind: "date",
+    value: "2026-11-30",
+  },
+  sessionStatusEndDate: {
+    section: "議会の活動ステータス",
+    label: "会期終了日（YYYY-MM-DD）",
+    kind: "date",
+    value: "2026-12-14",
+  },
+  sessionStatusCustomText: {
+    section: "議会の活動ステータス",
+    label: "カスタム表示文言（空欄時は自動判定：開会中／閉会中）",
+    kind: "optional-text",
+    value: "",
+  },
 } satisfies Record<string, Field>;
 
 export type HomepageField = keyof typeof homepageFields;
@@ -340,9 +364,23 @@ export function parseHomepageContent(input: unknown): HomepageContent {
       throw new Error(`${field.label}は文字列で入力してください`);
     const value = raw.trim();
     const limit =
-      field.kind === "body" ? 5000 : field.kind === "text" ? 200 : 4000;
-    if (value.length > limit || (!value && field.kind !== "optional-link")) {
+      field.kind === "body"
+        ? 5000
+        : field.kind === "text" || field.kind === "optional-text"
+          ? 200
+          : field.kind === "date"
+            ? 20
+            : 4000;
+    if (
+      value.length > limit ||
+      (!value && field.kind !== "optional-link" && field.kind !== "optional-text")
+    ) {
       throw new Error(`${field.label}は1〜${limit}文字で入力してください`);
+    }
+    if (value && field.kind === "date" && !/^\d{4}-\d{2}-\d{2}$/.test(value)) {
+      throw new Error(
+        `${field.label}はYYYY-MM-DD形式（例: 2026-11-30）で入力してください`
+      );
     }
     if (
       value &&
@@ -378,3 +416,6 @@ export function homepageGuide(
       (sessionSlug ? `/sessions/${sessionSlug}/questions` : ""),
   };
 }
+
+export * from "./session-status";
+

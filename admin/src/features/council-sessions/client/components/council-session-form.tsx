@@ -69,13 +69,13 @@ export function CouncilSessionForm() {
     <form onSubmit={handleSubmit} className="space-y-4">
       <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
         <div className="space-y-2">
-          <Label htmlFor={nameId}>定例会名</Label>
+          <Label htmlFor={nameId}>会期名（定例会・臨時会）</Label>
           <Input
             id={nameId}
             type="text"
             value={name}
             onChange={(e) => setName(e.target.value)}
-            placeholder="令和8年 第1回定例会"
+            placeholder="例: 令和8年 第4回定例会"
             disabled={isSubmitting}
           />
         </div>

@@ -4,6 +4,7 @@ import { revalidatePath } from "next/cache";
 import {
   approvePortalSubmission,
   deletePortalSite,
+  deletePortalSubmission,
   updatePortalSite,
   updatePortalSubmissionStatus,
 } from "../repositories/portal-repository";
@@ -71,13 +72,41 @@ export async function updateSiteAction(
     municipality?: string;
     governance_type?: string;
     region?: string;
+    genres?: string[];
   }
 ) {
   await updatePortalSite(siteId, updates);
   revalidatePath("/portal");
 }
 
+export async function toggleSiteFeatureTagAction(
+  siteId: string,
+  currentGenres: string[],
+  tag: string
+) {
+  const normalizedTag =
+    tag === "簡単難しい切り替え" ? "簡単・難しいの切り替え" : tag;
+  const exists = currentGenres.some(
+    (g) =>
+      g === normalizedTag ||
+      (normalizedTag === "簡単・難しいの切り替え" && g === "簡単難しい切り替え")
+  );
+  const newGenres = exists
+    ? currentGenres.filter(
+        (g) => g !== normalizedTag && g !== "簡単難しい切り替え"
+      )
+    : [...currentGenres, normalizedTag];
+
+  await updatePortalSite(siteId, { genres: newGenres });
+  revalidatePath("/portal");
+}
+
 export async function deleteSiteAction(siteId: string) {
   await deletePortalSite(siteId);
+  revalidatePath("/portal");
+}
+
+export async function deleteSubmissionAction(submissionId: string) {
+  await deletePortalSubmission(submissionId);
   revalidatePath("/portal");
 }

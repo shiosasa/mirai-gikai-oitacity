@@ -1,4 +1,6 @@
 import { unstable_noStore } from "next/cache";
+import type { HomepageContent } from "@mirai-gikai/shared/homepage/content";
+import { resolveCouncilActivityStatus } from "@mirai-gikai/shared/homepage/session-status";
 import { siteConfig } from "@/config/site.config";
 import type { CouncilSession } from "../../shared/types";
 import { getCouncilSessionStatus } from "../../shared/utils/get-council-session-status";
@@ -7,22 +9,32 @@ import { selectCouncilSchedule } from "../../shared/utils/select-council-schedul
 type CurrentCouncilSessionProps = {
   currentSession: CouncilSession | null;
   nextSession: CouncilSession | null;
+  content?: HomepageContent;
 };
 
 export function CurrentCouncilSession({
   currentSession: databaseCurrentSession,
   nextSession: databaseNextSession,
+  content,
 }: CurrentCouncilSessionProps) {
   unstable_noStore();
-  const { currentSession, nextSession } = selectCouncilSchedule(
-    [
-      ...siteConfig.councilSchedule,
-      ...(databaseCurrentSession ? [databaseCurrentSession] : []),
-      ...(databaseNextSession ? [databaseNextSession] : []),
-    ],
-    new Date()
-  );
-  const status = getCouncilSessionStatus(currentSession, nextSession);
+
+  const status =
+    content?.sessionStatusName || content?.sessionStatusCustomText
+      ? resolveCouncilActivityStatus(content, new Date())
+      : getCouncilSessionStatus(
+          ...(() => {
+            const { currentSession, nextSession } = selectCouncilSchedule(
+              [
+                ...siteConfig.councilSchedule,
+                ...(databaseCurrentSession ? [databaseCurrentSession] : []),
+                ...(databaseNextSession ? [databaseNextSession] : []),
+              ],
+              new Date()
+            );
+            return [currentSession, nextSession] as const;
+          })()
+        );
 
   return (
     <section className="w-full bg-mirai-surface-warm px-4 py-6 sm:px-6">

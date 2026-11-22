@@ -20,7 +20,8 @@ export const contentLinks = [
   {
     href: "/homepage",
     label: "トップページ",
-    description: "トップの文章・画像・リンクをプレビューして更新",
+    description:
+      "トップの文章・画像・リンク・活動ステータス（会期情報）をプレビューして更新",
     icon: LayoutTemplate,
   },
   {
@@ -110,7 +111,7 @@ export const navigationGroups = [
   {
     label: "議会の基本設定",
     links: [
-      { href: "/council-sessions", label: "定例会", icon: CalendarDays },
+      { href: "/council-sessions", label: "定例会・会期", icon: CalendarDays },
       { href: "/committees", label: "委員会", icon: Users },
       { href: "/tags", label: "タグ", icon: Tags },
       { href: "/factions", label: "会派", icon: Users },

@@ -16,6 +16,8 @@ import { Button } from "@/components/ui/button";
 import {
   approveSubmissionAction,
   deleteSiteAction,
+  deleteSubmissionAction,
+  toggleSiteFeatureTagAction,
   updateSiteAction,
   updateSubmissionStatusAction,
 } from "../../server/actions/portal-actions";
@@ -40,7 +42,16 @@ type SiteEditForm = {
   authorName: string;
   authorSocialUrl: string;
   description: string;
+  genres: string[];
 };
+
+export const EDITABLE_PORTAL_TAGS = [
+  "ルビ機能",
+  "簡単・難しいの切り替え",
+  "AIアシスタント",
+  "AIインタビュー",
+  "オープンソース",
+] as const;
 
 const GOVERNANCE_TYPES = ["本家・全国", "都道府県", "市区", "町村"];
 const REGIONS = [
@@ -64,6 +75,7 @@ function toSiteEditForm(site: PortalSite): SiteEditForm {
     authorName: site.author_name,
     authorSocialUrl: site.author_social_url ?? "",
     description: site.description,
+    genres: Array.isArray(site.genres) ? [...site.genres] : [],
   };
 }
 
@@ -77,7 +89,19 @@ export function PortalManager({ submissions, sites }: Props) {
   const [isProcessing, setIsProcessing] = useState(false);
 
   // 編集・承認用のフォームステート
-  const [approveForm, setApproveForm] = useState({
+  const [approveForm, setApproveForm] = useState<{
+    siteId: string;
+    siteName: string;
+    url: string;
+    prefecture: string;
+    municipality: string;
+    governanceType: string;
+    region: string;
+    authorName: string;
+    authorSocialUrl: string;
+    description: string;
+    genres: string[];
+  }>({
     siteId: "",
     siteName: "",
     url: "",
@@ -88,10 +112,11 @@ export function PortalManager({ submissions, sites }: Props) {
     authorName: "",
     authorSocialUrl: "",
     description: "",
-    genres: "Webアプリ",
+    genres: ["Webアプリ"],
   });
   const [editingSite, setEditingSite] = useState<PortalSite | null>(null);
   const [siteForm, setSiteForm] = useState<SiteEditForm | null>(null);
+  const [updatingTagKey, setUpdatingTagKey] = useState<string | null>(null);
 
   const pendingCount = submissions.filter((s) => s.status === "pending").length;
   const sortedSubmissions = useMemo(
@@ -101,6 +126,14 @@ export function PortalManager({ submissions, sites }: Props) {
 
   const handleOpenApproveModal = (sub: PortalSubmission) => {
     setSelectedSubmission(sub);
+    const initialGenres =
+      Array.isArray(sub.genres) && sub.genres.length > 0
+        ? [...sub.genres]
+        : ["Webアプリ"];
+    let cleanDesc = sub.description || "";
+    if (cleanDesc.includes("特徴:")) {
+      cleanDesc = cleanDesc.replace(/【(?:自薦|他薦)】特徴:.*$/, "").trim();
+    }
     setApproveForm({
       siteId: sub.site_name ? `site-${Date.now()}` : "",
       siteName: sub.site_name || "",
@@ -111,8 +144,8 @@ export function PortalManager({ submissions, sites }: Props) {
       region: sub.region || "関東",
       authorName: sub.author_name || "",
       authorSocialUrl: sub.author_social_url || "",
-      description: sub.description || "",
-      genres: sub.genres.length ? sub.genres.join(", ") : "Webアプリ",
+      description: cleanDesc,
+      genres: initialGenres,
     });
   };
 
@@ -134,7 +167,7 @@ export function PortalManager({ submissions, sites }: Props) {
       formData.set("authorName", approveForm.authorName);
       formData.set("authorSocialUrl", approveForm.authorSocialUrl);
       formData.set("description", approveForm.description);
-      formData.set("genres", approveForm.genres);
+      formData.set("genres", approveForm.genres.join(", "));
 
       await approveSubmissionAction(formData);
       setSelectedSubmission(null);
@@ -195,6 +228,7 @@ export function PortalManager({ submissions, sites }: Props) {
         author_name: siteForm.authorName.trim(),
         author_social_url: siteForm.authorSocialUrl.trim() || null,
         description: siteForm.description.trim(),
+        genres: siteForm.genres,
       });
       setEditingSite(null);
       setSiteForm(null);
@@ -212,6 +246,39 @@ export function PortalManager({ submissions, sites }: Props) {
       await deleteSiteAction(site.id);
     } catch (err) {
       alert(`エラー: ${err instanceof Error ? err.message : String(err)}`);
+    }
+  };
+
+  const handleDeleteSubmission = async (sub: PortalSubmission) => {
+    if (
+      !confirm(
+        `「${sub.site_name}」の申請・報告を削除しますか？この操作は取り消せません。`
+      )
+    ) {
+      return;
+    }
+    setIsProcessing(true);
+    try {
+      await deleteSubmissionAction(sub.id);
+      router.refresh();
+    } catch (err) {
+      alert(`エラー: ${err instanceof Error ? err.message : String(err)}`);
+    } finally {
+      setIsProcessing(false);
+    }
+  };
+
+  const handleToggleFeatureTag = async (site: PortalSite, tag: string) => {
+    const key = `${site.id}:${tag}`;
+    if (updatingTagKey) return;
+    setUpdatingTagKey(key);
+    try {
+      await toggleSiteFeatureTagAction(site.id, site.genres ?? [], tag);
+      router.refresh();
+    } catch (err) {
+      alert(`エラー: ${err instanceof Error ? err.message : String(err)}`);
+    } finally {
+      setUpdatingTagKey(null);
     }
   };
 
@@ -352,10 +419,30 @@ export function PortalManager({ submissions, sites }: Props) {
                       </div>
                     )}
 
-                    {sub.description && (
-                      <p className="text-xs text-gray-700 bg-gray-50 p-3 rounded-lg leading-relaxed">
-                        {sub.description}
-                      </p>
+                    {sub.description &&
+                      !sub.description.startsWith("【自薦】特徴:") &&
+                      !sub.description.startsWith("【他薦】特徴:") && (
+                        <p className="text-xs text-gray-700 bg-gray-50 p-3 rounded-lg leading-relaxed">
+                          {sub.description}
+                        </p>
+                      )}
+
+                    {sub.genres && sub.genres.length > 0 && (
+                      <div className="flex flex-wrap items-center gap-1.5 pt-1">
+                        <span className="text-[11px] font-bold text-gray-500">
+                          特徴タグ:
+                        </span>
+                        {sub.genres
+                          .filter((g) => g !== "Webアプリ")
+                          .map((g) => (
+                            <span
+                              key={g}
+                              className="text-[11px] font-bold bg-emerald-100 text-emerald-800 px-2 py-0.5 rounded border border-emerald-300"
+                            >
+                              ✓ {g}
+                            </span>
+                          ))}
+                      </div>
                     )}
 
                     {sub.broken_detail && (
@@ -375,40 +462,54 @@ export function PortalManager({ submissions, sites }: Props) {
                   </div>
 
                   {/* アクションボタン */}
-                  <div className="pt-2 flex flex-wrap gap-2 text-xs">
-                    {sub.report_type !== "broken" ? (
-                      <Button
-                        type="button"
-                        size="sm"
-                        onClick={() => handleOpenApproveModal(sub)}
-                        className="bg-emerald-600 hover:bg-emerald-700 text-white font-bold flex items-center gap-1.5 shadow-sm"
-                      >
-                        <CheckCircle2 className="w-4 h-4" />
-                        確認して掲載承認（サイトに追加）
-                      </Button>
-                    ) : (
-                      <Button
-                        type="button"
-                        size="sm"
-                        variant="secondary"
-                        onClick={() => handleStatusChange(sub.id, "approved")}
-                        className="font-bold"
-                      >
-                        確認済みにする
-                      </Button>
-                    )}
+                  <div className="pt-2 flex flex-wrap justify-between items-center gap-2 text-xs">
+                    <div className="flex flex-wrap items-center gap-2">
+                      {sub.report_type !== "broken" ? (
+                        <Button
+                          type="button"
+                          size="sm"
+                          onClick={() => handleOpenApproveModal(sub)}
+                          className="bg-emerald-600 hover:bg-emerald-700 text-white font-bold flex items-center gap-1.5 shadow-sm"
+                        >
+                          <CheckCircle2 className="w-4 h-4" />
+                          確認して掲載承認（サイトに追加）
+                        </Button>
+                      ) : (
+                        <Button
+                          type="button"
+                          size="sm"
+                          variant="secondary"
+                          onClick={() => handleStatusChange(sub.id, "approved")}
+                          className="font-bold"
+                        >
+                          確認済みにする
+                        </Button>
+                      )}
 
-                    {isPending && (
-                      <Button
-                        type="button"
-                        size="sm"
-                        variant="outline"
-                        onClick={() => handleStatusChange(sub.id, "rejected")}
-                        className="text-gray-600 font-medium"
-                      >
-                        対応済みにする
-                      </Button>
-                    )}
+                      {isPending && (
+                        <Button
+                          type="button"
+                          size="sm"
+                          variant="outline"
+                          onClick={() => handleStatusChange(sub.id, "rejected")}
+                          className="text-gray-600 font-medium"
+                        >
+                          対応済みにする
+                        </Button>
+                      )}
+                    </div>
+
+                    <Button
+                      type="button"
+                      size="sm"
+                      variant="ghost"
+                      onClick={() => handleDeleteSubmission(sub)}
+                      className="text-xs text-red-600 hover:bg-red-50 p-1.5 ml-auto"
+                      title="申請・報告を削除"
+                    >
+                      <Trash2 className="w-4 h-4" />
+                      <span className="sr-only">削除</span>
+                    </Button>
                   </div>
                 </div>
               );
@@ -460,6 +561,39 @@ export function PortalManager({ submissions, sites }: Props) {
                   <p className="text-xs text-gray-600 line-clamp-1">
                     {site.description}
                   </p>
+                  {/* 特徴タグ ボタン（紹介カード上で直接タグを付与・解除可能） */}
+                  <div className="flex flex-wrap items-center gap-1.5 pt-1.5">
+                    <span className="text-[11px] font-bold text-gray-500 mr-0.5">
+                      特徴タグ:
+                    </span>
+                    {EDITABLE_PORTAL_TAGS.map((tag) => {
+                      const isActive =
+                        site.genres?.includes(tag) ||
+                        (tag === "簡単・難しいの切り替え" &&
+                          site.genres?.includes("簡単難しい切り替え"));
+                      const isThisUpdating =
+                        updatingTagKey === `${site.id}:${tag}`;
+                      return (
+                        <button
+                          key={tag}
+                          type="button"
+                          disabled={Boolean(updatingTagKey)}
+                          onClick={() => handleToggleFeatureTag(site, tag)}
+                          className={`inline-flex items-center gap-1 px-2.5 py-1 rounded-md text-xs transition-all border ${
+                            isActive
+                              ? "bg-emerald-600 text-white border-emerald-600 font-bold shadow-2xs hover:bg-emerald-700 active:scale-95 cursor-pointer"
+                              : "bg-slate-50 text-slate-600 border-slate-200 hover:border-emerald-400 hover:text-emerald-700 hover:bg-emerald-50 active:scale-95 cursor-pointer"
+                          } ${isThisUpdating ? "opacity-50 animate-pulse" : ""}`}
+                          title={`クリックして${tag}を${isActive ? "外す" : "つける"}`}
+                        >
+                          <span className="text-[10px]">
+                            {isActive ? "✓" : "+"}
+                          </span>
+                          <span>{tag}</span>
+                        </button>
+                      );
+                    })}
+                  </div>
                 </div>
 
                 <div className="flex items-center gap-2 shrink-0">
@@ -703,6 +837,45 @@ export function PortalManager({ submissions, sites }: Props) {
                   className="w-full px-3 py-2 border rounded-lg leading-relaxed"
                 />
               </div>
+              <div>
+                <div className="block font-bold text-gray-700 mb-1.5">
+                  特徴タグ（選択して編集）
+                </div>
+                <div className="grid grid-cols-2 gap-2 p-3 bg-gray-50 border rounded-lg">
+                  {EDITABLE_PORTAL_TAGS.map((tag) => {
+                    const isChecked =
+                      siteForm.genres.includes(tag) ||
+                      (tag === "簡単・難しいの切り替え" &&
+                        siteForm.genres.includes("簡単難しい切り替え"));
+                    return (
+                      <label
+                        key={tag}
+                        className={`flex items-center gap-2 p-2 rounded-md text-xs font-medium cursor-pointer border transition-colors ${
+                          isChecked
+                            ? "bg-emerald-50 border-emerald-300 text-emerald-900 font-bold"
+                            : "bg-white border-gray-200 text-gray-700 hover:bg-gray-100"
+                        }`}
+                      >
+                        <input
+                          type="checkbox"
+                          checked={isChecked}
+                          onChange={(e) => {
+                            const newGenres = siteForm.genres.filter(
+                              (g) => g !== tag && g !== "簡単難しい切り替え"
+                            );
+                            if (e.target.checked) {
+                              newGenres.push(tag);
+                            }
+                            setSiteForm({ ...siteForm, genres: newGenres });
+                          }}
+                          className="rounded text-emerald-600 focus:ring-emerald-500 h-4 w-4"
+                        />
+                        <span>{tag}</span>
+                      </label>
+                    );
+                  })}
+                </div>
+              </div>
               <div className="flex justify-end gap-3 pt-3 border-t">
                 <Button
                   type="button"
@@ -886,6 +1059,49 @@ export function PortalManager({ submissions, sites }: Props) {
                   }
                   className="w-full px-3 py-2 border rounded-lg leading-relaxed"
                 />
+              </div>
+
+              <div>
+                <div className="block font-bold text-gray-700 mb-1.5">
+                  特徴タグ（選択して承認）
+                </div>
+                <div className="grid grid-cols-2 gap-2 p-3 bg-gray-50 border rounded-lg">
+                  {EDITABLE_PORTAL_TAGS.map((tag) => {
+                    const isChecked =
+                      approveForm.genres.includes(tag) ||
+                      (tag === "簡単・難しいの切り替え" &&
+                        approveForm.genres.includes("簡単難しい切り替え"));
+                    return (
+                      <label
+                        key={tag}
+                        className={`flex items-center gap-2 p-2 rounded-md text-xs font-medium cursor-pointer border transition-colors ${
+                          isChecked
+                            ? "bg-emerald-50 border-emerald-300 text-emerald-900 font-bold"
+                            : "bg-white border-gray-200 text-gray-700 hover:bg-gray-100"
+                        }`}
+                      >
+                        <input
+                          type="checkbox"
+                          checked={isChecked}
+                          onChange={(e) => {
+                            const newGenres = approveForm.genres.filter(
+                              (g) => g !== tag && g !== "簡単難しい切り替え"
+                            );
+                            if (e.target.checked) {
+                              newGenres.push(tag);
+                            }
+                            setApproveForm({
+                              ...approveForm,
+                              genres: newGenres,
+                            });
+                          }}
+                          className="rounded text-emerald-600 focus:ring-emerald-500 h-4 w-4"
+                        />
+                        <span>{tag}</span>
+                      </label>
+                    );
+                  })}
+                </div>
               </div>
 
               <div className="flex justify-end gap-3 pt-3 border-t">

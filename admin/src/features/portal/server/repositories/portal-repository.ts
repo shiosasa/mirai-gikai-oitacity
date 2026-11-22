@@ -180,3 +180,18 @@ export async function deletePortalSite(siteId: string) {
     throw new Error(`サイトの削除に失敗しました: ${error.message}`);
   }
 }
+
+/**
+ * 届いた申請・報告の削除
+ */
+export async function deletePortalSubmission(submissionId: string) {
+  const supabase = createAdminClient();
+  const { error } = await supabase
+    .from("portal_submissions")
+    .delete()
+    .eq("id", submissionId);
+
+  if (error) {
+    throw new Error(`申請・報告の削除に失敗しました: ${error.message}`);
+  }
+}
