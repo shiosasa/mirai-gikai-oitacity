@@ -8,6 +8,7 @@ import {
   homepageKeys,
   parseHomepageContent,
 } from "@mirai-gikai/shared/homepage/content";
+import { resolveCouncilActivityStatus } from "@mirai-gikai/shared/homepage/session-status";
 import Image from "next/image";
 import { useState } from "react";
 import { Button } from "@/components/ui/button";
@@ -19,6 +20,7 @@ import {
   homepageImageAccept,
   homepageImageLimit,
 } from "../../shared/utils/image-file";
+import { cn } from "@/lib/utils";
 
 const sections = [
   ...new Set(homepageKeys.map((key) => homepageFields[key].section)),
@@ -154,6 +156,29 @@ export function HomepageForm({
             <summary className="cursor-pointer text-lg font-bold">
               {section}
             </summary>
+            {section === "議会の活動ステータス" &&
+              (() => {
+                const currentStatus = resolveCouncilActivityStatus(form);
+                return (
+                  <div className="rounded-md border bg-muted/40 p-3 space-y-1">
+                    <p className="text-xs font-semibold text-muted-foreground">
+                      現在のステータス判定（本日時点）:
+                    </p>
+                    <div>
+                      <span
+                        className={cn(
+                          "inline-flex items-center rounded-full border px-3 py-1 text-xs font-semibold",
+                          currentStatus.kind === "active"
+                            ? "border-green-600 bg-green-50 text-green-700"
+                            : "border-muted-foreground/30 bg-muted text-muted-foreground"
+                        )}
+                      >
+                        {currentStatus.label}
+                      </span>
+                    </div>
+                  </div>
+                );
+              })()}
             {homepageKeys
               .filter((key) => homepageFields[key].section === section)
               .map((key) => {
@@ -165,6 +190,13 @@ export function HomepageForm({
                       <Textarea
                         id={`home-${key}`}
                         rows={3}
+                        value={form[key]}
+                        onChange={(event) => change(key, event.target.value)}
+                      />
+                    ) : field.kind === "date" ? (
+                      <Input
+                        id={`home-${key}`}
+                        type="date"
                         value={form[key]}
                         onChange={(event) => change(key, event.target.value)}
                       />
@@ -267,6 +299,29 @@ export function HomepageForm({
                 className="space-y-3 rounded-lg border p-4"
               >
                 <h3 className="font-bold">{section}</h3>
+                {section === "議会の活動ステータス" &&
+                  (() => {
+                    const status = resolveCouncilActivityStatus(preview);
+                    return (
+                      <div className="rounded-md border bg-muted/40 p-3 space-y-1">
+                        <p className="text-xs font-semibold text-muted-foreground">
+                          トップページ表示バッジ（本日時点）:
+                        </p>
+                        <div>
+                          <span
+                            className={cn(
+                              "inline-flex items-center rounded-full border px-3 py-1 text-xs font-semibold",
+                              status.kind === "active"
+                                ? "border-green-600 bg-green-50 text-green-700"
+                                : "border-muted-foreground/30 bg-muted text-muted-foreground"
+                            )}
+                          >
+                            {status.label}
+                          </span>
+                        </div>
+                      </div>
+                    );
+                  })()}
                 <dl className="space-y-3">
                   {homepageKeys
                     .filter((key) => homepageFields[key].section === section)

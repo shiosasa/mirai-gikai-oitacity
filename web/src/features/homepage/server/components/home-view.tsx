@@ -114,6 +114,7 @@ export async function HomeView() {
         <CurrentCouncilSession
           currentSession={currentSession}
           nextSession={nextSession}
+          content={content}
         />
       )}
 

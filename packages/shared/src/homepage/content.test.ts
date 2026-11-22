@@ -11,7 +11,7 @@ import {
 describe("homepage content", () => {
   it("accepts every existing field and preserves the initial content", () => {
     expect(parseHomepageContent(homepageDefaults)).toEqual(homepageDefaults);
-    expect(homepageKeys).toHaveLength(45);
+    expect(homepageKeys).toHaveLength(49);
   });
   it("trims input and preserves intentional body line breaks", () => {
     expect(
@@ -28,6 +28,8 @@ describe("homepage content", () => {
     { ...homepageDefaults, heroTitle: "" },
     { ...homepageDefaults, heroTitle: "x".repeat(201) },
     { ...homepageDefaults, cityDescription: "x".repeat(5001) },
+    { ...homepageDefaults, sessionStatusStartDate: "2026/11/30" },
+    { ...homepageDefaults, sessionStatusStartDate: "2026-1-1" },
   ])("rejects incomplete or malformed values", (input) => {
     expect(() => parseHomepageContent(input)).toThrow();
   });

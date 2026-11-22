@@ -11,6 +11,10 @@
       "types": "./src/homepage/content.ts",
       "default": "./src/homepage/content.ts"
     },
+    "./homepage/session-status": {
+      "types": "./src/homepage/session-status.ts",
+      "default": "./src/homepage/session-status.ts"
+    },
     "./bills/related-links": {
       "types": "./src/bills/related-links.ts",
       "default": "./src/bills/related-links.ts"
