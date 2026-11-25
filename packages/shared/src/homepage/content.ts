@@ -350,16 +350,15 @@ export function parseHomepageContent(input: unknown): HomepageContent {
     throw new Error("トップページの入力形式が不正です");
   }
   const entries = Object.entries(input);
-  if (
-    entries.length !== homepageKeys.length ||
-    entries.some(([key]) => !Object.hasOwn(homepageFields, key))
-  ) {
-    throw new Error("トップページの項目が一致しません。再読み込みしてください");
+  if (entries.some(([key]) => !Object.hasOwn(homepageFields, key))) {
+    throw new Error("不明なフィールドが含まれています。再読み込みしてください");
   }
   const content = { ...homepageDefaults };
   for (const key of homepageKeys) {
     const field = homepageFields[key];
     const raw: unknown = Reflect.get(input, key);
+    // 旧DBデータに新フィールドが存在しない場合はデフォルト値のまま使用
+    if (raw === undefined) continue;
     if (typeof raw !== "string")
       throw new Error(`${field.label}は文字列で入力してください`);
     const value = raw.trim();
