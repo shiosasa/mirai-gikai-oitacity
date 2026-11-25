@@ -22,7 +22,6 @@ describe("homepage content", () => {
   it.each([
     null,
     [],
-    {},
     { ...homepageDefaults, extra: "x" },
     { ...homepageDefaults, heroTitle: 1 },
     { ...homepageDefaults, heroTitle: "" },
@@ -30,8 +29,27 @@ describe("homepage content", () => {
     { ...homepageDefaults, cityDescription: "x".repeat(5001) },
     { ...homepageDefaults, sessionStatusStartDate: "2026/11/30" },
     { ...homepageDefaults, sessionStatusStartDate: "2026-1-1" },
-  ])("rejects incomplete or malformed values", (input) => {
+  ])("rejects malformed or unknown-keyed values", (input) => {
     expect(() => parseHomepageContent(input)).toThrow();
+  });
+  it("accepts empty object (old DB data) and fills defaults for missing fields", () => {
+    const result = parseHomepageContent({});
+    expect(result).toEqual(homepageDefaults);
+  });
+  it("accepts partial old DB data (45 fields) and fills new fields with defaults", () => {
+    // sessionStatus* フィールドが存在しない古いDBデータを模擬
+    const oldData = { ...homepageDefaults } as Record<string, string>;
+    delete oldData["sessionStatusName"];
+    delete oldData["sessionStatusStartDate"];
+    delete oldData["sessionStatusEndDate"];
+    delete oldData["sessionStatusCustomText"];
+    const result = parseHomepageContent(oldData);
+    expect(result.sessionStatusName).toBe(
+      homepageDefaults.sessionStatusName
+    );
+    expect(result.sessionStatusStartDate).toBe(
+      homepageDefaults.sessionStatusStartDate
+    );
   });
   it.each([
     "javascript:alert(1)",
