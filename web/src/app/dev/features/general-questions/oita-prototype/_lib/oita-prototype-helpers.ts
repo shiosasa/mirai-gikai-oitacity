@@ -435,7 +435,10 @@ export function mapSupabaseQuestionsToPrototype(
               speakerLabel: formatQuestionerHonorific(row.questioner_name),
               turnType: "質問",
               summary: topic.question_summary,
-              rawText: row.raw_text ?? topic.question_summary,
+              rawText:
+                topic.question_raw_text ??
+                row.raw_text ??
+                topic.question_summary,
               avatarUrl: questionerAvatar,
             },
             {
@@ -444,7 +447,10 @@ export function mapSupabaseQuestionsToPrototype(
               speakerLabel: answererLabel,
               turnType: "答弁",
               summary: topic.answer_summary,
-              rawText: row.answer_raw_text ?? topic.answer_summary,
+              rawText:
+                topic.answer_raw_text ??
+                row.answer_raw_text ??
+                topic.answer_summary,
               avatarUrl: isMayor ? (mayorImageUrl ?? null) : null,
             },
           ],

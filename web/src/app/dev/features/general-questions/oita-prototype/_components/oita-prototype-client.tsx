@@ -32,7 +32,9 @@ function ExchangeBubble({
             {formatQuestionerHonorific(turn.speakerLabel)}（{turn.turnType}）
           </p>
           <div className="rounded-2xl rounded-br-sm bg-primary px-4 py-3 text-primary-foreground">
-            <p className="text-sm leading-relaxed">{text}</p>
+            <p className="whitespace-pre-line text-sm leading-relaxed">
+              {text}
+            </p>
           </div>
         </div>
         <Avatar className="size-9 shrink-0">
@@ -58,7 +60,9 @@ function ExchangeBubble({
           {turn.speakerLabel}（{turn.turnType}）
         </p>
         <div className="rounded-2xl rounded-bl-sm border border-border bg-card px-4 py-3">
-          <p className="text-sm leading-relaxed text-mirai-text">{text}</p>
+          <p className="whitespace-pre-line text-sm leading-relaxed text-mirai-text">
+            {text}
+          </p>
         </div>
       </div>
     </div>
