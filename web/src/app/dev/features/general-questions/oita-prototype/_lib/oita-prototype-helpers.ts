@@ -1,4 +1,5 @@
 import { ARTICLE_CATEGORIES } from "@/features/bills/shared/utils/article-category";
+import type { GeneralQuestion } from "@/features/general-questions/shared/types";
 
 export type OitaExchangeTurn = {
   id: string;
@@ -320,4 +321,117 @@ export function attachPrototypeAvatars(
       })),
     };
   });
+}
+
+export function inferOitaQuestionCategory(text: string): string {
+  if (/子育て|保育|学校|教育|通学|子ども|児童|給食/.test(text)) {
+    return "子育て・教育";
+  }
+  if (/防災|避難|災害|消防|防犯|安全|救急|浸水/.test(text)) {
+    return "安心・安全・防災";
+  }
+  if (/選挙|投票|議会|デジタル|DX|行政|窓口|情報公開/.test(text)) {
+    return "まちの仕組み・選挙";
+  }
+  return "まちづくり・暮らし";
+}
+
+export type PrototypePoliticianRef = {
+  id?: string | null;
+  name?: string | null;
+  image_url?: string | null;
+};
+
+export function mapSupabaseQuestionsToPrototype(
+  rows: GeneralQuestion[],
+  politicians: PrototypePoliticianRef[],
+  mayorImageUrl?: string | null,
+  sessionLabel = "大分市議会 一般質問（Supabase議事録）"
+): OitaGeneralQuestion[] {
+  return rows.map((row) => {
+    const matchedPolitician = politicians.find(
+      (p) =>
+        (row.politician_id && p.id === row.politician_id) ||
+        (p.name &&
+          p.name.replace(/\s+/g, "") ===
+            row.questioner_name.replace(/\s+/g, ""))
+    );
+    const questionerAvatar = matchedPolitician?.image_url ?? null;
+
+    return {
+      id: row.id,
+      sessionLabel,
+      sessionDayLabel: `第${row.session_day}日`,
+      questionOrder: row.question_order,
+      questionerName: row.questioner_name,
+      faction: row.questioner_party ?? "会派未設定",
+      avatarUrl: questionerAvatar,
+      overview: row.summary ?? `${row.questioner_name}議員による一般質問です。`,
+      topics: row.topics.map((topic, index) => {
+        const answererLabel = [topic.answerer_role, topic.answerer_name]
+          .filter(Boolean)
+          .join(" ")
+          .trim();
+        const isMayor = topic.answerer_role.includes("市長");
+
+        return {
+          id: `${row.id}-topic-${index + 1}`,
+          title: topic.title,
+          tag: inferOitaQuestionCategory(
+            `${topic.title} ${topic.question_summary}`
+          ),
+          exchanges: [
+            {
+              id: `${row.id}-topic-${index + 1}-q`,
+              speakerRole: "questioner",
+              speakerLabel: row.questioner_name,
+              turnType: "質問",
+              summary: topic.question_summary,
+              rawText: row.raw_text ?? topic.question_summary,
+              avatarUrl: questionerAvatar,
+            },
+            {
+              id: `${row.id}-topic-${index + 1}-a`,
+              speakerRole: "executive",
+              speakerLabel: answererLabel || "市当局",
+              turnType: "答弁",
+              summary: topic.answer_summary,
+              rawText: row.answer_raw_text ?? topic.answer_summary,
+              avatarUrl: isMayor ? (mayorImageUrl ?? null) : null,
+            },
+          ],
+        };
+      }),
+    };
+  });
+}
+
+const LIFE_RELATED_CATEGORIES = new Set([
+  "子育て・教育",
+  "まちづくり・暮らし",
+  "安心・安全・防災",
+]);
+
+export function selectLifeRelatedQuestions(
+  questions: OitaGeneralQuestion[],
+  limit = 3
+): OitaGeneralQuestion[] {
+  const scored = questions.map((question, index) => {
+    const categoryScore = question.topics.filter((topic) =>
+      LIFE_RELATED_CATEGORIES.has(topic.tag)
+    ).length;
+    const text = `${question.overview} ${question.topics
+      .map((t) => t.title)
+      .join(" ")}`;
+    const keywordScore =
+      /保育|子育て|医療|交通|避難|防災|学校|福祉|公園|ごみ|暮らし|通学/.test(
+        text
+      )
+        ? 1
+        : 0;
+    return { question, index, score: categoryScore * 2 + keywordScore };
+  });
+
+  scored.sort((a, b) => b.score - a.score || a.index - b.index);
+  return scored.slice(0, limit).map((item) => item.question);
 }
