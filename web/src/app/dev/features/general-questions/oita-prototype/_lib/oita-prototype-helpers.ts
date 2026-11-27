@@ -1,3 +1,5 @@
+import { ARTICLE_CATEGORIES } from "@/features/bills/shared/utils/article-category";
+
 export type OitaExchangeTurn = {
   id: string;
   speakerRole: "questioner" | "executive";
@@ -41,7 +43,7 @@ export const OITA_PROTOTYPE_QUESTIONS: OitaGeneralQuestion[] = [
       {
         id: "topic-1-1",
         title: "福祉避難所の開設手順と要配慮者支援",
-        tag: "防災・安全",
+        tag: "安心・安全・防災",
         exchanges: [
           {
             id: "ex-1-1-1",
@@ -186,7 +188,7 @@ export const OITA_PROTOTYPE_QUESTIONS: OitaGeneralQuestion[] = [
       {
         id: "topic-3-1",
         title: "予約型乗合タクシー（デマンド交通）の運行エリア拡大",
-        tag: "交通・まちづくり",
+        tag: "まちづくり・暮らし",
         exchanges: [
           {
             id: "ex-3-1-1",
@@ -213,7 +215,7 @@ export const OITA_PROTOTYPE_QUESTIONS: OitaGeneralQuestion[] = [
       {
         id: "topic-3-2",
         title: "支所・公民館でのスマホ相談窓口",
-        tag: "デジタル・行政",
+        tag: "まちの仕組み・選挙",
         exchanges: [
           {
             id: "ex-3-2-1",
@@ -246,6 +248,10 @@ export type OitaQuestionTagCount = {
   count: number;
 };
 
+const STANDARD_QUESTION_CATEGORIES = ARTICLE_CATEGORIES.filter(
+  (category) => category !== "すべて"
+);
+
 export function collectOitaQuestionTags(
   questions: OitaGeneralQuestion[]
 ): OitaQuestionTagCount[] {
@@ -256,7 +262,19 @@ export function collectOitaQuestionTags(
       counts.set(tag, (counts.get(tag) ?? 0) + 1);
     }
   }
-  return Array.from(counts.entries()).map(([tag, count]) => ({ tag, count }));
+  const ordered = STANDARD_QUESTION_CATEGORIES.map((tag) => ({
+    tag,
+    count: counts.get(tag) ?? 0,
+  }));
+  const extra = Array.from(counts.entries())
+    .filter(
+      ([tag]) =>
+        !STANDARD_QUESTION_CATEGORIES.includes(
+          tag as (typeof STANDARD_QUESTION_CATEGORIES)[number]
+        )
+    )
+    .map(([tag, count]) => ({ tag, count }));
+  return [...ordered, ...extra];
 }
 
 export function filterOitaQuestionsByTag(

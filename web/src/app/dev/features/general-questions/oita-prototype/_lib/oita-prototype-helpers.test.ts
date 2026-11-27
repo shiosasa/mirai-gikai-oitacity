@@ -7,13 +7,13 @@ import {
 } from "./oita-prototype-helpers";
 
 describe("oita-prototype-helpers", () => {
-  it("collects unique tags with question counts", () => {
+  it("collects unique tags in standard category order with question counts", () => {
     const tags = collectOitaQuestionTags(OITA_PROTOTYPE_QUESTIONS);
     expect(tags).toEqual([
-      { tag: "防災・安全", count: 1 },
       { tag: "子育て・教育", count: 2 },
-      { tag: "交通・まちづくり", count: 1 },
-      { tag: "デジタル・行政", count: 1 },
+      { tag: "安心・安全・防災", count: 1 },
+      { tag: "まちづくり・暮らし", count: 1 },
+      { tag: "まちの仕組み・選挙", count: 1 },
     ]);
   });
 
