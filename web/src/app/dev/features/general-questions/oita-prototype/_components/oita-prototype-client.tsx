@@ -1,6 +1,6 @@
 "use client";
 
-import { MessageCircle, User } from "lucide-react";
+import { ArrowLeft, ArrowRight, MessageCircle, User } from "lucide-react";
 import { useState } from "react";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Badge } from "@/components/ui/badge";
@@ -69,15 +69,94 @@ export function OitaPrototypeClient({
   questions: OitaGeneralQuestion[];
 }) {
   const [selectedTag, setSelectedTag] = useState<string | null>(null);
-  const [selectedId, setSelectedId] = useState<string>(questions[0]?.id ?? "");
+  const [selectedId, setSelectedId] = useState<string | null>(null);
   const [viewMode, setViewMode] = useState<"summary" | "raw">("summary");
 
   const tags = collectOitaQuestionTags(questions);
   const filteredQuestions = filterOitaQuestionsByTag(questions, selectedTag);
-  const activeQuestion =
-    filteredQuestions.find((q) => q.id === selectedId) ??
-    filteredQuestions[0] ??
-    null;
+  const activeQuestion = selectedId
+    ? (questions.find((q) => q.id === selectedId) ?? null)
+    : null;
+
+  if (activeQuestion) {
+    return (
+      <section aria-label="一問一答詳細" className="space-y-6">
+        <div>
+          <Button
+            type="button"
+            variant="outline"
+            size="sm"
+            onClick={() => setSelectedId(null)}
+          >
+            <ArrowLeft aria-hidden="true" className="size-4" />
+            質問者一覧に戻る
+          </Button>
+        </div>
+
+        <div className="rounded-xl border border-border bg-card p-5 sm:p-6">
+          <div className="flex flex-wrap items-start justify-between gap-4 border-b border-border pb-5">
+            <div className="flex items-center gap-3">
+              <Avatar className="size-12 shrink-0">
+                <AvatarImage
+                  src={activeQuestion.avatarUrl ?? undefined}
+                  alt=""
+                />
+                <AvatarFallback className="bg-oita-pink-light text-base text-oita-pink">
+                  {activeQuestion.questionerName.slice(0, 1)}
+                </AvatarFallback>
+              </Avatar>
+              <div>
+                <p className="text-xs font-medium text-oita-pink">
+                  {activeQuestion.sessionLabel}・
+                  {activeQuestion.sessionDayLabel}（
+                  {activeQuestion.questionOrder}番目）
+                </p>
+                <h2 className="mt-1 text-xl font-bold text-mirai-text">
+                  {activeQuestion.questionerName}（{activeQuestion.faction}）
+                </h2>
+              </div>
+            </div>
+            <div className="flex items-center gap-2">
+              <Button
+                type="button"
+                size="sm"
+                variant={viewMode === "summary" ? "default" : "outline"}
+                onClick={() => setViewMode("summary")}
+              >
+                AI要約
+              </Button>
+              <Button
+                type="button"
+                size="sm"
+                variant={viewMode === "raw" ? "default" : "outline"}
+                onClick={() => setViewMode("raw")}
+              >
+                会議録イメージ
+              </Button>
+            </div>
+          </div>
+
+          <div className="mt-6 space-y-8">
+            {activeQuestion.topics.map((topic) => (
+              <div key={topic.id} className="space-y-4">
+                <div className="flex flex-wrap items-center gap-2">
+                  <Badge variant="outline">{topic.tag}</Badge>
+                  <h3 className="text-base font-bold text-mirai-text">
+                    {topic.title}
+                  </h3>
+                </div>
+                <div className="space-y-4 rounded-lg bg-mirai-surface p-4 sm:p-5">
+                  {topic.exchanges.map((turn) => (
+                    <ExchangeBubble key={turn.id} turn={turn} mode={viewMode} />
+                  ))}
+                </div>
+              </div>
+            ))}
+          </div>
+        </div>
+      </section>
+    );
+  }
 
   return (
     <div className="space-y-6">
@@ -105,144 +184,54 @@ export function OitaPrototypeClient({
         ))}
       </div>
 
-      <div className="grid gap-6 lg:grid-cols-12">
-        <section aria-label="質問者一覧" className="space-y-3 lg:col-span-5">
-          {filteredQuestions.map((question) => {
-            const isSelected = activeQuestion?.id === question.id;
-            return (
-              <div
-                key={question.id}
-                className={`rounded-lg border p-4 transition-colors ${
-                  isSelected
-                    ? "border-primary bg-oita-pink-light"
-                    : "border-border bg-card"
-                }`}
-              >
-                <div className="flex items-center justify-between gap-2">
-                  <div className="flex items-center gap-3 min-w-0">
-                    <Avatar className="size-10 shrink-0">
-                      <AvatarImage
-                        src={question.avatarUrl ?? undefined}
-                        alt=""
-                      />
-                      <AvatarFallback className="bg-oita-pink-light text-sm text-oita-pink">
-                        {question.questionerName.slice(0, 1)}
-                      </AvatarFallback>
-                    </Avatar>
-                    <div className="min-w-0">
-                      <p className="font-bold text-mirai-text">
-                        {question.questionerName}
-                      </p>
-                      <p className="text-xs text-mirai-text-secondary">
-                        {question.faction}・{question.sessionDayLabel}（
-                        {question.questionOrder}番目）
-                      </p>
-                    </div>
-                  </div>
-                  <Button
-                    type="button"
-                    size="sm"
-                    variant={isSelected ? "default" : "outline"}
-                    onClick={() => setSelectedId(question.id)}
-                  >
-                    {isSelected ? "表示中" : "やりとりを見る"}
-                  </Button>
-                </div>
-                <p className="mt-2 text-xs leading-relaxed text-mirai-text-secondary">
-                  {question.overview}
-                </p>
-                <div className="mt-3 flex flex-wrap gap-1.5">
-                  {question.topics.map((topic) => (
-                    <Badge
-                      key={topic.id}
-                      variant="secondary"
-                      className="text-xs"
-                    >
-                      {topic.tag}：{topic.title}
-                    </Badge>
-                  ))}
+      <section
+        aria-label="質問者一覧"
+        className="grid gap-4 md:grid-cols-2 lg:grid-cols-3"
+      >
+        {filteredQuestions.map((question) => (
+          <Button
+            key={question.id}
+            type="button"
+            variant="outline"
+            onClick={() => setSelectedId(question.id)}
+            className="h-auto w-full flex-col items-stretch justify-between gap-4 rounded-xl border-border bg-card p-5 text-left whitespace-normal shadow-none transition-colors hover:border-primary hover:bg-oita-pink-light/30"
+          >
+            <div className="space-y-3">
+              <div className="flex items-center gap-3">
+                <Avatar className="size-12 shrink-0">
+                  <AvatarImage src={question.avatarUrl ?? undefined} alt="" />
+                  <AvatarFallback className="bg-oita-pink-light text-sm text-oita-pink">
+                    {question.questionerName.slice(0, 1)}
+                  </AvatarFallback>
+                </Avatar>
+                <div className="min-w-0">
+                  <p className="font-bold text-mirai-text">
+                    {question.questionerName}
+                  </p>
+                  <p className="text-xs text-mirai-text-secondary">
+                    {question.faction}・{question.sessionDayLabel}（
+                    {question.questionOrder}番目）
+                  </p>
                 </div>
               </div>
-            );
-          })}
-        </section>
-
-        <section
-          aria-label="一問一答詳細"
-          className="rounded-xl border border-border bg-card p-5 lg:col-span-7"
-        >
-          {activeQuestion ? (
-            <div className="space-y-6">
-              <div className="flex flex-wrap items-start justify-between gap-3 border-b border-border pb-4">
-                <div className="flex items-center gap-3">
-                  <Avatar className="size-12 shrink-0">
-                    <AvatarImage
-                      src={activeQuestion.avatarUrl ?? undefined}
-                      alt=""
-                    />
-                    <AvatarFallback className="bg-oita-pink-light text-base text-oita-pink">
-                      {activeQuestion.questionerName.slice(0, 1)}
-                    </AvatarFallback>
-                  </Avatar>
-                  <div>
-                    <p className="text-xs font-medium text-oita-pink">
-                      {activeQuestion.sessionLabel}
-                    </p>
-                    <h2 className="mt-1 text-xl font-bold text-mirai-text">
-                      {activeQuestion.questionerName}（{activeQuestion.faction}
-                      ）
-                    </h2>
-                  </div>
-                </div>
-                <div className="flex items-center gap-2">
-                  <Button
-                    type="button"
-                    size="sm"
-                    variant={viewMode === "summary" ? "default" : "outline"}
-                    onClick={() => setViewMode("summary")}
-                  >
-                    AI要約
-                  </Button>
-                  <Button
-                    type="button"
-                    size="sm"
-                    variant={viewMode === "raw" ? "default" : "outline"}
-                    onClick={() => setViewMode("raw")}
-                  >
-                    会議録イメージ
-                  </Button>
-                </div>
-              </div>
-
-              <div className="space-y-8">
-                {activeQuestion.topics.map((topic) => (
-                  <div key={topic.id} className="space-y-4">
-                    <div className="flex flex-wrap items-center gap-2">
-                      <Badge variant="outline">{topic.tag}</Badge>
-                      <h3 className="font-bold text-mirai-text">
-                        {topic.title}
-                      </h3>
-                    </div>
-                    <div className="space-y-4 rounded-lg bg-mirai-surface p-4">
-                      {topic.exchanges.map((turn) => (
-                        <ExchangeBubble
-                          key={turn.id}
-                          turn={turn}
-                          mode={viewMode}
-                        />
-                      ))}
-                    </div>
-                  </div>
+              <p className="text-sm leading-relaxed text-mirai-text-secondary">
+                {question.overview}
+              </p>
+              <div className="flex flex-wrap gap-1.5">
+                {question.topics.map((topic) => (
+                  <Badge key={topic.id} variant="secondary" className="text-xs">
+                    {topic.tag}：{topic.title}
+                  </Badge>
                 ))}
               </div>
             </div>
-          ) : (
-            <p className="text-sm text-mirai-text-secondary">
-              該当する一般質問がありません。
-            </p>
-          )}
-        </section>
-      </div>
+            <span className="inline-flex items-center gap-1 text-sm font-semibold text-primary">
+              一問一答を見る
+              <ArrowRight aria-hidden="true" className="size-4" />
+            </span>
+          </Button>
+        ))}
+      </section>
     </div>
   );
 }
