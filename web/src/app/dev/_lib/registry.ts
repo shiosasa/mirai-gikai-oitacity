@@ -39,6 +39,11 @@ export const previewRegistry: PreviewGroup[] = [
     name: "General Questions",
     items: [
       {
+        path: "/dev/features/general-questions/oita-prototype",
+        label: "大分市議会版（一問一答×一覧）",
+        description: "一問一答の往復チャットとテーマ別一覧を統合した試作案",
+      },
+      {
         path: "/dev/features/general-questions/chat-style",
         label: "チャット形式（案）",
         description: "質問・答弁をLINE風バブルで表示",
