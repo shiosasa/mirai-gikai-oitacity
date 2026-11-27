@@ -9,6 +9,7 @@ import { Button } from "@/components/ui/button";
 import {
   collectOitaQuestionTags,
   filterOitaQuestionsByTag,
+  formatQuestionerHonorific,
   type OitaExchangeTurn,
   type OitaGeneralQuestion,
 } from "../_lib/oita-prototype-helpers";
@@ -28,7 +29,7 @@ function ExchangeBubble({
       <div className="flex items-end justify-end gap-2">
         <div className="max-w-[82%]">
           <p className="mb-1 text-right text-xs text-mirai-text-secondary">
-            {turn.speakerLabel}（{turn.turnType}）
+            {formatQuestionerHonorific(turn.speakerLabel)}（{turn.turnType}）
           </p>
           <div className="rounded-2xl rounded-br-sm bg-primary px-4 py-3 text-primary-foreground">
             <p className="text-sm leading-relaxed">{text}</p>
@@ -108,12 +109,13 @@ export function OitaPrototypeClient({
               </Avatar>
               <div>
                 <p className="text-xs font-medium text-oita-pink">
-                  {activeQuestion.sessionLabel}・
-                  {activeQuestion.sessionDayLabel}（
-                  {activeQuestion.questionOrder}番目）
+                  {activeQuestion.sessionDayLabel.includes("「")
+                    ? `${activeQuestion.sessionDayLabel}（${activeQuestion.questionOrder}番目）`
+                    : `${activeQuestion.sessionLabel}・${activeQuestion.sessionDayLabel}（${activeQuestion.questionOrder}番目）`}
                 </p>
                 <h2 className="mt-1 text-xl font-bold text-mirai-text">
-                  {activeQuestion.questionerName}（{activeQuestion.faction}）
+                  {formatQuestionerHonorific(activeQuestion.questionerName)}（
+                  {activeQuestion.faction}）
                 </h2>
               </div>
             </div>
@@ -218,7 +220,7 @@ export function OitaPrototypeClient({
                 </Avatar>
                 <div className="min-w-0">
                   <p className="font-bold text-mirai-text">
-                    {question.questionerName}
+                    {formatQuestionerHonorific(question.questionerName)}
                   </p>
                   <p className="text-xs text-mirai-text-secondary">
                     {question.faction}・{question.sessionDayLabel}（

@@ -3,6 +3,7 @@ import type { Metadata } from "next";
 import { OitaPrototypeClient } from "@/app/dev/features/general-questions/oita-prototype/_components/oita-prototype-client";
 import {
   mapSupabaseQuestionsToPrototype,
+  type PrototypeMeetingMeta,
   selectLifeRelatedQuestions,
 } from "@/app/dev/features/general-questions/oita-prototype/_lib/oita-prototype-helpers";
 import { Container } from "@/components/layouts/container";
@@ -50,6 +51,64 @@ async function loadPreviewGeneralQuestions(): Promise<GeneralQuestion[]> {
   }
 }
 
+async function loadSessionMetaBySourceUrl(
+  questions: GeneralQuestion[]
+): Promise<Record<string, PrototypeMeetingMeta>> {
+  const urls = questions
+    .map((q) => q.source_url)
+    .filter((u): u is string => Boolean(u));
+  if (urls.length === 0) return {};
+
+  const sessionIds = urls
+    .map((u) => {
+      const m = u.match(/\/committees\/committee\/(\d+)\/(\d+)/);
+      return m
+        ? { url: u, meetingId: Number(m[1]), sessionId: Number(m[2]) }
+        : null;
+    })
+    .filter((v): v is { url: string; meetingId: number; sessionId: number } =>
+      Boolean(v)
+    );
+  if (sessionIds.length === 0) return {};
+
+  try {
+    const supabase = createAdminClient();
+    const [{ data: sessions }, { data: meetings }] = await Promise.all([
+      supabase
+        .from("meeting_sessions")
+        .select("id, meeting_id, date")
+        .in(
+          "id",
+          sessionIds.map((s) => s.sessionId)
+        ),
+      supabase
+        .from("meetings")
+        .select("id, title")
+        .in(
+          "id",
+          sessionIds.map((s) => s.meetingId)
+        ),
+    ]);
+
+    const meetingTitleById = new Map(
+      (meetings ?? []).map((m) => [m.id, m.title])
+    );
+    const sessionById = new Map((sessions ?? []).map((s) => [s.id, s]));
+
+    const result: Record<string, PrototypeMeetingMeta> = {};
+    for (const item of sessionIds) {
+      const s = sessionById.get(item.sessionId);
+      result[item.url] = {
+        date: s?.date ?? null,
+        meetingName: meetingTitleById.get(item.meetingId) ?? null,
+      };
+    }
+    return result;
+  } catch {
+    return {};
+  }
+}
+
 export default async function OitaGeneralQuestionsPreviewPage() {
   const [politicians, mayor, dbQuestions] = await Promise.all([
     getPublishedPoliticians().catch(() => []),
@@ -57,10 +116,14 @@ export default async function OitaGeneralQuestionsPreviewPage() {
     loadPreviewGeneralQuestions(),
   ]);
 
+  const sessionMetaBySourceUrl = await loadSessionMetaBySourceUrl(dbQuestions);
+
   const mappedQuestions = mapSupabaseQuestionsToPrototype(
     dbQuestions,
     politicians,
-    mayor?.image_url
+    mayor?.image_url,
+    undefined,
+    sessionMetaBySourceUrl
   );
   const questions = selectLifeRelatedQuestions(mappedQuestions, 3);
 
