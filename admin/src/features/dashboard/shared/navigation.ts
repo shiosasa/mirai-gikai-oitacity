@@ -43,6 +43,12 @@ export const contentLinks = [
     icon: Newspaper,
   },
   {
+    href: "/general-questions",
+    label: "一般質問",
+    description: "一般質問の要約・一問一答・議事録リンク・公開状態を更新",
+    icon: MessagesSquare,
+  },
+  {
     href: "/press-conferences",
     label: "記者会見",
     description: "市長会見の発表・質疑・配付資料を編集",
