@@ -108,8 +108,20 @@ describe("oita-prototype-helpers", () => {
           date: "2026-06-18",
           meetingName: "令和8年 第2回定例会",
         },
-      }
+      },
+      Date.parse("2026-01-10T00:00:00Z")
     );
+
+    expect(mapped[0]?.isNew).toBe(true);
+    const expiredMapped = mapSupabaseQuestionsToPrototype(
+      rows,
+      [],
+      null,
+      undefined,
+      undefined,
+      Date.parse("2026-01-20T00:00:00Z")
+    );
+    expect(expiredMapped[0]?.isNew).toBe(false);
 
     expect(mapped[0]?.sessionDayLabel).toBe(
       "2026年6月18日「令和8年 第2回定例会」"

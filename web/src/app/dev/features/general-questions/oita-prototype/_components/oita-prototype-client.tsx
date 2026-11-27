@@ -232,10 +232,17 @@ export function OitaPrototypeClient({
                     {question.questionerName.slice(0, 1)}
                   </AvatarFallback>
                 </Avatar>
-                <div className="min-w-0">
-                  <p className="font-bold text-mirai-text">
-                    {formatQuestionerHonorific(question.questionerName)}
-                  </p>
+                <div className="min-w-0 flex-1">
+                  <div className="flex items-center justify-between gap-2">
+                    <p className="font-bold text-mirai-text">
+                      {formatQuestionerHonorific(question.questionerName)}
+                    </p>
+                    {question.isNew ? (
+                      <Badge className="shrink-0 bg-oita-pink text-xs text-white">
+                        NEW
+                      </Badge>
+                    ) : null}
+                  </div>
                   <p className="text-xs text-mirai-text-secondary">
                     {question.faction}・{question.sessionDayLabel}（
                     {question.questionOrder}番目）
