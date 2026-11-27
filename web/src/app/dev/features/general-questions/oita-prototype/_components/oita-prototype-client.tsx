@@ -196,7 +196,7 @@ export function OitaPrototypeClient({
             onClick={() => setSelectedId(question.id)}
             className="h-auto w-full flex-col items-stretch justify-between gap-4 rounded-xl border-border bg-card p-5 text-left whitespace-normal shadow-none transition-colors hover:border-primary hover:bg-oita-pink-light/30"
           >
-            <div className="space-y-3">
+            <div className="min-w-0 w-full space-y-3">
               <div className="flex items-center gap-3">
                 <Avatar className="size-12 shrink-0">
                   <AvatarImage src={question.avatarUrl ?? undefined} alt="" />
@@ -219,7 +219,11 @@ export function OitaPrototypeClient({
               </p>
               <div className="flex flex-wrap gap-1.5">
                 {question.topics.map((topic) => (
-                  <Badge key={topic.id} variant="secondary" className="text-xs">
+                  <Badge
+                    key={topic.id}
+                    variant="secondary"
+                    className="h-auto max-w-full whitespace-normal py-1 text-left text-xs leading-snug"
+                  >
                     {topic.tag}：{topic.title}
                   </Badge>
                 ))}
