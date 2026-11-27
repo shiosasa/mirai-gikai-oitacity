@@ -4,6 +4,16 @@ import type { MayorProfileInput } from "../../shared/utils/mayor-profile";
 
 const profileColumns =
   "id,name,name_kana,birth_date,image_url,official_url,homepage,blog_url,sns_links,start_date,term_number,bio";
+const legacyProfileColumns =
+  "id,name,name_kana,birth_date,image_url,official_url,start_date,term_number,bio";
+
+function isMissingColumnError(error: { code?: string; message?: string }) {
+  return (
+    error.code === "42703" ||
+    error.code === "PGRST204" ||
+    /does not exist|schema cache/i.test(error.message ?? "")
+  );
+}
 
 export async function listMayorsForAdmin() {
   const { data, error } = await createAdminClient()
@@ -15,11 +25,29 @@ export async function listMayorsForAdmin() {
 }
 
 export async function findMayorForAdmin(id: number) {
-  const { data, error } = await createAdminClient()
+  const supabase = createAdminClient();
+  const { data, error } = await supabase
     .from("mayor_profile")
     .select(profileColumns)
     .eq("id", id)
     .single();
+  if (error && isMissingColumnError(error)) {
+    const fallback = await supabase
+      .from("mayor_profile")
+      .select(legacyProfileColumns)
+      .eq("id", id)
+      .single();
+    if (fallback.error)
+      throw new Error(
+        `市長プロフィールを取得できません: ${fallback.error.message}`
+      );
+    return {
+      ...fallback.data,
+      homepage: null,
+      blog_url: null,
+      sns_links: null,
+    };
+  }
   if (error)
     throw new Error(`市長プロフィールを取得できません: ${error.message}`);
   return data;
