@@ -1,4 +1,9 @@
-export type SearchTab = "all" | "bills" | "topics" | "committees";
+export type SearchTab =
+  | "all"
+  | "bills"
+  | "topics"
+  | "committees"
+  | "generalQuestions";
 
 export type BillSearchResult = {
   id: string;
@@ -26,8 +31,18 @@ export type CommitteeSearchResult = {
   matchedTopics: string[];
 };
 
+export type GeneralQuestionSearchResult = {
+  id: string;
+  questionerName: string;
+  faction: string;
+  sessionDayLabel: string;
+  summary: string;
+  matchedTopics: string[];
+};
+
 export type SearchResults = {
   bills: BillSearchResult[];
   topics: TopicSearchResult[];
   committees: CommitteeSearchResult[];
+  generalQuestions?: GeneralQuestionSearchResult[];
 };

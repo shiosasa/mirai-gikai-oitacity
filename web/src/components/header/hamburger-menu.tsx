@@ -13,6 +13,7 @@ import { TextSizeToggle } from "@/lib/text-size";
 
 const NAV_LINKS = [
   { href: "/", label: "トップページ" },
+  { href: "/general-questions", label: "一般質問" },
   { href: "/topics", label: "トピックス" },
   { href: "/committees", label: "本会議・委員会" },
   { href: "/politicians", label: "市長・議員紹介" },

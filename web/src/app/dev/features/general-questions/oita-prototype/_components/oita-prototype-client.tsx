@@ -67,11 +67,15 @@ function ExchangeBubble({
 
 export function OitaPrototypeClient({
   questions,
+  initialSelectedId = null,
 }: {
   questions: OitaGeneralQuestion[];
+  initialSelectedId?: string | null;
 }) {
   const [selectedTag, setSelectedTag] = useState<string | null>(null);
-  const [selectedId, setSelectedId] = useState<string | null>(null);
+  const [selectedId, setSelectedId] = useState<string | null>(
+    initialSelectedId
+  );
   const [viewMode, setViewMode] = useState<"summary" | "raw">("summary");
 
   const tags = collectOitaQuestionTags(questions);
