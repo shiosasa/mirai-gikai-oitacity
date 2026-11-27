@@ -23,7 +23,7 @@ export function MayorConferenceArchive({ conferences }: Props) {
           記者会見アーカイブ
         </h2>
         <p className="mt-2 text-sm leading-6 text-mirai-text-secondary">
-          市長の記者会見を、開催日の新しい順に紹介します。
+          市長の記者会見を、開催日の新しい順に紹介します（令和8年からの記録のみ掲載しており、令和7年以前の記録は掲載していません）。
         </p>
       </div>
       {conferences.length === 0 ? (

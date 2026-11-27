@@ -34,7 +34,7 @@ export async function PoliticiansDirectory() {
           市長・議員紹介
         </h1>
         <p className="mt-2 text-sm text-mirai-text-secondary">
-          市長と市議会議員を紹介します。議員は会派別、会派内は議席番号順です。
+          市長と市議会議員を紹介します。議員は会派別、会派内は議席番号順です。掲載している発言・在任履歴・提案理由・記者会見などの記録は令和8年以降のものです（令和7年以前の記録は掲載していません）。
         </p>
       </header>
 

@@ -24,6 +24,9 @@ export function PoliticianSpeechSection({
   return (
     <section className="pt-7">
       <h2 className="text-lg font-bold text-mirai-text">議会での発言</h2>
+      <p className="mt-2 text-sm text-mirai-text-secondary">
+        令和8年からの記録をもとに掲載しています（令和7年以前の記録は掲載していません）。
+      </p>
       {isPreview && highlights.length > 0 && (
         <p className="mt-2 text-sm text-mirai-text-secondary">
           以下は掲載前の見本です。

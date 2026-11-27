@@ -158,7 +158,6 @@ export async function PoliticianProfile({ id }: PoliticianProfileProps) {
           )}
         </ul>
       </section>
-      <OfficeTermList terms={terms} />
 
       <PoliticianSpeechSection
         highlights={speechData.highlights}
@@ -166,6 +165,8 @@ export async function PoliticianProfile({ id }: PoliticianProfileProps) {
         invalidCount={speechData.invalidCount}
         isPreview={speechData.isPreview}
       />
+
+      <OfficeTermList terms={terms} />
     </main>
   );
 }

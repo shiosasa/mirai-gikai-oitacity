@@ -12,7 +12,7 @@ export async function FormerOfficeHolders() {
       </Link>
       <h1 className="text-2xl font-bold text-mirai-text">歴代市長・元議員</h1>
       <p className="text-sm text-mirai-text-secondary">
-        当サイトで記録した退任者を掲載します。歴代全員の名簿ではありません。以前の発言・資料はそれぞれの人物のページで確認できます。
+        令和8年以降に当サイトで記録した退任者を掲載します（令和7年以前の記録は掲載していません）。歴代全員の名簿ではありません。以前の発言・資料はそれぞれの人物のページで確認できます。
       </p>
       <section>
         <h2 className="text-xl font-bold text-mirai-text">歴代市長</h2>

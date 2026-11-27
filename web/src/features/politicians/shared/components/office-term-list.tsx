@@ -12,7 +12,7 @@ export function OfficeTermList({ terms }: { terms: OfficeTerm[] }) {
     >
       <h2 className="text-lg font-bold text-mirai-text">在任履歴</h2>
       <p className="mt-2 text-sm text-mirai-text-secondary">
-        確認できた任期のみ掲載しています。未確認の日付や、過去の全任期を推測して補ってはいません。会派・委員会は記録時点の情報です。
+        令和8年からの記録をもとに掲載しています（令和7年以前の記録は掲載していません）。確認できた任期のみ掲載しており、未確認の日付や、過去の全任期を推測して補ってはいません。会派・委員会は記録時点の情報です。
       </p>
       <ul className="mt-3 space-y-3">
         {terms.map((term) => {

@@ -37,7 +37,7 @@ export function PressConferenceDetail({ pressConference }: Props) {
           {pressConference.title}
         </h1>
         <p className="text-sm text-mirai-text-secondary leading-relaxed">
-          大分市長と記者のやりとりを紹介します。
+          大分市長と記者のやりとりを紹介します（令和8年からの記録のみ掲載しており、令和7年以前の記録は掲載していません）。
         </p>
         {pressConference.youtubeUrl && (
           <a

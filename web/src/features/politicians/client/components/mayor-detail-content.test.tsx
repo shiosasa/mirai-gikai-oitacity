@@ -96,6 +96,7 @@ describe("MayorDetailContent", () => {
     expect(html.indexOf("市議会への提案理由")).toBeLessThan(
       html.indexOf("記者会見アーカイブ")
     );
+    expect(html).toContain("令和8年からの記録のみ掲載");
     expect(html).toContain("ひとが真ん中。");
     expect(html).toContain("ひとを元気に");
     expect(html).toContain("提案理由の要約\n二行目");
@@ -108,6 +109,38 @@ describe("MayorDetailContent", () => {
     expect(html).toContain('href="https://example.com/material.pdf"');
     expect(html).toContain('href="/press-conferences/2026-09-press"');
     expect(html).not.toContain("ローカル確認用");
+  });
+
+  it("renders office history at the very bottom after press conferences", () => {
+    const html = renderToStaticMarkup(
+      <MayorDetailContent
+        mayor={mayor}
+        proposals={proposals}
+        conferences={conferences}
+        localPreview={false}
+        terms={[
+          {
+            id: 1,
+            role: "mayor",
+            politician_id: null,
+            mayor_id: 1,
+            started_on: "2023-04-23",
+            ended_on: null,
+            term_number: 1,
+            seat_number: null,
+            faction: null,
+            standing_committee: null,
+            special_committee: null,
+            source_url: "https://example.com/start",
+            ended_source_url: null,
+          },
+        ]}
+      />
+    );
+
+    expect(html.indexOf("記者会見アーカイブ")).toBeLessThan(
+      html.indexOf("在任履歴")
+    );
   });
 
   it("keeps the biography without repeating the policy pillars", () => {
