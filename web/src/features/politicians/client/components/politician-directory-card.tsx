@@ -1,8 +1,10 @@
+import { BookOpen, Globe, Share2 } from "lucide-react";
 import Link from "next/link";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Card } from "@/components/ui/card";
 import type { Politician } from "../../shared/types/politician";
 import { calculateAge } from "../../shared/utils/calculate-age";
+import { collectPoliticianLinks } from "../../shared/utils/politician-links";
 
 type Props = {
   politician: Politician;
@@ -10,6 +12,21 @@ type Props = {
 
 export function PoliticianDirectoryCard({ politician }: Props) {
   const age = calculateAge(politician.birth_date, new Date());
+  const links = collectPoliticianLinks({
+    homepage: politician.homepage,
+    blog_url: politician.blog_url,
+    sns_links: politician.sns_links,
+  });
+  const hasHomepage = links.some((link) => link.platform === "homepage");
+  const hasBlog = links.some(
+    (link) => link.platform === "blog" || link.platform === "note"
+  );
+  const hasSns = links.some(
+    (link) =>
+      link.platform !== "homepage" &&
+      link.platform !== "blog" &&
+      link.platform !== "note"
+  );
 
   return (
     <Card className="h-full rounded-md border-mirai-border bg-card shadow-none">
@@ -38,6 +55,37 @@ export function PoliticianDirectoryCard({ politician }: Props) {
             <p className="mt-1 text-sm text-mirai-text-secondary">
               年齢：{age}歳
             </p>
+          )}
+          {links.length > 0 && (
+            <div className="mt-2 flex flex-wrap items-center gap-1.5">
+              {hasHomepage && (
+                <span
+                  title="公式HP"
+                  className="inline-flex items-center gap-1 rounded-full bg-oita-pink-light px-2 py-0.5 text-xs font-medium text-oita-pink"
+                >
+                  <Globe aria-hidden="true" className="size-3" />
+                  HP
+                </span>
+              )}
+              {hasBlog && (
+                <span
+                  title="ブログ・note"
+                  className="inline-flex items-center gap-1 rounded-full bg-oita-pink-light px-2 py-0.5 text-xs font-medium text-oita-pink"
+                >
+                  <BookOpen aria-hidden="true" className="size-3" />
+                  ブログ
+                </span>
+              )}
+              {hasSns && (
+                <span
+                  title="SNS"
+                  className="inline-flex items-center gap-1 rounded-full bg-oita-pink-light px-2 py-0.5 text-xs font-medium text-oita-pink"
+                >
+                  <Share2 aria-hidden="true" className="size-3" />
+                  SNS
+                </span>
+              )}
+            </div>
           )}
         </div>
       </Link>

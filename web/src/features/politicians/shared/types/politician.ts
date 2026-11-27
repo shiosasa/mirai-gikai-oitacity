@@ -1,3 +1,5 @@
+import type { Json } from "@mirai-gikai/supabase";
+
 export type Politician = {
   id: string;
   name: string;
@@ -10,6 +12,8 @@ export type Politician = {
   address: string | null;
   contact: string | null;
   homepage: string | null;
+  blog_url: string | null;
+  sns_links: Json | null;
   image_url: string | null;
   slug: string | null;
   created_at: string;

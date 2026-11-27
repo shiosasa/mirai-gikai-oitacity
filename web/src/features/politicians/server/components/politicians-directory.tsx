@@ -5,6 +5,7 @@ import { MayorDirectoryCard } from "../../client/components/mayor-directory-card
 import { PoliticiansFactionSection } from "../../shared/components/politicians-faction-section";
 import { COUNCILLORS_DIRECTORY_HEADING_ID } from "../../shared/utils/faction-directory-links";
 import { groupPoliticiansByFaction } from "../../shared/utils/group-politicians-by-faction";
+import { POLITICIAN_LINKS_FAIRNESS_NOTICE } from "../../shared/utils/politician-links";
 import { getCurrentMayor } from "../loaders/get-current-mayor";
 import { getPublishedPoliticians } from "../loaders/get-published-politicians";
 
@@ -51,10 +52,13 @@ export async function PoliticiansDirectory() {
       <section aria-labelledby={COUNCILLORS_DIRECTORY_HEADING_ID}>
         <h2
           id={COUNCILLORS_DIRECTORY_HEADING_ID}
-          className="mb-5 scroll-mt-24 text-lg font-bold text-mirai-text"
+          className="mb-3 scroll-mt-24 text-lg font-bold text-mirai-text"
         >
           市議会議員
         </h2>
+        <p className="mb-5 rounded-lg border border-mirai-border bg-mirai-surface p-3 text-xs leading-5 text-mirai-text-secondary">
+          {POLITICIAN_LINKS_FAIRNESS_NOTICE}
+        </p>
         {factionGroups.length === 0 ? (
           <p className="py-10 text-center text-sm text-mirai-text-secondary">
             掲載できる議員情報は現在ありません。

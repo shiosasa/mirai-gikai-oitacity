@@ -22,6 +22,8 @@ const politician: Politician = {
   address: null,
   contact: null,
   homepage: null,
+  blog_url: null,
+  sns_links: null,
   image_url: null,
   slug: null,
   created_at: "",

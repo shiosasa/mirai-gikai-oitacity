@@ -6,12 +6,12 @@ import {
   invalidateWebCache,
   WEB_CACHE_TAGS,
 } from "@/lib/utils/cache-invalidation";
-import { politicianProfileSchema } from "../../shared/utils/politician-profile";
+import { politicianProfilePayloadSchema } from "../../shared/utils/politician-profile";
 import { savePoliticianProfile } from "../repositories/politician-profile-repository";
 
 export async function savePolitician(input: unknown) {
   await requireAdmin();
-  const parsed = politicianProfileSchema.safeParse(input);
+  const parsed = politicianProfilePayloadSchema.safeParse(input);
   if (!parsed.success) {
     return {
       error: parsed.error.issues.map((issue) => issue.message).join("、"),

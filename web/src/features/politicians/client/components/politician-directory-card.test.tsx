@@ -17,6 +17,8 @@ const politician: Politician = {
   address: null,
   contact: null,
   homepage: null,
+  blog_url: null,
+  sns_links: null,
   image_url: null,
   slug: null,
   created_at: "2026-01-01T00:00:00Z",
@@ -50,5 +52,22 @@ describe("PoliticianDirectoryCard", () => {
 
       expect(html).not.toContain("年齢：");
     }
+  });
+
+  it("shows small HP, blog, and SNS badges when links are registered", () => {
+    const html = renderToStaticMarkup(
+      <PoliticianDirectoryCard
+        politician={{
+          ...politician,
+          homepage: "https://example.com",
+          blog_url: "https://ameblo.jp/example",
+          sns_links: { x: "https://x.com/example" },
+        }}
+      />
+    );
+
+    expect(html).toContain("HP");
+    expect(html).toContain("ブログ");
+    expect(html).toContain("SNS");
   });
 });
