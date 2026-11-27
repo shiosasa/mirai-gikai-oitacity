@@ -13,9 +13,12 @@ import {
 } from "./lib/basic-auth";
 
 export function middleware(request: NextRequest) {
-  // /dev routes: 本番では404、開発ではauthスキップ
+  // /dev routes: 本番では404、開発およびVercelプレビューでは許可
   if (request.nextUrl.pathname.startsWith("/dev")) {
-    if (process.env.NODE_ENV !== "development") {
+    const isDevOrPreview =
+      process.env.NODE_ENV === "development" ||
+      process.env.VERCEL_ENV === "preview";
+    if (!isDevOrPreview) {
       return NextResponse.redirect(new URL("/not-found", request.url));
     }
     return NextResponse.next();

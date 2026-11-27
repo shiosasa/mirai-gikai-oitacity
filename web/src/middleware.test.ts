@@ -1,5 +1,5 @@
 import { NextRequest } from "next/server";
-import { describe, expect, it } from "vitest";
+import { afterEach, describe, expect, it, vi } from "vitest";
 import {
   isHtmlAcceptHeader,
   isValidDifficultyLevel,
@@ -92,5 +92,35 @@ describe("isHtmlAcceptHeader", () => {
 
   it("should return false for empty string", () => {
     expect(isHtmlAcceptHeader("")).toBe(false);
+  });
+});
+
+describe("/dev route access control", () => {
+  afterEach(() => {
+    vi.unstubAllEnvs();
+  });
+
+  it("allows /dev routes when VERCEL_ENV is preview", () => {
+    vi.stubEnv("NODE_ENV", "production");
+    vi.stubEnv("VERCEL_ENV", "preview");
+    const request = new NextRequest(
+      "https://example.vercel.app/dev/features/general-questions/chat-style"
+    );
+    const response = middleware(request);
+    expect(response.status).toBe(200);
+    expect(response.headers.get("location")).toBeNull();
+  });
+
+  it("redirects /dev routes to /not-found in production", () => {
+    vi.stubEnv("NODE_ENV", "production");
+    vi.stubEnv("VERCEL_ENV", "production");
+    const request = new NextRequest(
+      "https://example.vercel.app/dev/features/general-questions/chat-style"
+    );
+    const response = middleware(request);
+    expect(response.status).toBe(307);
+    expect(response.headers.get("location")).toBe(
+      "https://example.vercel.app/not-found"
+    );
   });
 });
