@@ -118,18 +118,6 @@ export async function HomeView() {
         />
       )}
 
-      {/* 一般質問バナー */}
-
-      {latestQuestionsSlug && (
-        <Container className="pt-6">
-          <HomeGuideBanner
-            content={content}
-            kind="questions"
-            sessionSlug={latestQuestionsSlug}
-          />
-        </Container>
-      )}
-
       <Container className="pt-6">
         <InformationSection />
       </Container>
@@ -143,6 +131,18 @@ export async function HomeView() {
       {articles.length > 0 && (
         <Container className="pt-3">
           <HomeGuideBanner content={content} kind="topics" />
+        </Container>
+      )}
+
+      {/* 一般質問バナー */}
+
+      {latestQuestionsSlug && (
+        <Container className="pt-3">
+          <HomeGuideBanner
+            content={content}
+            kind="questions"
+            sessionSlug={latestQuestionsSlug}
+          />
         </Container>
       )}
 

@@ -42,9 +42,7 @@ export function HomeGuideBanner({
 }) {
   const guide = homepageGuide(content, kind, sessionSlug);
   const targetUrl =
-    kind === "questions" && !content.questionsUrl && sessionSlug
-      ? "/general-questions"
-      : guide.url;
+    kind === "questions" && sessionSlug ? "/general-questions" : guide.url;
   const Icon = icons[kind];
   if (!targetUrl) return null;
   return (
