@@ -15,7 +15,7 @@ export function PressConferenceList({ pressConferences }: Props) {
       <div className="flex flex-col gap-1">
         <h1 className="text-xl font-bold text-mirai-text">市長記者会見</h1>
         <p className="text-sm text-mirai-text-secondary">
-          大分市長と記者のやりとりを紹介します。
+          大分市長と記者のやりとりを紹介します（令和8年からの記録のみ掲載しており、令和7年以前の記録は掲載していません）。
         </p>
       </div>
 

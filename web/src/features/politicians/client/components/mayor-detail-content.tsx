@@ -178,7 +178,6 @@ export function MayorDetailContent({
             )}
           </div>
         </section>
-        {terms.length > 0 && <OfficeTermList terms={terms} />}
         <p className="text-sm text-mirai-text-secondary">
           提案理由・記者会見は確認済みの在任期間に開催された資料を表示します。日付・任期が未確認の資料は人物に割り当てていません。
           <Link
@@ -198,7 +197,7 @@ export function MayorDetailContent({
               市議会への提案理由
             </h2>
             <p className="mt-2 text-sm leading-6 text-mirai-text-secondary">
-              定例会などで市長が説明した提案理由の要点を紹介します。
+              定例会などで市長が説明した提案理由の要点を紹介します（令和8年からの記録のみ掲載しており、令和7年以前の記録は掲載していません）。
             </p>
           </div>
           {proposals.length === 0 ? (
@@ -266,6 +265,7 @@ export function MayorDetailContent({
         </section>
 
         <MayorConferenceArchive conferences={conferences} />
+        {terms.length > 0 && <OfficeTermList terms={terms} />}
       </div>
     </div>
   );

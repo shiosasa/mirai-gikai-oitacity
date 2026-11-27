@@ -35,6 +35,7 @@ describe("PoliticianSpeechSection", () => {
         isPreview={false}
       />
     );
+    expect(html).toContain("令和8年からの記録をもとに掲載しています");
     expect(html).toContain("関連する発言はまだ掲載されていません。");
   });
 

@@ -26,6 +26,7 @@ it("labels unknown dates and keeps appointment and retirement sources distinct",
       ]}
     />
   );
+  expect(screen.getByText(/令和8年からの記録をもとに掲載/)).toBeTruthy();
   expect(screen.getByText(/就任日未確認 ～ 2026-04-01/)).toBeTruthy();
   expect(
     screen.getByRole("link", { name: "就任の公式出典" }).getAttribute("href")
