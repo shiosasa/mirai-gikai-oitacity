@@ -58,7 +58,7 @@ async function loadSessionMetaBySourceUrl(
 
   const sessionIds = urls
     .map((u) => {
-      const m = u.match(/\/committees\/committee\/(\d+)\/(\d+)/);
+      const m = u.match(/\/committees\/(?:committee|plenary)\/(\d+)\/(\d+)/);
       return m
         ? { url: u, meetingId: Number(m[1]), sessionId: Number(m[2]) }
         : null;

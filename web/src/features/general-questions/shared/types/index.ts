@@ -5,6 +5,8 @@ export type GeneralQuestionTopic = {
   answerer_role: string;
   answerer_name: string;
   block_summary?: string | null;
+  question_raw_text?: string | null;
+  answer_raw_text?: string | null;
 };
 
 export type GeneralQuestion = {
