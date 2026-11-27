@@ -206,42 +206,51 @@ export type Database = {
         Row: {
           bio: string | null
           birth_date: string | null
+          blog_url: string | null
           created_at: string
           end_date: string | null
+          homepage: string | null
           id: number
           image_url: string | null
           is_current: boolean | null
           name: string | null
           name_kana: string | null
           official_url: string | null
+          sns_links: Json | null
           start_date: string | null
           term_number: number | null
         }
         Insert: {
           bio?: string | null
           birth_date?: string | null
+          blog_url?: string | null
           created_at?: string
           end_date?: string | null
+          homepage?: string | null
           id?: number
           image_url?: string | null
           is_current?: boolean | null
           name?: string | null
           name_kana?: string | null
           official_url?: string | null
+          sns_links?: Json | null
           start_date?: string | null
           term_number?: number | null
         }
         Update: {
           bio?: string | null
           birth_date?: string | null
+          blog_url?: string | null
           created_at?: string
           end_date?: string | null
+          homepage?: string | null
           id?: number
           image_url?: string | null
           is_current?: boolean | null
           name?: string | null
           name_kana?: string | null
           official_url?: string | null
+          sns_links?: Json | null
           start_date?: string | null
           term_number?: number | null
         }

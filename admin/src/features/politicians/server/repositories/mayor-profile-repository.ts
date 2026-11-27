@@ -3,7 +3,7 @@ import { createAdminClient } from "@mirai-gikai/supabase";
 import type { MayorProfileInput } from "../../shared/utils/mayor-profile";
 
 const profileColumns =
-  "id,name,name_kana,birth_date,image_url,official_url,start_date,term_number,bio";
+  "id,name,name_kana,birth_date,image_url,official_url,homepage,blog_url,sns_links,start_date,term_number,bio";
 
 export async function listMayorsForAdmin() {
   const { data, error } = await createAdminClient()

@@ -9,7 +9,7 @@ export async function findCurrentMayor(): Promise<
   const { data, error } = await supabase
     .from("mayor_profile")
     .select(
-      "id, name, name_kana, birth_date, image_url, official_url, start_date, term_number, bio"
+      "id, name, name_kana, birth_date, image_url, official_url, homepage, blog_url, sns_links, start_date, term_number, bio"
     )
     .eq("is_current", true)
     .maybeSingle();

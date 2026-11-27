@@ -1,5 +1,12 @@
 import type { OfficeTerm } from "@mirai-gikai/shared/politicians/office-history";
-import { ArrowLeft, ChevronDown, ExternalLink } from "lucide-react";
+import {
+  ArrowLeft,
+  BookOpen,
+  ChevronDown,
+  ExternalLink,
+  Globe,
+  Share2,
+} from "lucide-react";
 import Link from "next/link";
 import { OitaPhotoBackground } from "@/components/layouts/oita-photo-background";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
@@ -13,6 +20,10 @@ import type {
   MayorProposal,
 } from "../../shared/types/mayor";
 import { calculateAge } from "../../shared/utils/calculate-age";
+import {
+  collectPoliticianLinks,
+  type PoliticianLinkPlatform,
+} from "../../shared/utils/politician-links";
 import { MayorConferenceArchive } from "./mayor-conference-archive";
 
 type Props = {
@@ -36,6 +47,21 @@ export function MayorDetailContent({
   const imageUrl = getHttpUrl(mayor?.image_url);
   const mayorName = mayor?.name?.trim();
   const age = calculateAge(mayor?.birth_date ?? null, new Date());
+  const personalLinks = collectPoliticianLinks({
+    homepage: mayor?.homepage,
+    blog_url: mayor?.blog_url,
+    sns_links: mayor?.sns_links,
+  });
+
+  function renderPlatformIcon(platform: PoliticianLinkPlatform) {
+    if (platform === "homepage") {
+      return <Globe aria-hidden="true" className="size-4 shrink-0" />;
+    }
+    if (platform === "blog" || platform === "note") {
+      return <BookOpen aria-hidden="true" className="size-4 shrink-0" />;
+    }
+    return <Share2 aria-hidden="true" className="size-4 shrink-0" />;
+  }
 
   return (
     <div className="mx-auto max-w-3xl px-5 py-10 sm:px-8">
@@ -178,6 +204,35 @@ export function MayorDetailContent({
             )}
           </div>
         </section>
+        {personalLinks.length > 0 && (
+          <section aria-labelledby="mayor-personal-links-heading">
+            <h2
+              id="mayor-personal-links-heading"
+              className="border-l-4 border-oita-pink pl-3 text-xl font-bold text-mirai-text"
+            >
+              市長本人の日々の発信・活動報告はこちら
+            </h2>
+            <ul className="mt-4 flex flex-wrap gap-3">
+              {personalLinks.map((item) => (
+                <li key={item.url}>
+                  <a
+                    href={item.url}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="inline-flex items-center gap-2 rounded-lg border border-oita-pink-accent bg-card px-4 py-2 text-sm font-semibold text-mirai-text transition-colors hover:border-primary hover:bg-oita-pink-light"
+                  >
+                    {renderPlatformIcon(item.platform)}
+                    <span>{item.label}</span>
+                    <ExternalLink
+                      aria-hidden="true"
+                      className="size-3.5 text-mirai-text-secondary"
+                    />
+                  </a>
+                </li>
+              ))}
+            </ul>
+          </section>
+        )}
         <p className="text-sm text-mirai-text-secondary">
           提案理由・記者会見は確認済みの在任期間に開催された資料を表示します。日付・任期が未確認の資料は人物に割り当てていません。
           <Link

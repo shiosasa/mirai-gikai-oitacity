@@ -24,6 +24,14 @@ const fields = [
   { key: "term_number", label: "期数", type: "number" },
   { key: "image_url", label: "顔写真URL", type: "url" },
   { key: "official_url", label: "公式の市長室URL", type: "url" },
+  { key: "homepage", label: "個人公式HP URL", type: "url" },
+  { key: "blog_url", label: "ブログURL", type: "url" },
+  { key: "sns_x", label: "X（旧Twitter）URL", type: "url" },
+  { key: "sns_instagram", label: "Instagram URL", type: "url" },
+  { key: "sns_facebook", label: "Facebook URL", type: "url" },
+  { key: "sns_youtube", label: "YouTube URL", type: "url" },
+  { key: "sns_note", label: "note URL", type: "url" },
+  { key: "sns_line", label: "LINE公式 URL", type: "url" },
 ] as const;
 
 export function MayorProfileForm({
