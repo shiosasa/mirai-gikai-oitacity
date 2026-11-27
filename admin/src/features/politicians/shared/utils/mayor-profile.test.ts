@@ -13,6 +13,9 @@ const mayor: MayorProfileRecord = {
   birth_date: "昭和40年1月1日",
   image_url: "https://example.com/photo.jpg",
   official_url: "https://www.city.oita.oita.jp/",
+  homepage: "https://www.adachishinya.com/",
+  blog_url: "https://ameblo.jp/adachishinya/",
+  sns_links: { x: "https://twitter.com/shinya8484" },
   start_date: "2023-04-17",
   term_number: 1,
   bio: "経歴です。\n基本方針です。",
@@ -42,6 +45,9 @@ describe("mayor profile input", () => {
       term_number: null,
       image_url: null,
       official_url: null,
+      homepage: null,
+      blog_url: null,
+      sns_links: null,
       bio: null,
     });
     const parsed = parseMayorProfileForm({ ...form, name: " 確認用市長 " });
@@ -55,6 +61,9 @@ describe("mayor profile input", () => {
       term_number: null,
       image_url: null,
       official_url: null,
+      homepage: null,
+      blog_url: null,
+      sns_links: null,
       bio: null,
     });
   });

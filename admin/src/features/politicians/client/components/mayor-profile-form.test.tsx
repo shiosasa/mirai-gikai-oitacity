@@ -32,6 +32,9 @@ const mayor: MayorProfileRecord = {
   term_number: 1,
   image_url: "https://example.com/photo.jpg",
   official_url: "https://www.city.oita.oita.jp/",
+  homepage: null,
+  blog_url: null,
+  sns_links: null,
   bio: "「確認用方針」を基本方針とし、「A」「B」「C」「D」「E」の5つの柱。",
 };
 beforeAll(() => {

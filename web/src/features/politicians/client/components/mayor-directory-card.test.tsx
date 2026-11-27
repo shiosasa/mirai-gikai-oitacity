@@ -11,6 +11,9 @@ const mayor: MayorProfile = {
   birth_date: null,
   image_url: null,
   official_url: null,
+  homepage: null,
+  blog_url: null,
+  sns_links: null,
   start_date: null,
   term_number: null,
   bio: "「ひとが真ん中。」を基本方針とし、「ひとを守る」「ひとを育む」「ひとを支える」「ひとを豊かに」「ひとを元気に」の5つをまちづくりの柱としています。",
@@ -55,6 +58,23 @@ describe("MayorDirectoryCard", () => {
     );
 
     expect(html).toContain("年齢：69歳");
+  });
+
+  it("shows small HP, blog, and SNS badges when personal links are registered", () => {
+    const html = renderToStaticMarkup(
+      <MayorDirectoryCard
+        mayor={{
+          ...mayor,
+          homepage: "https://www.adachishinya.com/",
+          blog_url: "https://ameblo.jp/adachishinya/",
+          sns_links: { x: "https://twitter.com/shinya8484" },
+        }}
+      />
+    );
+
+    expect(html).toContain("HP");
+    expect(html).toContain("ブログ");
+    expect(html).toContain("SNS");
   });
 
   it("does not invent policy pillars when the profile is unavailable", () => {

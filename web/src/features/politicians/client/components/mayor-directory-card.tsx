@@ -1,10 +1,11 @@
-import { ArrowRight } from "lucide-react";
+import { ArrowRight, BookOpen, Globe, Share2 } from "lucide-react";
 import Link from "next/link";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Card } from "@/components/ui/card";
 import { getHttpUrl } from "@/lib/utils/external-url";
 import type { MayorProfile } from "../../shared/types/mayor";
 import { calculateAge } from "../../shared/utils/calculate-age";
+import { collectPoliticianLinks } from "../../shared/utils/politician-links";
 import { MayorPolicyPillars } from "./mayor-policy-pillars";
 
 type Props = {
@@ -14,6 +15,21 @@ type Props = {
 export function MayorDirectoryCard({ mayor }: Props) {
   const mayorName = mayor?.name?.trim();
   const age = calculateAge(mayor?.birth_date ?? null, new Date());
+  const links = collectPoliticianLinks({
+    homepage: mayor?.homepage,
+    blog_url: mayor?.blog_url,
+    sns_links: mayor?.sns_links,
+  });
+  const hasHomepage = links.some((link) => link.platform === "homepage");
+  const hasBlog = links.some(
+    (link) => link.platform === "blog" || link.platform === "note"
+  );
+  const hasSns = links.some(
+    (link) =>
+      link.platform !== "homepage" &&
+      link.platform !== "blog" &&
+      link.platform !== "note"
+  );
 
   return (
     <Card className="rounded-md border-mirai-border bg-card shadow-none">
@@ -49,6 +65,37 @@ export function MayorDirectoryCard({ mayor }: Props) {
               <p className="mt-2 text-sm text-mirai-text-secondary">
                 年齢：{age}歳
               </p>
+            )}
+            {links.length > 0 && (
+              <div className="mt-2 flex flex-wrap items-center justify-center gap-1.5 sm:justify-start">
+                {hasHomepage && (
+                  <span
+                    title="公式HP"
+                    className="inline-flex items-center gap-1 rounded-full bg-oita-pink-light px-2 py-0.5 text-xs font-medium text-oita-pink"
+                  >
+                    <Globe aria-hidden="true" className="size-3" />
+                    HP
+                  </span>
+                )}
+                {hasBlog && (
+                  <span
+                    title="ブログ・note"
+                    className="inline-flex items-center gap-1 rounded-full bg-oita-pink-light px-2 py-0.5 text-xs font-medium text-oita-pink"
+                  >
+                    <BookOpen aria-hidden="true" className="size-3" />
+                    ブログ
+                  </span>
+                )}
+                {hasSns && (
+                  <span
+                    title="SNS"
+                    className="inline-flex items-center gap-1 rounded-full bg-oita-pink-light px-2 py-0.5 text-xs font-medium text-oita-pink"
+                  >
+                    <Share2 aria-hidden="true" className="size-3" />
+                    SNS
+                  </span>
+                )}
+              </div>
             )}
             <p className="mt-2 inline-flex items-center gap-1 text-sm font-semibold text-primary-accent">
               プロフィールを見る

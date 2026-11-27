@@ -15,6 +15,9 @@ const mayor: MayorProfile = {
   birth_date: "1957年6月5日",
   image_url: null,
   official_url: "https://example.com/mayor",
+  homepage: "https://www.adachishinya.com/",
+  blog_url: "https://ameblo.jp/adachishinya/",
+  sns_links: { x: "https://twitter.com/shinya8484" },
   start_date: "2023-04-23",
   term_number: 1,
   bio: "「ひとが真ん中。」を基本方針とし、「ひとを守る」「ひとを育む」「ひとを支える」「ひとを豊かに」「ひとを元気に」の5つをまちづくりの柱としています。",
@@ -99,6 +102,10 @@ describe("MayorDetailContent", () => {
     expect(html).toContain("令和8年からの記録のみ掲載");
     expect(html).toContain("ひとが真ん中。");
     expect(html).toContain("ひとを元気に");
+    expect(html).toContain("市長本人の日々の発信・活動報告はこちら");
+    expect(html).toContain('href="https://www.adachishinya.com/"');
+    expect(html).toContain('href="https://ameblo.jp/adachishinya/"');
+    expect(html).toContain('href="https://twitter.com/shinya8484"');
     expect(html).toContain("提案理由の要約\n二行目");
     expect(html).toContain('href="https://example.com/official-proposal"');
     expect(html).toContain("発表事項の要約です。");
