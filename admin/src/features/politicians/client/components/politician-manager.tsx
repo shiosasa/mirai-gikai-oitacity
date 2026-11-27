@@ -24,6 +24,13 @@ const fields = [
   { key: "special_committee", label: "特別委員会", type: "text" },
   { key: "image_url", label: "顔写真URL", type: "url" },
   { key: "homepage", label: "公式サイトURL", type: "url" },
+  { key: "blog_url", label: "ブログURL", type: "url" },
+  { key: "sns_x", label: "X（旧Twitter）URL", type: "url" },
+  { key: "sns_instagram", label: "Instagram URL", type: "url" },
+  { key: "sns_facebook", label: "Facebook URL", type: "url" },
+  { key: "sns_youtube", label: "YouTube URL", type: "url" },
+  { key: "sns_note", label: "note URL", type: "url" },
+  { key: "sns_line", label: "LINE公式 URL", type: "url" },
   { key: "address", label: "公開住所", type: "text" },
   { key: "contact", label: "公開電話番号", type: "text" },
 ] as const;
@@ -173,14 +180,34 @@ export function PoliticianManager({
               >
                 <h3 className="font-semibold">{preview.name}</h3>
                 <dl className="space-y-2 text-sm">
-                  {fields.map((field) => (
-                    <div key={field.key}>
-                      <dt className="font-medium">{field.label}</dt>
-                      <dd className="break-words whitespace-pre-wrap">
-                        {preview[field.key] ?? "未設定"}
-                      </dd>
-                    </div>
-                  ))}
+                  {fields.map((field) => {
+                    const displayValue = field.key.startsWith("sns_")
+                      ? ((preview.sns_links
+                          ? (Reflect.get(
+                              preview.sns_links,
+                              field.key.replace("sns_", "")
+                            ) as string | undefined)
+                          : undefined) ?? "未設定")
+                      : (preview[
+                          field.key as Exclude<
+                            (typeof fields)[number]["key"],
+                            | "sns_x"
+                            | "sns_instagram"
+                            | "sns_facebook"
+                            | "sns_youtube"
+                            | "sns_note"
+                            | "sns_line"
+                          >
+                        ] ?? "未設定");
+                    return (
+                      <div key={field.key}>
+                        <dt className="font-medium">{field.label}</dt>
+                        <dd className="break-words whitespace-pre-wrap">
+                          {displayValue}
+                        </dd>
+                      </div>
+                    );
+                  })}
                 </dl>
                 <p className="text-sm text-muted-foreground">
                   当選回数が未設定の場合、公開サイトは1回と表示します。写真URLは画像の参照先、公式サイトURLはリンクの参照先に使われます。

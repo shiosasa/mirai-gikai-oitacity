@@ -604,6 +604,7 @@ export type Database = {
         Row: {
           address: string | null
           birth_date: string | null
+          blog_url: string | null
           contact: string | null
           created_at: string
           election_count: number | null
@@ -617,12 +618,14 @@ export type Database = {
           number: number
           seat_number: number | null
           slug: string | null
+          sns_links: Json | null
           special_committee: string | null
           standing_committee: string | null
         }
         Insert: {
           address?: string | null
           birth_date?: string | null
+          blog_url?: string | null
           contact?: string | null
           created_at?: string
           election_count?: number | null
@@ -636,12 +639,14 @@ export type Database = {
           number?: number
           seat_number?: number | null
           slug?: string | null
+          sns_links?: Json | null
           special_committee?: string | null
           standing_committee?: string | null
         }
         Update: {
           address?: string | null
           birth_date?: string | null
+          blog_url?: string | null
           contact?: string | null
           created_at?: string
           election_count?: number | null
@@ -655,6 +660,7 @@ export type Database = {
           number?: number
           seat_number?: number | null
           slug?: string | null
+          sns_links?: Json | null
           special_committee?: string | null
           standing_committee?: string | null
         }

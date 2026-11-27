@@ -1,6 +1,6 @@
 "server-only";
 
-import { createAdminClient } from "@mirai-gikai/supabase";
+import { createAdminClient, type Json } from "@mirai-gikai/supabase";
 
 export type PoliticianRow = {
   id: string;
@@ -14,6 +14,8 @@ export type PoliticianRow = {
   address: string | null;
   contact: string | null;
   homepage: string | null;
+  blog_url: string | null;
+  sns_links: Json | null;
   image_url: string | null;
   slug: string | null;
   created_at: string;

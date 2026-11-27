@@ -3,6 +3,7 @@ import {
   getPoliticianProfileFormValues,
   type PoliticianProfileRecord,
   parsePoliticianProfileForm,
+  politicianProfilePayloadSchema,
   politicianProfileSchema,
 } from "./politician-profile";
 
@@ -19,6 +20,8 @@ const politician: PoliticianProfileRecord = {
   address: "公式の公開所在地",
   contact: "000-000-0000",
   homepage: "http://example.com/",
+  blog_url: "https://example.com/blog",
+  sns_links: { x: "https://x.com/example" },
   image_url: "https://example.com/photo.jpg",
 };
 
@@ -50,6 +53,8 @@ describe("politician profile input", () => {
     expect(result.data.election_count).toBeNull();
     expect(result.data.name_kana).toBeNull();
     expect(result.data.homepage).toBeNull();
+    expect(result.data.blog_url).toBeNull();
+    expect(result.data.sns_links).toBeNull();
     expect(result.data.id).toBeUndefined();
   });
 
@@ -107,7 +112,7 @@ describe("politician profile input", () => {
   });
 
   it("strips unrelated identity, legacy and publication fields", () => {
-    const parsed = politicianProfileSchema.parse({
+    const parsed = politicianProfilePayloadSchema.parse({
       ...politician,
       slug: "do-not-change",
       seat_number: 99,
