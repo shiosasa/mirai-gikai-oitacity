@@ -1,5 +1,6 @@
 import { describe, expect, it } from "vitest";
 import {
+  attachPrototypeAvatars,
   collectOitaQuestionTags,
   filterOitaQuestionsByTag,
   OITA_PROTOTYPE_QUESTIONS,
@@ -28,5 +29,20 @@ describe("oita-prototype-helpers", () => {
       "oita-sample-1",
       "oita-sample-2",
     ]);
+  });
+
+  it("attaches councilor and mayor avatar URLs to questions and exchanges", () => {
+    const enriched = attachPrototypeAvatars(
+      OITA_PROTOTYPE_QUESTIONS,
+      ["https://example.com/c1.png", "https://example.com/c2.png"],
+      "https://example.com/mayor.png"
+    );
+
+    expect(enriched[0]?.avatarUrl).toBe("https://example.com/c1.png");
+    expect(enriched[1]?.avatarUrl).toBe("https://example.com/c2.png");
+    expect(enriched[2]?.avatarUrl).toBe("https://example.com/c1.png");
+    expect(enriched[2]?.topics[0]?.exchanges[1]?.avatarUrl).toBe(
+      "https://example.com/mayor.png"
+    );
   });
 });
