@@ -1,6 +1,13 @@
 "use client";
 
-import { ChevronDown, FileText, Newspaper, Search, Users } from "lucide-react";
+import {
+  ChevronDown,
+  FileText,
+  MessageSquare,
+  Newspaper,
+  Search,
+  Users,
+} from "lucide-react";
 import Link from "next/link";
 import { useState } from "react";
 import { Badge } from "@/components/ui/badge";
@@ -12,6 +19,7 @@ import {
 import type {
   BillSearchResult,
   CommitteeSearchResult,
+  GeneralQuestionSearchResult,
   SearchResults,
   SearchTab,
   TopicSearchResult,
@@ -19,6 +27,7 @@ import type {
 
 const TAB_LABELS: Record<SearchTab, string> = {
   all: "すべて",
+  generalQuestions: "一般質問",
   bills: "議案",
   topics: "トピックス",
   committees: "議事録",
@@ -114,6 +123,43 @@ function CommitteeCard({ committee }: { committee: CommitteeSearchResult }) {
   );
 }
 
+function GeneralQuestionCard({
+  question,
+}: {
+  question: GeneralQuestionSearchResult;
+}) {
+  return (
+    <Link
+      href={`/general-questions?id=${question.id}`}
+      className="block border border-mirai-border rounded-lg p-4 bg-white hover:bg-mirai-surface transition-colors"
+    >
+      <div className="flex items-center gap-2 mb-1">
+        <MessageSquare className="size-4 text-mirai-text-muted shrink-0" />
+        <span className="text-xs text-mirai-text-muted">
+          一般質問 · {question.sessionDayLabel}
+        </span>
+      </div>
+      <p className="font-medium text-mirai-text text-sm leading-snug mb-2">
+        {question.questionerName}（{question.faction}）
+      </p>
+      {question.summary && (
+        <p className="text-xs text-mirai-text-secondary line-clamp-2 mb-2">
+          {question.summary}
+        </p>
+      )}
+      {question.matchedTopics.length > 0 && (
+        <div className="flex flex-wrap gap-1">
+          {question.matchedTopics.slice(0, 3).map((topic) => (
+            <Badge key={topic} variant="muted" className="text-xs">
+              {topic}
+            </Badge>
+          ))}
+        </div>
+      )}
+    </Link>
+  );
+}
+
 function ResultSection<T>({
   title,
   items,
@@ -180,8 +226,9 @@ export function SearchResultTabs({
     );
   }
 
-  const { bills, topics, committees } = results;
-  const totalCount = bills.length + topics.length + committees.length;
+  const { bills, topics, committees, generalQuestions = [] } = results;
+  const totalCount =
+    bills.length + topics.length + committees.length + generalQuestions.length;
 
   if (totalCount === 0) {
     return (
@@ -198,6 +245,7 @@ export function SearchResultTabs({
 
   const tabs: { key: SearchTab; count: number }[] = [
     { key: "all", count: totalCount },
+    { key: "generalQuestions", count: generalQuestions.length },
     { key: "topics", count: topics.length },
     { key: "committees", count: committees.length },
     { key: "bills", count: bills.length },
@@ -237,6 +285,16 @@ export function SearchResultTabs({
       </div>
 
       <div className="flex flex-col gap-8">
+        {(tab === "all" || tab === "generalQuestions") &&
+          generalQuestions.length > 0 && (
+            <ResultSection
+              title="一般質問"
+              items={generalQuestions}
+              renderCard={(q, i) => (
+                <GeneralQuestionCard key={i} question={q} />
+              )}
+            />
+          )}
         {(tab === "all" || tab === "topics") && topics.length > 0 && (
           <ResultSection
             title="トピックス"

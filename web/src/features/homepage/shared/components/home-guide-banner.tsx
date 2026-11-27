@@ -41,11 +41,15 @@ export function HomeGuideBanner({
   sessionSlug?: string;
 }) {
   const guide = homepageGuide(content, kind, sessionSlug);
+  const targetUrl =
+    kind === "questions" && !content.questionsUrl && sessionSlug
+      ? "/general-questions"
+      : guide.url;
   const Icon = icons[kind];
-  if (!guide.url) return null;
+  if (!targetUrl) return null;
   return (
     <Link
-      href={guide.url}
+      href={targetUrl}
       className="flex items-center justify-between gap-4 bg-card border border-border rounded-lg px-5 py-4 hover:border-primary transition-colors"
     >
       <div className="flex items-start gap-3">
