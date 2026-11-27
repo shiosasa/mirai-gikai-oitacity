@@ -82,7 +82,7 @@ describe("oita-prototype-helpers", () => {
         ],
         raw_text: "質問原文",
         answer_raw_text: "答弁原文",
-        source_url: null,
+        source_url: "/committees/committee/2/10",
         publish_status: "published",
         created_at: "2026-01-01T00:00:00Z",
         updated_at: "2026-01-01T00:00:00Z",
@@ -102,6 +102,7 @@ describe("oita-prototype-helpers", () => {
     );
 
     expect(mapped[0]?.avatarUrl).toBe("https://example.com/p.png");
+    expect(mapped[0]?.minutesSummaryUrl).toBe("/committees/committee/2/10");
     expect(mapped[0]?.topics[0]?.tag).toBe("子育て・教育");
     expect(mapped[0]?.topics[0]?.exchanges[1]?.avatarUrl).toBe(
       "https://example.com/m.png"

@@ -27,6 +27,7 @@ export type OitaGeneralQuestion = {
   faction: string;
   avatarUrl?: string | null;
   overview: string;
+  minutesSummaryUrl?: string | null;
   topics: OitaQuestionTopic[];
 };
 
@@ -367,6 +368,7 @@ export function mapSupabaseQuestionsToPrototype(
       faction: row.questioner_party ?? "会派未設定",
       avatarUrl: questionerAvatar,
       overview: row.summary ?? `${row.questioner_name}議員による一般質問です。`,
+      minutesSummaryUrl: row.source_url ?? null,
       topics: row.topics.map((topic, index) => {
         const answererLabel = [topic.answerer_role, topic.answerer_name]
           .filter(Boolean)
