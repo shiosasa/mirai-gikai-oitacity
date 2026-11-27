@@ -1,9 +1,13 @@
 import { describe, expect, it } from "vitest";
+import type { GeneralQuestion } from "@/features/general-questions/shared/types";
 import {
   attachPrototypeAvatars,
   collectOitaQuestionTags,
   filterOitaQuestionsByTag,
+  inferOitaQuestionCategory,
+  mapSupabaseQuestionsToPrototype,
   OITA_PROTOTYPE_QUESTIONS,
+  selectLifeRelatedQuestions,
 } from "./oita-prototype-helpers";
 
 describe("oita-prototype-helpers", () => {
@@ -44,5 +48,67 @@ describe("oita-prototype-helpers", () => {
     expect(enriched[2]?.topics[0]?.exchanges[1]?.avatarUrl).toBe(
       "https://example.com/mayor.png"
     );
+  });
+
+  it("infers standard category and maps Supabase general_questions rows", () => {
+    expect(inferOitaQuestionCategory("病児保育の予約改善")).toBe(
+      "子育て・教育"
+    );
+    expect(inferOitaQuestionCategory("避難所の開設")).toBe("安心・安全・防災");
+    expect(inferOitaQuestionCategory("投票率向上")).toBe("まちの仕組み・選挙");
+    expect(inferOitaQuestionCategory("公共交通の充実")).toBe(
+      "まちづくり・暮らし"
+    );
+
+    const rows: GeneralQuestion[] = [
+      {
+        id: "gq-1",
+        council_session_id: "cs-1",
+        politician_id: "pol-1",
+        questioner_name: "大分 太郎",
+        questioner_party: "大分みらい",
+        questioner_number: 1,
+        session_day: 2,
+        question_order: 3,
+        summary: "子育て支援について質問しました。",
+        topics: [
+          {
+            title: "保育施設の充実",
+            question_summary: "待機児童解消の取組は。",
+            answer_summary: "定員拡充を進めます。",
+            answerer_role: "市長",
+            answerer_name: "大分 市長",
+          },
+        ],
+        raw_text: "質問原文",
+        answer_raw_text: "答弁原文",
+        source_url: null,
+        publish_status: "published",
+        created_at: "2026-01-01T00:00:00Z",
+        updated_at: "2026-01-01T00:00:00Z",
+      },
+    ];
+
+    const mapped = mapSupabaseQuestionsToPrototype(
+      rows,
+      [
+        {
+          id: "pol-1",
+          name: "大分 太郎",
+          image_url: "https://example.com/p.png",
+        },
+      ],
+      "https://example.com/m.png"
+    );
+
+    expect(mapped[0]?.avatarUrl).toBe("https://example.com/p.png");
+    expect(mapped[0]?.topics[0]?.tag).toBe("子育て・教育");
+    expect(mapped[0]?.topics[0]?.exchanges[1]?.avatarUrl).toBe(
+      "https://example.com/m.png"
+    );
+
+    const selected = selectLifeRelatedQuestions(mapped, 3);
+    expect(selected).toHaveLength(1);
+    expect(selected[0]?.id).toBe("gq-1");
   });
 });
