@@ -4,6 +4,9 @@ import {
   attachPrototypeAvatars,
   collectOitaQuestionTags,
   filterOitaQuestionsByTag,
+  formatAnswererHonorific,
+  formatMeetingDateLabel,
+  formatQuestionerHonorific,
   inferOitaQuestionCategory,
   mapSupabaseQuestionsToPrototype,
   OITA_PROTOTYPE_QUESTIONS,
@@ -98,14 +101,40 @@ describe("oita-prototype-helpers", () => {
           image_url: "https://example.com/p.png",
         },
       ],
-      "https://example.com/m.png"
+      "https://example.com/m.png",
+      undefined,
+      {
+        "/committees/committee/2/10": {
+          date: "2026-06-18",
+          meetingName: "令和8年 第2回定例会",
+        },
+      }
+    );
+
+    expect(mapped[0]?.sessionDayLabel).toBe(
+      "2026年6月18日「令和8年 第2回定例会」"
+    );
+    expect(formatMeetingDateLabel("2026-06-22", "令和8年 第2回定例会", 4)).toBe(
+      "2026年6月22日「令和8年 第2回定例会」"
     );
 
     expect(mapped[0]?.avatarUrl).toBe("https://example.com/p.png");
     expect(mapped[0]?.minutesSummaryUrl).toBe("/committees/committee/2/10");
     expect(mapped[0]?.topics[0]?.tag).toBe("子育て・教育");
+    expect(mapped[0]?.topics[0]?.exchanges[0]?.speakerLabel).toBe(
+      "大分 太郎議員"
+    );
+    expect(mapped[0]?.topics[0]?.exchanges[1]?.speakerLabel).toBe(
+      "市長・大分 市長さん"
+    );
     expect(mapped[0]?.topics[0]?.exchanges[1]?.avatarUrl).toBe(
       "https://example.com/m.png"
+    );
+
+    expect(formatQuestionerHonorific("大津 將嘉")).toBe("大津 將嘉議員");
+    expect(formatQuestionerHonorific("大津 將嘉議員")).toBe("大津 將嘉議員");
+    expect(formatAnswererHonorific("福祉保健部長", "田崎敢")).toBe(
+      "福祉保健部長・田崎敢さん"
     );
 
     const selected = selectLifeRelatedQuestions(mapped, 3);

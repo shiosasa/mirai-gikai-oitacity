@@ -343,11 +343,50 @@ export type PrototypePoliticianRef = {
   image_url?: string | null;
 };
 
+export function formatQuestionerHonorific(name: string): string {
+  const trimmed = name.trim();
+  if (!trimmed) return "";
+  if (trimmed.includes("議員") || trimmed.endsWith("さん")) return trimmed;
+  return `${trimmed}議員`;
+}
+
+export function formatAnswererHonorific(role: string, name: string): string {
+  const cleanRole = role.trim();
+  const cleanName = name.trim();
+  if (!cleanName) return cleanRole || "市当局";
+  const nameWithHonorific = /さん$/.test(cleanName)
+    ? cleanName
+    : `${cleanName}さん`;
+  return cleanRole ? `${cleanRole}・${nameWithHonorific}` : nameWithHonorific;
+}
+
+export type PrototypeMeetingMeta = {
+  date?: string | null;
+  meetingName?: string | null;
+};
+
+export function formatMeetingDateLabel(
+  dateStr?: string | null,
+  meetingName?: string | null,
+  fallbackDay?: number
+): string {
+  const match = dateStr?.trim().match(/^(\d{4})-(\d{1,2})-(\d{1,2})/);
+  const datePart = match
+    ? `${Number(match[1])}年${Number(match[2])}月${Number(match[3])}日`
+    : "";
+  const titlePart = meetingName?.trim() ? `「${meetingName.trim()}」` : "";
+  if (datePart || titlePart) {
+    return `${datePart}${titlePart}`;
+  }
+  return fallbackDay ? `第${fallbackDay}日` : "";
+}
+
 export function mapSupabaseQuestionsToPrototype(
   rows: GeneralQuestion[],
   politicians: PrototypePoliticianRef[],
   mayorImageUrl?: string | null,
-  sessionLabel = "大分市議会 一般質問（Supabase議事録）"
+  sessionLabel = "大分市議会 一般質問（Supabase議事録）",
+  sessionMetaBySourceUrl?: Record<string, PrototypeMeetingMeta>
 ): OitaGeneralQuestion[] {
   return rows.map((row) => {
     const matchedPolitician = politicians.find(
@@ -358,11 +397,18 @@ export function mapSupabaseQuestionsToPrototype(
             row.questioner_name.replace(/\s+/g, ""))
     );
     const questionerAvatar = matchedPolitician?.image_url ?? null;
+    const meta = row.source_url
+      ? sessionMetaBySourceUrl?.[row.source_url]
+      : undefined;
 
     return {
       id: row.id,
-      sessionLabel,
-      sessionDayLabel: `第${row.session_day}日`,
+      sessionLabel: meta?.meetingName ?? sessionLabel,
+      sessionDayLabel: formatMeetingDateLabel(
+        meta?.date,
+        meta?.meetingName,
+        row.session_day
+      ),
       questionOrder: row.question_order,
       questionerName: row.questioner_name,
       faction: row.questioner_party ?? "会派未設定",
@@ -370,10 +416,10 @@ export function mapSupabaseQuestionsToPrototype(
       overview: row.summary ?? `${row.questioner_name}議員による一般質問です。`,
       minutesSummaryUrl: row.source_url ?? null,
       topics: row.topics.map((topic, index) => {
-        const answererLabel = [topic.answerer_role, topic.answerer_name]
-          .filter(Boolean)
-          .join(" ")
-          .trim();
+        const answererLabel = formatAnswererHonorific(
+          topic.answerer_role,
+          topic.answerer_name
+        );
         const isMayor = topic.answerer_role.includes("市長");
 
         return {
@@ -386,7 +432,7 @@ export function mapSupabaseQuestionsToPrototype(
             {
               id: `${row.id}-topic-${index + 1}-q`,
               speakerRole: "questioner",
-              speakerLabel: row.questioner_name,
+              speakerLabel: formatQuestionerHonorific(row.questioner_name),
               turnType: "質問",
               summary: topic.question_summary,
               rawText: row.raw_text ?? topic.question_summary,
@@ -395,7 +441,7 @@ export function mapSupabaseQuestionsToPrototype(
             {
               id: `${row.id}-topic-${index + 1}-a`,
               speakerRole: "executive",
-              speakerLabel: answererLabel || "市当局",
+              speakerLabel: answererLabel,
               turnType: "答弁",
               summary: topic.answer_summary,
               rawText: row.answer_raw_text ?? topic.answer_summary,
