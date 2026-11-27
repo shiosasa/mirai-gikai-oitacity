@@ -2,6 +2,14 @@ import "server-only";
 import { createAdminClient } from "@mirai-gikai/supabase";
 import type { MayorProfile, MayorProposal } from "../../shared/types/mayor";
 
+function isMissingColumnError(error: { code?: string; message?: string }) {
+  return (
+    error.code === "42703" ||
+    error.code === "PGRST204" ||
+    /does not exist|schema cache/i.test(error.message ?? "")
+  );
+}
+
 export async function findCurrentMayor(): Promise<
   (MayorProfile & { id: number }) | null
 > {
@@ -13,6 +21,25 @@ export async function findCurrentMayor(): Promise<
     )
     .eq("is_current", true)
     .maybeSingle();
+
+  if (error && isMissingColumnError(error)) {
+    // マイグレーション未適用環境でもページが落ちないよう旧カラムのみでフォールバック
+    const fallback = await supabase
+      .from("mayor_profile")
+      .select(
+        "id, name, name_kana, birth_date, image_url, official_url, start_date, term_number, bio"
+      )
+      .eq("is_current", true)
+      .maybeSingle();
+    if (fallback.error) {
+      throw new Error(
+        `Failed to fetch current mayor: ${fallback.error.message}`
+      );
+    }
+    return fallback.data
+      ? { ...fallback.data, homepage: null, blog_url: null, sns_links: null }
+      : null;
+  }
 
   if (error) {
     throw new Error(`Failed to fetch current mayor: ${error.message}`);
