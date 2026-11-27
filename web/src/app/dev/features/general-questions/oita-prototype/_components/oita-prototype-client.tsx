@@ -1,6 +1,7 @@
 "use client";
 
 import { ArrowLeft, ArrowRight, MessageCircle, User } from "lucide-react";
+import Link from "next/link";
 import { useState } from "react";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Badge } from "@/components/ui/badge";
@@ -153,6 +154,17 @@ export function OitaPrototypeClient({
               </div>
             ))}
           </div>
+          {activeQuestion.minutesSummaryUrl ? (
+            <div className="mt-6 flex justify-end border-t border-border pt-4">
+              <Link
+                href={activeQuestion.minutesSummaryUrl}
+                className="inline-flex items-center gap-1.5 text-sm font-semibold text-primary hover:underline"
+              >
+                議事録の要約ページを見る
+                <ArrowRight aria-hidden="true" className="size-4" />
+              </Link>
+            </div>
+          ) : null}
         </div>
       </section>
     );
