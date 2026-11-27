@@ -96,7 +96,10 @@ export function OitaPrototypeClient({
             type="button"
             variant="outline"
             size="sm"
-            onClick={() => setSelectedId(null)}
+            onClick={() => {
+              setSelectedId(null);
+              setViewMode("summary");
+            }}
           >
             <ArrowLeft aria-hidden="true" className="size-4" />
             質問者一覧に戻る
@@ -215,7 +218,10 @@ export function OitaPrototypeClient({
             key={question.id}
             type="button"
             variant="outline"
-            onClick={() => setSelectedId(question.id)}
+            onClick={() => {
+              setSelectedId(question.id);
+              setViewMode("summary");
+            }}
             className="h-auto w-full flex-col items-stretch justify-between gap-4 rounded-xl border-border bg-card p-5 text-left whitespace-normal shadow-none transition-colors hover:border-primary hover:bg-oita-pink-light/30"
           >
             <div className="min-w-0 w-full space-y-3">
