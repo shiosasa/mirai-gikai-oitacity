@@ -5,6 +5,7 @@ export type OitaExchangeTurn = {
   turnType: "質問" | "答弁" | "再質問" | "再答弁";
   summary: string;
   rawText: string;
+  avatarUrl?: string | null;
 };
 
 export type OitaQuestionTopic = {
@@ -21,6 +22,7 @@ export type OitaGeneralQuestion = {
   questionOrder: number;
   questionerName: string;
   faction: string;
+  avatarUrl?: string | null;
   overview: string;
   topics: OitaQuestionTopic[];
 };
@@ -265,4 +267,39 @@ export function filterOitaQuestionsByTag(
   return questions.filter((question) =>
     question.topics.some((topic) => topic.tag === selectedTag)
   );
+}
+
+/**
+ * 議員紹介・市長紹介で登録されている画像URLを、試作サンプルのアイコンへ割り当てる。
+ */
+export function attachPrototypeAvatars(
+  questions: OitaGeneralQuestion[],
+  councilorImages: (string | null | undefined)[],
+  mayorImageUrl?: string | null
+): OitaGeneralQuestion[] {
+  const validCouncilors = councilorImages.filter(
+    (url): url is string => typeof url === "string" && url.trim().length > 0
+  );
+  return questions.map((question, index) => {
+    const questionerAvatar =
+      validCouncilors.length > 0
+        ? validCouncilors[index % validCouncilors.length]
+        : null;
+    return {
+      ...question,
+      avatarUrl: questionerAvatar,
+      topics: question.topics.map((topic) => ({
+        ...topic,
+        exchanges: topic.exchanges.map((turn) => ({
+          ...turn,
+          avatarUrl:
+            turn.speakerRole === "questioner"
+              ? questionerAvatar
+              : turn.speakerLabel === "市長"
+                ? (mayorImageUrl ?? null)
+                : null,
+        })),
+      })),
+    };
+  });
 }

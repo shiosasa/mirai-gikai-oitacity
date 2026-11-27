@@ -2,6 +2,7 @@
 
 import { MessageCircle, User } from "lucide-react";
 import { useState } from "react";
+import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import {
@@ -32,21 +33,24 @@ function ExchangeBubble({
             <p className="text-sm leading-relaxed">{text}</p>
           </div>
         </div>
-        <div className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-primary text-primary-foreground">
-          <User aria-hidden="true" className="h-4 w-4" />
-        </div>
+        <Avatar className="size-9 shrink-0">
+          <AvatarImage src={turn.avatarUrl ?? undefined} alt="" />
+          <AvatarFallback className="bg-primary text-primary-foreground">
+            <User aria-hidden="true" className="h-4 w-4" />
+          </AvatarFallback>
+        </Avatar>
       </div>
     );
   }
 
   return (
     <div className="flex items-end gap-2">
-      <div className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full border border-border bg-mirai-surface-muted">
-        <MessageCircle
-          aria-hidden="true"
-          className="h-4 w-4 text-mirai-text-secondary"
-        />
-      </div>
+      <Avatar className="size-9 shrink-0 border border-border">
+        <AvatarImage src={turn.avatarUrl ?? undefined} alt="" />
+        <AvatarFallback className="bg-mirai-surface-muted text-mirai-text-secondary">
+          <MessageCircle aria-hidden="true" className="h-4 w-4" />
+        </AvatarFallback>
+      </Avatar>
       <div className="max-w-[82%]">
         <p className="mb-1 text-xs text-mirai-text-secondary">
           {turn.speakerLabel}（{turn.turnType}）
@@ -115,14 +119,25 @@ export function OitaPrototypeClient({
                 }`}
               >
                 <div className="flex items-center justify-between gap-2">
-                  <div>
-                    <p className="font-bold text-mirai-text">
-                      {question.questionerName}
-                    </p>
-                    <p className="text-xs text-mirai-text-secondary">
-                      {question.faction}・{question.sessionDayLabel}（
-                      {question.questionOrder}番目）
-                    </p>
+                  <div className="flex items-center gap-3 min-w-0">
+                    <Avatar className="size-10 shrink-0">
+                      <AvatarImage
+                        src={question.avatarUrl ?? undefined}
+                        alt=""
+                      />
+                      <AvatarFallback className="bg-oita-pink-light text-sm text-oita-pink">
+                        {question.questionerName.slice(0, 1)}
+                      </AvatarFallback>
+                    </Avatar>
+                    <div className="min-w-0">
+                      <p className="font-bold text-mirai-text">
+                        {question.questionerName}
+                      </p>
+                      <p className="text-xs text-mirai-text-secondary">
+                        {question.faction}・{question.sessionDayLabel}（
+                        {question.questionOrder}番目）
+                      </p>
+                    </div>
                   </div>
                   <Button
                     type="button"
@@ -159,13 +174,25 @@ export function OitaPrototypeClient({
           {activeQuestion ? (
             <div className="space-y-6">
               <div className="flex flex-wrap items-start justify-between gap-3 border-b border-border pb-4">
-                <div>
-                  <p className="text-xs font-medium text-oita-pink">
-                    {activeQuestion.sessionLabel}
-                  </p>
-                  <h2 className="mt-1 text-xl font-bold text-mirai-text">
-                    {activeQuestion.questionerName}（{activeQuestion.faction}）
-                  </h2>
+                <div className="flex items-center gap-3">
+                  <Avatar className="size-12 shrink-0">
+                    <AvatarImage
+                      src={activeQuestion.avatarUrl ?? undefined}
+                      alt=""
+                    />
+                    <AvatarFallback className="bg-oita-pink-light text-base text-oita-pink">
+                      {activeQuestion.questionerName.slice(0, 1)}
+                    </AvatarFallback>
+                  </Avatar>
+                  <div>
+                    <p className="text-xs font-medium text-oita-pink">
+                      {activeQuestion.sessionLabel}
+                    </p>
+                    <h2 className="mt-1 text-xl font-bold text-mirai-text">
+                      {activeQuestion.questionerName}（{activeQuestion.faction}
+                      ）
+                    </h2>
+                  </div>
                 </div>
                 <div className="flex items-center gap-2">
                   <Button
