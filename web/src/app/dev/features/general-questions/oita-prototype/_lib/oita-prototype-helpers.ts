@@ -1,5 +1,6 @@
 import { ARTICLE_CATEGORIES } from "@/features/bills/shared/utils/article-category";
 import type { GeneralQuestion } from "@/features/general-questions/shared/types";
+import { isNewPublication } from "@/features/new-posts/shared/utils/publication-window";
 
 export type OitaExchangeTurn = {
   id: string;
@@ -28,6 +29,7 @@ export type OitaGeneralQuestion = {
   avatarUrl?: string | null;
   overview: string;
   minutesSummaryUrl?: string | null;
+  isNew?: boolean;
   topics: OitaQuestionTopic[];
 };
 
@@ -386,7 +388,8 @@ export function mapSupabaseQuestionsToPrototype(
   politicians: PrototypePoliticianRef[],
   mayorImageUrl?: string | null,
   sessionLabel = "大分市議会 一般質問（Supabase議事録）",
-  sessionMetaBySourceUrl?: Record<string, PrototypeMeetingMeta>
+  sessionMetaBySourceUrl?: Record<string, PrototypeMeetingMeta>,
+  nowMs = Date.now()
 ): OitaGeneralQuestion[] {
   return rows.map((row) => {
     const matchedPolitician = politicians.find(
@@ -415,6 +418,9 @@ export function mapSupabaseQuestionsToPrototype(
       avatarUrl: questionerAvatar,
       overview: row.summary ?? `${row.questioner_name}議員による一般質問です。`,
       minutesSummaryUrl: row.source_url ?? null,
+      isNew:
+        row.publish_status === "published" &&
+        isNewPublication(row.created_at, nowMs),
       topics: row.topics.map((topic, index) => {
         const answererLabel = formatAnswererHonorific(
           topic.answerer_role,
@@ -425,9 +431,12 @@ export function mapSupabaseQuestionsToPrototype(
         return {
           id: `${row.id}-topic-${index + 1}`,
           title: topic.title,
-          tag: inferOitaQuestionCategory(
-            `${topic.title} ${topic.question_summary}`
-          ),
+          tag:
+            topic.category ||
+            inferOitaQuestionCategory(topic.title) ||
+            inferOitaQuestionCategory(
+              `${topic.title} ${topic.question_summary}`
+            ),
           exchanges: [
             {
               id: `${row.id}-topic-${index + 1}-q`,

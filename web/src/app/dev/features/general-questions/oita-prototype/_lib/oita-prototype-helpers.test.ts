@@ -77,6 +77,7 @@ describe("oita-prototype-helpers", () => {
         topics: [
           {
             title: "保育施設の充実",
+            category: "まちづくり・暮らし",
             question_summary: "待機児童解消の取組は。",
             answer_summary: "定員拡充を進めます。",
             answerer_role: "市長",
@@ -108,8 +109,20 @@ describe("oita-prototype-helpers", () => {
           date: "2026-06-18",
           meetingName: "令和8年 第2回定例会",
         },
-      }
+      },
+      Date.parse("2026-01-10T00:00:00Z")
     );
+
+    expect(mapped[0]?.isNew).toBe(true);
+    const expiredMapped = mapSupabaseQuestionsToPrototype(
+      rows,
+      [],
+      null,
+      undefined,
+      undefined,
+      Date.parse("2026-01-20T00:00:00Z")
+    );
+    expect(expiredMapped[0]?.isNew).toBe(false);
 
     expect(mapped[0]?.sessionDayLabel).toBe(
       "2026年6月18日「令和8年 第2回定例会」"
@@ -120,7 +133,7 @@ describe("oita-prototype-helpers", () => {
 
     expect(mapped[0]?.avatarUrl).toBe("https://example.com/p.png");
     expect(mapped[0]?.minutesSummaryUrl).toBe("/committees/committee/2/10");
-    expect(mapped[0]?.topics[0]?.tag).toBe("子育て・教育");
+    expect(mapped[0]?.topics[0]?.tag).toBe("まちづくり・暮らし");
     expect(mapped[0]?.topics[0]?.exchanges[0]?.speakerLabel).toBe(
       "大分 太郎議員"
     );

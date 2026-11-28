@@ -1,5 +1,6 @@
 export type GeneralQuestionTopic = {
   title: string;
+  category?: string | null;
   question_summary: string;
   answer_summary: string;
   answerer_role: string;
