@@ -431,9 +431,12 @@ export function mapSupabaseQuestionsToPrototype(
         return {
           id: `${row.id}-topic-${index + 1}`,
           title: topic.title,
-          tag: inferOitaQuestionCategory(
-            `${topic.title} ${topic.question_summary}`
-          ),
+          tag:
+            topic.category ||
+            inferOitaQuestionCategory(topic.title) ||
+            inferOitaQuestionCategory(
+              `${topic.title} ${topic.question_summary}`
+            ),
           exchanges: [
             {
               id: `${row.id}-topic-${index + 1}-q`,
