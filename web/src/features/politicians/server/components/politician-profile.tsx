@@ -1,8 +1,17 @@
-import { ArrowLeft, BookOpen, ExternalLink, Globe, Share2 } from "lucide-react";
+import {
+  ArrowLeft,
+  ArrowRight,
+  BookOpen,
+  ExternalLink,
+  Globe,
+  MessageSquare,
+  Share2,
+} from "lucide-react";
 import Link from "next/link";
 import { notFound } from "next/navigation";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { findCommitteeList } from "@/features/committee-minutes/server/repositories/meeting-repository";
+import { findPublishedGeneralQuestionsByPoliticianId } from "@/features/general-questions/server/repositories/general-questions-repository";
 import { OfficeTermList } from "../../shared/components/office-term-list";
 import { PoliticianSpeechSection } from "../../shared/components/politician-speech-section";
 import { parseCommitteeAssignments } from "../../shared/utils/parse-committee-assignments";
@@ -63,11 +72,13 @@ export async function PoliticianProfile({ id }: PoliticianProfileProps) {
   );
   if (!politician.is_current && terms.length === 0) notFound();
 
-  const [discussions, committees, speechData] = await Promise.all([
-    getPoliticianDiscussions(id),
-    findCommitteeList(),
-    getPoliticianSpeechHighlights(id),
-  ]);
+  const [discussions, committees, speechData, generalQuestions] =
+    await Promise.all([
+      getPoliticianDiscussions(id),
+      findCommitteeList(),
+      getPoliticianSpeechHighlights(id),
+      findPublishedGeneralQuestionsByPoliticianId(id),
+    ]);
   const committeeIdByName = new Map(
     committees.map((committee) => [committee.title, committee.id])
   );
@@ -162,6 +173,14 @@ export async function PoliticianProfile({ id }: PoliticianProfileProps) {
             TEL: {politician.contact}
           </p>
         )}
+
+        {politician.is_current &&
+          (politician.address || politician.contact) && (
+            <p className="mt-4 text-xs text-mirai-text-muted">
+              ※
+              住所・電話番号などの基本情報は大分市議会ホームページからの転載です。
+            </p>
+          )}
       </section>
 
       <section
@@ -203,6 +222,45 @@ export async function PoliticianProfile({ id }: PoliticianProfileProps) {
           {POLITICIAN_LINKS_FAIRNESS_NOTICE}
         </p>
       </section>
+
+      {generalQuestions.length > 0 && (
+        <section
+          aria-labelledby="politician-gq-heading"
+          className="border-b border-mirai-border py-7"
+        >
+          <h2
+            id="politician-gq-heading"
+            className="flex items-center gap-2 text-lg font-bold text-mirai-text"
+          >
+            <MessageSquare aria-hidden="true" className="size-5 text-primary" />
+            一般質問（一問一答）
+          </h2>
+          <div className="mt-4 space-y-3">
+            {generalQuestions.map((gq) => (
+              <Link
+                key={gq.id}
+                href={`/general-questions?id=${gq.id}`}
+                className="flex items-center justify-between gap-4 rounded-lg border border-border bg-card p-4 transition-colors hover:border-primary hover:bg-oita-pink-light/30"
+              >
+                <div className="min-w-0 space-y-1">
+                  <p className="text-sm font-bold text-mirai-text">
+                    {gq.topics.map((t) => t.title).join(" / ") || "一般質問"}
+                  </p>
+                  {gq.summary ? (
+                    <p className="line-clamp-2 text-xs text-mirai-text-secondary">
+                      {gq.summary}
+                    </p>
+                  ) : null}
+                </div>
+                <span className="inline-flex shrink-0 items-center gap-1 text-xs font-semibold text-primary">
+                  一問一答を見る
+                  <ArrowRight aria-hidden="true" className="size-3.5" />
+                </span>
+              </Link>
+            ))}
+          </div>
+        </section>
+      )}
 
       <PoliticianSpeechSection
         highlights={speechData.highlights}

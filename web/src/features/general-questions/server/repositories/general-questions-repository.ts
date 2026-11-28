@@ -75,3 +75,22 @@ export async function findPublishedGeneralQuestionById(
     topics: Array.isArray(data.topics) ? data.topics : [],
   } as GeneralQuestion;
 }
+
+export async function findPublishedGeneralQuestionsByPoliticianId(
+  politicianId: string
+): Promise<GeneralQuestion[]> {
+  const supabase = createAdminClient();
+  const { data, error } = await supabase
+    .from("general_questions")
+    .select("*")
+    .eq("politician_id", politicianId)
+    .eq("publish_status", "published")
+    .order("created_at", { ascending: false });
+
+  if (error) return [];
+
+  return (data ?? []).map((row) => ({
+    ...row,
+    topics: Array.isArray(row.topics) ? row.topics : [],
+  })) as GeneralQuestion[];
+}

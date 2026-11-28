@@ -28,6 +28,8 @@ export type OitaGeneralQuestion = {
   faction: string;
   avatarUrl?: string | null;
   overview: string;
+  meetingDate?: string | null;
+  politicianUrl?: string | null;
   minutesSummaryUrl?: string | null;
   isNew?: boolean;
   topics: OitaQuestionTopic[];
@@ -417,6 +419,10 @@ export function mapSupabaseQuestionsToPrototype(
       faction: row.questioner_party ?? "会派未設定",
       avatarUrl: questionerAvatar,
       overview: row.summary ?? `${row.questioner_name}議員による一般質問です。`,
+      meetingDate: meta?.date ?? null,
+      politicianUrl: matchedPolitician?.id
+        ? `/politicians/${matchedPolitician.id}`
+        : null,
       minutesSummaryUrl: row.source_url ?? null,
       isNew:
         row.publish_status === "published" &&
@@ -497,4 +503,17 @@ export function selectLifeRelatedQuestions(
 
   scored.sort((a, b) => b.score - a.score || a.index - b.index);
   return scored.slice(0, limit).map((item) => item.question);
+}
+
+export function sortOitaQuestionsByMeetingDate(
+  questions: OitaGeneralQuestion[]
+): OitaGeneralQuestion[] {
+  return [...questions].sort((a, b) => {
+    const dateA = a.meetingDate ?? "";
+    const dateB = b.meetingDate ?? "";
+    if (dateA !== dateB) {
+      return dateB.localeCompare(dateA);
+    }
+    return a.questionOrder - b.questionOrder;
+  });
 }

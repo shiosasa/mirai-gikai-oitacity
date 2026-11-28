@@ -5,6 +5,7 @@ import {
   type OitaGeneralQuestion,
   type PrototypeMeetingMeta,
   selectLifeRelatedQuestions,
+  sortOitaQuestionsByMeetingDate,
 } from "@/app/dev/features/general-questions/oita-prototype/_lib/oita-prototype-helpers";
 import type { GeneralQuestion } from "@/features/general-questions/shared/types";
 import { getCurrentMayor } from "@/features/politicians/server/loaders/get-current-mayor";
@@ -122,12 +123,14 @@ export async function loadOitaGeneralQuestions(options?: {
 
   const sessionMetaBySourceUrl = await loadSessionMetaBySourceUrl(dbQuestions);
 
-  const mapped = mapSupabaseQuestionsToPrototype(
-    dbQuestions,
-    politicians,
-    mayor?.image_url,
-    undefined,
-    sessionMetaBySourceUrl
+  const mapped = sortOitaQuestionsByMeetingDate(
+    mapSupabaseQuestionsToPrototype(
+      dbQuestions,
+      politicians,
+      mayor?.image_url,
+      undefined,
+      sessionMetaBySourceUrl
+    )
   );
 
   if (options?.lifeRelatedLimit) {

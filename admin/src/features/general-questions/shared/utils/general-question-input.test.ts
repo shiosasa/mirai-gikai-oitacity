@@ -15,6 +15,7 @@ const VALID_INPUT = {
   topics: [
     {
       title: " 認知症高齢者の見守り ",
+      category: " 安心・安全・防災 ",
       question_summary: " GPSの活用は考えていますか？ ",
       answer_summary: " 国の動きを見ながら研究します。 ",
       answerer_role: " 福祉保健部長 ",
@@ -30,6 +31,7 @@ describe("parseGeneralQuestionInput", () => {
     const parsed = parseGeneralQuestionInput(VALID_INPUT);
     expect(parsed.questioner_name).toBe("大津 將嘉");
     expect(parsed.source_url).toBe("/committees/plenary/2/10");
+    expect(parsed.topics[0]?.category).toBe("安心・安全・防災");
     expect(parsed.topics[0]?.question_raw_text).toBe("質問原文");
     expect(parsed.topics[0]?.answer_raw_text).toBeNull();
   });
