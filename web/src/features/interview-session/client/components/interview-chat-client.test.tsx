@@ -434,4 +434,20 @@ describe("インタビューのまとめへの案内", () => {
       within(dialog).getByRole("button", { name: "非公開で提出する" })
     ).toBeEnabled();
   });
+
+  it("initialNicknameが渡された場合、ニックネームダイアログの入力欄に初期値が入る", () => {
+    render(
+      <InterviewChatClient
+        billId="bill-1"
+        sessionId="session-1"
+        initialMessages={initialMessages(0)}
+        initialNickname="おおいた好き"
+      />
+    );
+
+    const input = screen.getByPlaceholderText(
+      "例: おおいた太郎、みらい子（未入力でもOK）"
+    );
+    expect(input).toHaveValue("おおいた好き");
+  });
 });

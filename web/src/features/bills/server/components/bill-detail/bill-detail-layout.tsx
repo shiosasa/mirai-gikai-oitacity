@@ -56,13 +56,15 @@ export async function BillDetailLayout({
           hasInterviewConfig={interviewConfig != null}
         />
         <Container>
-          {/* 議案ステータス進捗 */}
-          <div className="my-8">
-            <BillStatusProgress
-              status={bill.status}
-              statusNote={bill.status_note}
-            />
-          </div>
+          {/* 議案ステータス進捗（トピックス用受け皿では非表示） */}
+          {bill.source !== "topic" && (
+            <div className="my-8">
+              <BillStatusProgress
+                status={bill.status}
+                statusNote={bill.status_note}
+              />
+            </div>
+          )}
 
           {currentDifficulty === "hard" &&
             bill.bill_content?.difficulty_level === "normal" && (

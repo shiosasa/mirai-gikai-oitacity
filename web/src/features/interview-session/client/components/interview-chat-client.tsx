@@ -6,6 +6,7 @@ import {
   ConversationContent,
 } from "@/components/ai-elements/conversation";
 import { Button } from "@/components/ui/button";
+import { submitInterviewNickname } from "../../server/actions/submit-interview-nickname";
 import { useInterviewChat } from "../hooks/use-interview-chat";
 import { useInterviewRating } from "../hooks/use-interview-rating";
 import { useInterviewTimer } from "../hooks/use-interview-timer";
@@ -23,9 +24,8 @@ import { InterviewProgressBar } from "./interview-progress-bar";
 import { InterviewRatingWidget } from "./interview-rating-widget";
 import { InterviewSummaryInput } from "./interview-summary-input";
 import { InterviewWrapUpPrompt } from "./interview-wrap-up-prompt";
-import { QuickReplyButtons } from "./quick-reply-buttons";
 import { NicknameDialog } from "./nickname-dialog";
-import { submitInterviewNickname } from "../../server/actions/submit-interview-nickname";
+import { QuickReplyButtons } from "./quick-reply-buttons";
 
 interface InterviewChatClientProps {
   billId: string;
@@ -44,6 +44,8 @@ interface InterviewChatClientProps {
   sessionStartedAt?: string;
   hasRated?: boolean;
   previewToken?: string;
+  /** セッションに事前保存されたニックネーム */
+  initialNickname?: string | null;
 }
 
 export function InterviewChatClient({
@@ -57,6 +59,7 @@ export function InterviewChatClient({
   sessionStartedAt,
   hasRated,
   previewToken,
+  initialNickname,
 }: InterviewChatClientProps) {
   const {
     input,
@@ -338,6 +341,7 @@ export function InterviewChatClient({
 
         <NicknameDialog
           isOpen={!userNickname}
+          initialNickname={initialNickname}
           onConfirm={(name) => {
             setUserNickname(name);
             // セッションに保存（失敗してもチャットは継続できるため待たない）
