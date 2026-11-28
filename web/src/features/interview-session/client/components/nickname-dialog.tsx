@@ -1,16 +1,16 @@
 "use client";
 
+import { ShieldAlert, User } from "lucide-react";
 import { useState } from "react";
-import { User, ShieldAlert } from "lucide-react";
+import { Button } from "@/components/ui/button";
 import {
   Dialog,
   DialogContent,
-  DialogHeader,
-  DialogTitle,
   DialogDescription,
   DialogFooter,
+  DialogHeader,
+  DialogTitle,
 } from "@/components/ui/dialog";
-import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 
 /** ニックネーム未入力（匿名）のときに使う呼び名 */
@@ -18,12 +18,18 @@ export const ANONYMOUS_NICKNAME = "大分市民さん";
 
 interface NicknameDialogProps {
   isOpen: boolean;
+  /** 同意画面等で事前に入力されたニックネームの初期値 */
+  initialNickname?: string | null;
   /** 入力されたニックネーム（未入力なら ANONYMOUS_NICKNAME）を返す */
   onConfirm: (nickname: string) => void;
 }
 
-export function NicknameDialog({ isOpen, onConfirm }: NicknameDialogProps) {
-  const [nickname, setNickname] = useState("");
+export function NicknameDialog({
+  isOpen,
+  initialNickname,
+  onConfirm,
+}: NicknameDialogProps) {
+  const [nickname, setNickname] = useState(initialNickname?.trim() ?? "");
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
