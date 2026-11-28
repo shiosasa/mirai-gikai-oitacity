@@ -19,6 +19,7 @@ import type {
   CouncilSessionOption,
   PoliticianOption,
 } from "../../shared/types";
+import { GENERAL_QUESTION_CATEGORIES } from "../../shared/utils/general-question-input";
 
 type Props = {
   mode: "create" | "edit";
@@ -38,6 +39,7 @@ function createTopicKey(): string {
 const createEmptyTopic = (): EditableTopic => ({
   _key: createTopicKey(),
   title: "",
+  category: "まちづくり・暮らし",
   question_summary: "",
   answer_summary: "",
   answerer_role: "",
@@ -353,16 +355,38 @@ export function GeneralQuestionForm({
               ) : null}
             </CardHeader>
             <CardContent className="space-y-4">
-              <div className="space-y-1.5">
-                <Label htmlFor={`topic-title-${index}`}>タイトル</Label>
-                <Input
-                  id={`topic-title-${index}`}
-                  value={topic.title}
-                  onChange={(e) =>
-                    updateTopic(index, { title: e.target.value })
-                  }
-                  required
-                />
+              <div className="grid gap-4 sm:grid-cols-2">
+                <div className="space-y-1.5">
+                  <Label htmlFor={`topic-title-${index}`}>タイトル</Label>
+                  <Input
+                    id={`topic-title-${index}`}
+                    value={topic.title}
+                    onChange={(e) =>
+                      updateTopic(index, { title: e.target.value })
+                    }
+                    required
+                  />
+                </div>
+                <div className="space-y-1.5">
+                  <Label htmlFor={`topic-category-${index}`}>
+                    カテゴリ（タグ）
+                  </Label>
+                  <select
+                    id={`topic-category-${index}`}
+                    value={topic.category ?? ""}
+                    onChange={(e) =>
+                      updateTopic(index, { category: e.target.value || null })
+                    }
+                    className="flex h-9 w-full rounded-md border border-input bg-background px-3 py-1 text-sm"
+                  >
+                    <option value="">（自動判定）</option>
+                    {GENERAL_QUESTION_CATEGORIES.map((cat) => (
+                      <option key={cat} value={cat}>
+                        {cat}
+                      </option>
+                    ))}
+                  </select>
+                </div>
               </div>
 
               <div className="grid gap-4 sm:grid-cols-2">

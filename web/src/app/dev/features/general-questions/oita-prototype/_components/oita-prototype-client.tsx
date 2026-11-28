@@ -128,6 +128,15 @@ export function OitaPrototypeClient({
                   {formatQuestionerHonorific(activeQuestion.questionerName)}（
                   {activeQuestion.faction}）
                 </h2>
+                {activeQuestion.politicianUrl ? (
+                  <Link
+                    href={activeQuestion.politicianUrl}
+                    className="mt-1 inline-flex items-center gap-1 text-xs font-semibold text-primary hover:underline"
+                  >
+                    議員紹介ページを見る
+                    <ArrowRight aria-hidden="true" className="size-3.5" />
+                  </Link>
+                ) : null}
               </div>
             </div>
             <div className="flex items-center gap-2">

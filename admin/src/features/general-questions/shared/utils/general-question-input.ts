@@ -1,5 +1,12 @@
 import type { AdminGeneralQuestionTopic } from "../types";
 
+export const GENERAL_QUESTION_CATEGORIES = [
+  "子育て・教育",
+  "安心・安全・防災",
+  "まちづくり・暮らし",
+  "まちの仕組み・選挙",
+] as const;
+
 export type GeneralQuestionInput = {
   council_session_id: string;
   politician_id: string | null;
@@ -51,6 +58,7 @@ export function parseGeneralQuestionInput(
     const prefix = `トピック${index + 1}の`;
     return {
       title: requireNonEmpty(topic.title, `${prefix}タイトル`),
+      category: toNullableText(topic.category),
       question_summary: requireNonEmpty(
         topic.question_summary,
         `${prefix}質問要約`

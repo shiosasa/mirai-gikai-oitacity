@@ -11,6 +11,7 @@ import {
   mapSupabaseQuestionsToPrototype,
   OITA_PROTOTYPE_QUESTIONS,
   selectLifeRelatedQuestions,
+  sortOitaQuestionsByMeetingDate,
 } from "./oita-prototype-helpers";
 
 describe("oita-prototype-helpers", () => {
@@ -132,6 +133,8 @@ describe("oita-prototype-helpers", () => {
     );
 
     expect(mapped[0]?.avatarUrl).toBe("https://example.com/p.png");
+    expect(mapped[0]?.politicianUrl).toBe("/politicians/pol-1");
+    expect(mapped[0]?.meetingDate).toBe("2026-06-18");
     expect(mapped[0]?.minutesSummaryUrl).toBe("/committees/committee/2/10");
     expect(mapped[0]?.topics[0]?.tag).toBe("まちづくり・暮らし");
     expect(mapped[0]?.topics[0]?.exchanges[0]?.speakerLabel).toBe(
@@ -153,5 +156,15 @@ describe("oita-prototype-helpers", () => {
     const selected = selectLifeRelatedQuestions(mapped, 3);
     expect(selected).toHaveLength(1);
     expect(selected[0]?.id).toBe("gq-1");
+  });
+
+  it("sorts questions by meetingDate descending then questionOrder ascending", () => {
+    const base = OITA_PROTOTYPE_QUESTIONS[0]!;
+    const sorted = sortOitaQuestionsByMeetingDate([
+      { ...base, id: "old", meetingDate: "2026-03-17", questionOrder: 1 },
+      { ...base, id: "new-2", meetingDate: "2026-06-22", questionOrder: 5 },
+      { ...base, id: "new-1", meetingDate: "2026-06-22", questionOrder: 2 },
+    ]);
+    expect(sorted.map((q) => q.id)).toEqual(["new-1", "new-2", "old"]);
   });
 });
