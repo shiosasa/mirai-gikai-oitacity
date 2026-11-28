@@ -31,10 +31,10 @@ export default async function GeneralQuestionsPage({
             大分市議会 一般質問（一問一答）
           </p>
           <h1 className="text-2xl font-bold text-mirai-text">
-            一般質問・議員の質問と市の答弁
+            議員の質問と市のこたえ（一般質問）
           </h1>
           <p className="text-sm text-mirai-text-secondary">
-            暮らしに関わるテーマごとに議員の質問と市の答弁をまとめています。気になる議員のカードを選ぶと、一問一答のやりとりと元の議事録要約ページを確認できます。
+            暮らしやまちの課題について、議員が市に質問し、市が答えた内容（一般質問）をわかりやすくまとめました。気になるカードを選ぶと、詳しいやりとりや関連する議事録、議員のプロフィールを確認できます。
           </p>
         </header>
         {questions.length > 0 ? (
